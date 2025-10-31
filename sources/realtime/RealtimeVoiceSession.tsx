@@ -1,84 +1,110 @@
-import React, { useEffect, useRef } from 'react';
-import { useConversation } from '@elevenlabs/react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Room, RoomEvent, RemoteParticipant, RemoteTrackPublication, RemoteTrack, Track } from 'livekit-client';
 import { registerVoiceSession } from './RealtimeSession';
 import { storage } from '@/sync/storage';
-import { realtimeClientTools } from './realtimeClientTools';
-import { getElevenLabsCodeFromPreference } from '@/constants/Languages';
 import type { VoiceSession, VoiceSessionConfig } from './types';
 
-// Static reference to the conversation hook instance
-let conversationInstance: ReturnType<typeof useConversation> | null = null;
+const LIVEKIT_URL = 'wss://combined-memory-xqro4l3t.livekit.cloud';
+const QUINN_SERVER_URL = 'https://quinn-server-production.up.railway.app';
+
+// Static reference to the room instance
+let roomInstance: Room | null = null;
 
 // Global voice session implementation
 class RealtimeVoiceSessionImpl implements VoiceSession {
-    
+
     async startSession(config: VoiceSessionConfig): Promise<void> {
-        if (!conversationInstance) {
-            console.warn('Realtime voice session not initialized');
+        if (!roomInstance) {
+            console.warn('LiveKit room not initialized');
             return;
         }
 
         try {
             storage.getState().setRealtimeStatus('connecting');
-            
-            // Get user's preferred language for voice assistant
-            const userLanguagePreference = storage.getState().settings.voiceAssistantLanguage;
-            const elevenLabsLanguage = getElevenLabsCodeFromPreference(userLanguagePreference);
-            
-            // Use hardcoded agent ID for Eleven Labs
-            await conversationInstance.startSession({
-                agentId: __DEV__ ? 'agent_7801k2c0r5hjfraa1kdbytpvs6yt' : 'agent_6701k211syvvegba4kt7m68nxjmw',
-                // Pass session ID and initial context as dynamic variables
-                dynamicVariables: {
-                    sessionId: config.sessionId,
-                    initialConversationContext: config.initialContext || ''
-                },
-                overrides: {
-                    agent: {
-                        language: elevenLabsLanguage
-                    }
-                }
-            });
+
+            // Generate LiveKit token from Quinn Server
+            const token = await this.generateToken(config.sessionId);
+
+            // Connect to LiveKit room
+            await roomInstance.connect(LIVEKIT_URL, token);
+
+            console.log('✅ Connected to LiveKit room:', config.sessionId);
+            storage.getState().setRealtimeStatus('connected');
+
         } catch (error) {
-            console.error('Failed to start realtime session:', error);
+            console.error('Failed to start LiveKit session:', error);
             storage.getState().setRealtimeStatus('error');
         }
     }
 
+    private async generateToken(identity: string): Promise<string> {
+        try {
+            const response = await fetch(`${QUINN_SERVER_URL}/api/livekit/token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    identity,
+                    room: identity,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to generate token: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.token;
+        } catch (error) {
+            console.error('Token generation error:', error);
+            throw error;
+        }
+    }
+
     async endSession(): Promise<void> {
-        if (!conversationInstance) {
+        if (!roomInstance) {
             return;
         }
 
         try {
-            await conversationInstance.endSession();
+            await roomInstance.disconnect();
             storage.getState().setRealtimeStatus('disconnected');
+            console.log('✅ Disconnected from LiveKit room');
         } catch (error) {
-            console.error('Failed to end realtime session:', error);
+            console.error('Failed to end LiveKit session:', error);
         }
     }
 
     sendTextMessage(message: string): void {
-        if (!conversationInstance) {
-            console.warn('Realtime voice session not initialized');
+        if (!roomInstance || roomInstance.state !== 'connected') {
+            console.warn('LiveKit room not connected');
             return;
         }
 
         try {
-            conversationInstance.sendUserMessage(message);
+            // Send text message as data message
+            const encoder = new TextEncoder();
+            const data = encoder.encode(message);
+            roomInstance.localParticipant.publishData(data, { reliable: true });
+            console.log('📤 Sent text message via LiveKit');
         } catch (error) {
             console.error('Failed to send text message:', error);
         }
     }
 
     sendContextualUpdate(update: string): void {
-        if (!conversationInstance) {
-            console.warn('Realtime voice session not initialized');
+        if (!roomInstance || roomInstance.state !== 'connected') {
+            console.warn('LiveKit room not connected');
             return;
         }
 
         try {
-            conversationInstance.sendContextualUpdate(update);
+            // Send contextual update as data message with topic
+            const encoder = new TextEncoder();
+            const data = encoder.encode(JSON.stringify({ type: 'context_update', data: update }));
+            roomInstance.localParticipant.publishData(data, { reliable: true, topic: 'context' });
+            console.log('📤 Sent contextual update via LiveKit');
         } catch (error) {
             console.error('Failed to send contextual update:', error);
         }
@@ -86,39 +112,12 @@ class RealtimeVoiceSessionImpl implements VoiceSession {
 }
 
 export const RealtimeVoiceSession: React.FC = () => {
-    const conversation = useConversation({
-        clientTools: realtimeClientTools,
-        onConnect: (data) => {
-            // console.log('Realtime session connected:', data);
-            storage.getState().setRealtimeStatus('connected');
-        },
-        onDisconnect: () => {
-            // console.log('Realtime session disconnected');
-            storage.getState().setRealtimeStatus('disconnected');
-        },
-        onMessage: (data) => {
-            // console.log('Realtime message:', data);
-        },
-        onError: (error) => {
-            // console.error('Realtime error:', error);
-            storage.getState().setRealtimeStatus('error');
-        },
-        onStatusChange: (data) => {
-            // console.log('Realtime status change:', data);
-        },
-        onModeChange: (data) => {
-            // console.log('Realtime mode change:', data);
-        },
-        onDebug: (message) => {
-            // console.debug('Realtime debug:', message);
-        }
-    });
-
+    const [room] = useState(() => new Room());
     const hasRegistered = useRef(false);
 
     useEffect(() => {
-        // Store the conversation instance globally
-        conversationInstance = conversation;
+        // Store the room instance globally
+        roomInstance = room;
 
         // Register the voice session once
         if (!hasRegistered.current) {
@@ -130,11 +129,64 @@ export const RealtimeVoiceSession: React.FC = () => {
             }
         }
 
+        // Set up room event listeners
+        room.on(RoomEvent.Connected, () => {
+            console.log('🎉 LiveKit room connected');
+            storage.getState().setRealtimeStatus('connected');
+        });
+
+        room.on(RoomEvent.Disconnected, () => {
+            console.log('👋 LiveKit room disconnected');
+            storage.getState().setRealtimeStatus('disconnected');
+        });
+
+        room.on(RoomEvent.Reconnecting, () => {
+            console.log('🔄 LiveKit room reconnecting');
+            storage.getState().setRealtimeStatus('connecting');
+        });
+
+        room.on(RoomEvent.Reconnected, () => {
+            console.log('✅ LiveKit room reconnected');
+            storage.getState().setRealtimeStatus('connected');
+        });
+
+        room.on(RoomEvent.TrackSubscribed, (
+            track: RemoteTrack,
+            publication: RemoteTrackPublication,
+            participant: RemoteParticipant
+        ) => {
+            console.log('🎵 Track subscribed:', track.kind, 'from', participant.identity);
+
+            if (track.kind === Track.Kind.Audio) {
+                // Audio track from agent
+                const audioTrack = track as any;
+                audioTrack.attach();
+            }
+        });
+
+        room.on(RoomEvent.DataReceived, (
+            payload: Uint8Array,
+            participant?: RemoteParticipant,
+            kind?: any,
+            topic?: string
+        ) => {
+            const decoder = new TextDecoder();
+            const message = decoder.decode(payload);
+            console.log('📥 Data received from', participant?.identity, ':', message);
+        });
+
+        room.on(RoomEvent.ConnectionQualityChanged, (quality: string, participant: any) => {
+            console.log('📶 Connection quality:', quality, 'for', participant.identity);
+        });
+
         return () => {
             // Clean up on unmount
-            conversationInstance = null;
+            if (room.state === 'connected') {
+                room.disconnect();
+            }
+            roomInstance = null;
         };
-    }, [conversation]);
+    }, [room]);
 
     // This component doesn't render anything visible
     return null;
