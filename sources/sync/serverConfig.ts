@@ -4,7 +4,7 @@ import { MMKV } from 'react-native-mmkv';
 const serverConfigStorage = new MMKV({ id: 'server-config' });
 
 const SERVER_KEY = 'custom-server-url';
-const DEFAULT_SERVER_URL = 'https://quinn-server-production.up.railway.app';
+const DEFAULT_SERVER_URL = 'https://happy.combinedmemory.com';
 
 export function getServerUrl(): string {
     return serverConfigStorage.getString(SERVER_KEY) || 
