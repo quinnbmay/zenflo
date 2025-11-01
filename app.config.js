@@ -148,12 +148,12 @@ export default {
                 }
             ]
         ],
-        updates: {
-            url: "https://u.expo.dev/4558dd3d-cd5a-47cd-bad9-e591a241cc06",
-            requestHeaders: {
-                "expo-channel-name": "production"
-            }
-        },
+        // updates: {
+        //     url: "https://u.expo.dev/4558dd3d-cd5a-47cd-bad9-e591a241cc06",
+        //     requestHeaders: {
+        //         "expo-channel-name": "production"
+        //     }
+        // },
         experiments: {
             typedRoutes: true
         },
@@ -162,7 +162,7 @@ export default {
                 root: "./sources/app"
             },
             eas: {
-                projectId: "4558dd3d-cd5a-47cd-bad9-e591a241cc06"
+                projectId: "c92795a3-d883-41c0-b761-3effaa823810"
             },
             app: {
                 postHogKey: process.env.EXPO_PUBLIC_POSTHOG_API_KEY,
@@ -171,6 +171,6 @@ export default {
                 revenueCatStripeKey: process.env.EXPO_PUBLIC_REVENUE_CAT_STRIPE
             }
         },
-        owner: "bulkacorp"
+        owner: "combinedmemory"
     }
 };
