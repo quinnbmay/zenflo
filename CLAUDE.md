@@ -188,6 +188,7 @@ This generates `sources/changelog/changelog.json` which is used by the app.
 - **Expo Router v5** for file-based routing
 - **Socket.io** for real-time WebSocket communication
 - **tweetnacl** for end-to-end encryption
+- **ElevenLabs Conversational AI** for voice agent functionality
 
 ### Project Structure
 ```
@@ -205,7 +206,53 @@ sources/
 2. **Data Synchronization**: WebSocket-based real-time sync with automatic reconnection and state management
 3. **Encryption**: End-to-end encryption using tweetnacl for all sensitive data
 4. **State Management**: React Context for auth state, custom reducer for sync state
-5. **Platform-Specific Code**: Separate implementations for web vs native when needed
+5. **Platform-Specific Code**: Separate implementations for web vs native when needed (see Voice Agent section)
+
+### Voice Agent (ElevenLabs)
+
+The app uses ElevenLabs Conversational AI for real-time voice interactions.
+
+#### Platform-Specific Implementations
+
+Voice features use **platform-specific files** with the `.web.tsx` naming convention:
+- **Native (iOS/Android)**: `sources/realtime/RealtimeVoiceSession.tsx`
+  - Uses `@elevenlabs/react-native` package
+  - Agent ID: `agent_1001k8zw6qdvfz7v2yabcqs8zwde` (line 30)
+
+- **Web**: `sources/realtime/RealtimeVoiceSession.web.tsx`
+  - Uses `@elevenlabs/react` package
+  - Includes WebRTC connection type for better performance
+  - Agent ID: `agent_1001k8zw6qdvfz7v2yabcqs8zwde` (line 40)
+
+#### Configuration
+
+Both implementations use the same agent configuration pattern:
+```typescript
+await conversationInstance.startSession({
+    agentId: 'agent_1001k8zw6qdvfz7v2yabcqs8zwde',
+    dynamicVariables: {
+        sessionId: config.sessionId,
+        initialConversationContext: config.initialContext || ''
+    },
+    overrides: {
+        agent: {
+            language: elevenLabsLanguage
+        }
+    }
+});
+```
+
+**Key differences:**
+- Web version includes `connectionType: 'webrtc'` option (not available in React Native SDK)
+- Web version requires manual microphone permission via `navigator.mediaDevices.getUserMedia()`
+- Native version handles permissions automatically through `@elevenlabs/react-native`
+
+#### Important Notes
+
+- **Never mix LiveKit and ElevenLabs** - The project uses ElevenLabs exclusively
+- **Agent IDs are hardcoded** - No environment-based switching, same ID across all environments
+- **Platform-specific SDKs** - Web and native use different packages with slightly different APIs
+- **Language support** - Both platforms use `getElevenLabsCodeFromPreference()` to map user language preferences to ElevenLabs language codes
 
 ### Development Guidelines
 
@@ -220,6 +267,36 @@ sources/
 - **Never use Alert module from React Native, always use @sources/modal/index.ts instead**
 - **Always apply layout width constraints** from `@/components/layout` to full-screen ScrollViews and content containers for responsive design across device sizes
 - Always run `yarn typecheck` after all changes to ensure type safety
+
+#### Platform-Specific Code Pattern
+
+When a feature requires different implementations for web vs native platforms:
+
+1. **File naming convention**:
+   - Native (iOS/Android): `ComponentName.tsx`
+   - Web: `ComponentName.web.tsx`
+
+2. **Metro bundler automatically selects** the correct file:
+   - On web builds: `.web.tsx` takes precedence
+   - On native builds: `.tsx` is used
+
+3. **Common use cases**:
+   - Different API packages (e.g., `@elevenlabs/react` vs `@elevenlabs/react-native`)
+   - Platform-specific APIs (e.g., `navigator.mediaDevices` on web)
+   - Performance optimizations specific to one platform
+
+4. **Example from codebase**:
+   ```
+   sources/realtime/
+   ├── RealtimeVoiceSession.tsx      # Native implementation
+   └── RealtimeVoiceSession.web.tsx  # Web implementation
+   ```
+
+5. **Best practices**:
+   - Keep platform-specific code isolated to these files
+   - Share types and interfaces between implementations
+   - Document key differences in comments
+   - Test both platforms when making changes
 
 ### Internationalization (i18n) Guidelines
 
@@ -315,6 +392,9 @@ The agent should be called whenever new user-facing text is introduced to the co
 - `sources/sync/reducer.ts` - State management logic for sync operations
 - `sources/auth/AuthContext.tsx` - Authentication state management
 - `sources/app/_layout.tsx` - Root navigation structure
+- `sources/realtime/RealtimeVoiceSession.tsx` - Native voice agent implementation (ElevenLabs)
+- `sources/realtime/RealtimeVoiceSession.web.tsx` - Web voice agent implementation (ElevenLabs)
+- `sources/realtime/types.ts` - Voice session type definitions and interfaces
 
 ### Custom Header Component
 
