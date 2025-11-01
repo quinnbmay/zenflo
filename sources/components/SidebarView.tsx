@@ -185,7 +185,7 @@ export const SidebarView = React.memo(() => {
                 <View style={[styles.header, { height: headerHeight }]}>
                     <View style={styles.logoContainer}>
                         <Image
-                            source={theme.dark ? require('@/assets/images/logo-white.png') : require('@/assets/images/logo-black.png')}
+                            source={require('@/assets/images/Q Logo.png')}
                             contentFit="contain"
                             style={[styles.logo, { height: 24, width: 24 }]}
                         />

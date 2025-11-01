@@ -152,7 +152,7 @@ function HeaderLeft() {
             justifyContent: 'center',
         }}>
             <Image
-                source={require('@/assets/images/logo-black.png')}
+                source={require('@/assets/images/Q Logo.png')}
                 contentFit="contain"
                 style={[{ width: 24, height: 24 }]}
                 tintColor={theme.colors.header.tint}
