@@ -1,13 +1,13 @@
 const variant = process.env.APP_ENV || 'development';
 const name = {
-    development: "Happy (dev)",
-    preview: "Happy (preview)",
-    production: "Happy"
+    development: "Combined Memory Coder (dev)",
+    preview: "Combined Memory Coder (preview)",
+    production: "Combined Memory Coder"
 }[variant];
 const bundleId = {
-    development: "com.slopus.happy.dev",
-    preview: "com.slopus.happy.preview",
-    production: "com.ex3ndr.happy"
+    development: "com.combinedmemory.coder.dev",
+    preview: "com.combinedmemory.coder.preview",
+    production: "com.combinedmemory.coder"
 }[variant];
 
 export default {
@@ -36,7 +36,7 @@ export default {
                 NSLocalNetworkUsageDescription: "Allow $(PRODUCT_NAME) to find and connect to local devices on your network.",
                 NSBonjourServices: ["_http._tcp", "_https._tcp"]
             },
-            associatedDomains: variant === 'production' ? ["applinks:app.happy.engineering"] : []
+            associatedDomains: variant === 'production' ? ["applinks:app.combinedmemory.com"] : []
         },
         android: {
             adaptiveIcon: {
@@ -62,7 +62,7 @@ export default {
                     "data": [
                         {
                             "scheme": "https",
-                            "host": "app.happy.engineering",
+                            "host": "app.combinedmemory.com",
                             "pathPrefix": "/"
                         }
                     ],
