@@ -17,7 +17,118 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - No existing tests in the codebase yet
 
 ### Production
-- `yarn ota` - Deploy over-the-air updates via EAS Update to production branch
+- `yarn ota` - Deploy over-the-air updates via EAS Update to preview branch
+- For production OTA: `APP_ENV=production NODE_ENV=production eas update --branch production --platform ios --message "Your message"`
+
+## GitHub x Expo Deployment Workflow
+
+### Overview
+
+This project uses a two-tier deployment system:
+1. **Native Builds** - Full app builds via EAS Build (triggered by GitHub workflows)
+2. **OTA Updates** - JavaScript-only updates via EAS Update (for quick fixes)
+
+### Native Builds via GitHub Workflows
+
+#### Workflow Files Location
+`.eas/workflows/` contains GitHub Action workflows that trigger EAS builds:
+- `build-ios-production.yml` - Production iOS builds
+
+#### Running a Workflow
+```bash
+# Via EAS CLI (locally)
+eas workflow:run build-ios-production.yml
+
+# Via GitHub UI
+# Go to Actions tab → Select workflow → Run workflow
+```
+
+#### Workflow Configuration
+Each workflow file must have:
+```yaml
+name: Build iOS Production
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}  # IMPORTANT: Empty object, not null
+
+jobs:
+  build:
+    name: Build iOS App
+    type: build
+    params:
+      platform: ios
+      profile: production
+```
+
+**CRITICAL**: `workflow_dispatch: {}` must be an empty object, NOT null or empty. This enables manual triggering.
+
+### OTA Updates
+
+OTA updates allow deploying JavaScript/asset changes without rebuilding the native app.
+
+#### When to Use OTA vs Native Build
+- **Use OTA for**: Code changes, UI updates, bug fixes (anything in `sources/`)
+- **Use Native Build for**: Native dependency changes, config changes, permission changes
+
+#### OTA Update Commands
+
+**Preview/Staging:**
+```bash
+yarn ota  # Deploys to preview branch
+```
+
+**Production:**
+```bash
+# iOS only
+APP_ENV=production NODE_ENV=production eas update --branch production --platform ios --message "Fix description"
+
+# Both platforms
+APP_ENV=production NODE_ENV=production eas update --branch production --message "Fix description"
+```
+
+#### OTA Update Process
+1. **Make code changes** in `sources/`
+2. **Run typecheck**: `yarn typecheck`
+3. **Commit changes**: `git add . && git commit -m "description"`
+4. **Push to GitHub**: `git push origin main`
+5. **Deploy OTA update**: Run appropriate OTA command above
+6. **Users receive update**: Automatically on next app open
+
+### Deployment Best Practices
+
+1. **Always run typecheck** before deploying: `yarn typecheck`
+2. **Test locally first** with `yarn ios` or `yarn web`
+3. **Commit before OTA**: Always commit changes before running OTA update
+4. **Use descriptive messages**: Include what was fixed/changed in update message
+5. **iOS-only updates**: Use `--platform ios` when only iOS needs the update
+6. **Monitor builds**: Check https://expo.dev for build/update status
+
+### EAS Configuration
+
+The project is configured for EAS in:
+- `app.config.js` - Updates URL and project ID
+- `eas.json` - Build profiles and update channels
+
+**Current setup:**
+- **Project ID**: `c92795a3-d883-41c0-b761-3effaa823810`
+- **Updates URL**: `https://u.expo.dev/c92795a3-d883-41c0-b761-3effaa823810`
+- **Account**: `combinedmemory`
+
+### Troubleshooting
+
+**Workflow fails with "Invalid workflow definition"**
+→ Check that `workflow_dispatch: {}` is an empty object, not null
+
+**OTA update requires message**
+→ Always include `--message "description"` flag
+
+**Changes not appearing in app**
+→ Force close and reopen the app to fetch latest OTA update
+
+**Build takes too long**
+→ Builds can take 5-15 minutes, check status at https://expo.dev
 
 ## Changelog Management
 
