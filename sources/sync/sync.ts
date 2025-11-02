@@ -848,6 +848,82 @@ class Sync {
         }
     }
 
+    /**
+     * Update the summary text for a session. This allows manual renaming of sessions
+     * by users, providing better thread management and identification.
+     */
+    public async updateSessionSummary(sessionId: string, summaryText: string): Promise<void> {
+        if (!this.credentials) {
+            throw new Error('Not authenticated');
+        }
+
+        try {
+            // Get current session
+            const session = storage.getState().sessions[sessionId];
+            if (!session) {
+                throw new Error('Session not found');
+            }
+
+            // Get session encryption
+            const sessionEncryption = this.encryption.getSessionEncryption(sessionId);
+            if (!sessionEncryption) {
+                throw new Error('Session encryption not found');
+            }
+
+            // Create updated metadata with new summary
+            const updatedMetadata: Metadata = {
+                ...(session.metadata || {
+                    path: '',
+                    host: '',
+                }),
+                summary: {
+                    text: summaryText,
+                    updatedAt: Date.now()
+                }
+            };
+
+            // Encrypt the updated metadata
+            const encryptedMetadata = await sessionEncryption.encryptMetadata(updatedMetadata);
+
+            // Send update to server
+            const API_ENDPOINT = getServerUrl();
+            const response = await fetch(`${API_ENDPOINT}/v1/sessions/${sessionId}/metadata`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.credentials.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    metadata: encryptedMetadata,
+                    expectedVersion: session.metadataVersion
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                if (errorData.error === 'version-mismatch') {
+                    throw new Error('Session was modified by another client. Please refresh and try again.');
+                }
+                throw new Error(`Failed to update session summary: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Update local storage
+            this.applySessions([{
+                ...session,
+                metadata: updatedMetadata,
+                metadataVersion: data.version || session.metadataVersion + 1,
+                updatedAt: Date.now()
+            }]);
+
+            log.log(`✏️ Updated session ${sessionId} summary to: "${summaryText}"`);
+        } catch (error) {
+            console.error('Failed to update session summary:', error);
+            throw error;
+        }
+    }
+
     private fetchMachines = async () => {
         if (!this.credentials) return;
 

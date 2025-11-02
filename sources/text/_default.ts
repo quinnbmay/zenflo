@@ -34,6 +34,7 @@ export const en = {
         cancel: 'Cancel',
         authenticate: 'Authenticate',
         save: 'Save',
+        saving: 'Saving...',
         error: 'Error',
         success: 'Success',
         ok: 'OK',
@@ -221,6 +222,7 @@ export const en = {
         userNotFound: 'User not found',
         sessionDeleted: 'Session has been deleted',
         sessionDeletedDescription: 'This session has been permanently removed',
+        renameSessionFailed: 'Failed to rename session',
 
         // Error functions with context
         fieldError: ({ field, reason }: { field: string; reason: string }) =>
@@ -287,6 +289,8 @@ export const en = {
 
     session: {
         inputPlaceholder: 'Type a message ...',
+        renameTitle: 'Rename Session',
+        renamePlaceholder: 'Enter session name',
     },
 
     commandPalette: {
