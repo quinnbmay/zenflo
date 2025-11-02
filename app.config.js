@@ -1,14 +1,6 @@
-const variant = process.env.APP_ENV || 'development';
-const name = {
-    development: "Combined Memory Coder (dev)",
-    preview: "Combined Memory Coder (preview)",
-    production: "Combined Memory Coder"
-}[variant];
-const bundleId = {
-    development: "com.combinedmemory.coder.dev",
-    preview: "com.combinedmemory.coder.preview",
-    production: "com.combinedmemory.coder"
-}[variant];
+// Production iOS only - internal use
+const name = "Combined Memory Coder";
+const bundleId = "com.combinedmemory.coder";
 
 export default {
     expo: {
@@ -36,39 +28,7 @@ export default {
                 NSLocalNetworkUsageDescription: "Allow $(PRODUCT_NAME) to find and connect to local devices on your network.",
                 NSBonjourServices: ["_http._tcp", "_https._tcp"]
             },
-            associatedDomains: variant === 'production' ? ["applinks:app.combinedmemory.com"] : []
-        },
-        android: {
-            adaptiveIcon: {
-                foregroundImage: "./sources/assets/images/icon-adaptive.png",
-                monochromeImage: "./sources/assets/images/icon-monochrome.png",
-                backgroundColor: "#18171C"
-            },
-            permissions: [
-                "android.permission.RECORD_AUDIO",
-                "android.permission.MODIFY_AUDIO_SETTINGS",
-                "android.permission.ACCESS_NETWORK_STATE",
-            ],
-            blockedPermissions: [
-                "android.permission.ACTIVITY_RECOGNITION"
-            ],
-            edgeToEdgeEnabled: true,
-            package: bundleId,
-            googleServicesFile: "./google-services.json",
-            intentFilters: variant === 'production' ? [
-                {
-                    "action": "VIEW",
-                    "autoVerify": true,
-                    "data": [
-                        {
-                            "scheme": "https",
-                            "host": "app.combinedmemory.com",
-                            "pathPrefix": "/"
-                        }
-                    ],
-                    "category": ["BROWSABLE", "DEFAULT"]
-                }
-            ] : []
+            associatedDomains: ["applinks:app.combinedmemory.com"]
         },
         web: {
             bundler: "metro",
