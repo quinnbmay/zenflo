@@ -1,5 +1,29 @@
 # Changelog
 
+## Combined Memory Coder Custom Build - 2025-11-02
+
+Custom iOS-only production build for internal use at Combined Memory.
+
+### Branding Updates
+- Replaced Happy branding with Quinn Code Q icon throughout app
+- Updated all header icons with Q ICON BLACK.png
+- Updated iOS app icon with 1024x1024 Q icon
+- Replaced welcome/login screens with QUINN CODE.png logo
+
+### Platform Changes
+- Removed Android support (iOS only)
+- Removed preview and development environment variants
+- Simplified to production-only configuration
+- Set bundle ID to com.combinedmemory.coder
+- Set app name to "Combined Memory Coder"
+
+### Technical Updates
+- Removed tintColor from header icons to show actual Q branding
+- Updated all 6 header components (HomeHeader, InboxView, SessionsListWrapper, SettingsViewWrapper, SidebarView, ZenHeader)
+- Simplified app.config.js to single production iOS configuration
+
+---
+
 ## Version 4 - 2025-09-12
 
 This release revolutionizes remote development with Codex integration and Daemon Mode, enabling instant AI assistance from anywhere. Start coding sessions with a single tap while maintaining complete control over your development environment.
@@ -15,7 +39,7 @@ This update introduces seamless GitHub integration, bringing your developer iden
 
 - Added GitHub account connection through secure OAuth authentication flow
 - Integrated profile synchronization displaying your GitHub avatar, name, and bio
-- Implemented encrypted token storage on our backend for additional security protection
+- Implemented encrypted token storage on backend for additional security protection
 - Enhanced settings interface with personalized profile display when connected
 - Added one-tap GitHub disconnect functionality with confirmation protection
 - Improved account management with clear connection status indicators
@@ -39,3 +63,7 @@ Welcome to Happy - your secure, encrypted mobile companion for Claude Code. This
 - Added experimental file manager with syntax highlighting and tree navigation
 - Built seamless real-time synchronization across all your devices
 - Established native support for iOS, Android, and responsive web interfaces
+
+---
+
+**Note**: This is a customized fork of Happy Coder for internal use by Quinn May at Combined Memory.

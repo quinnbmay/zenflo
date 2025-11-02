@@ -1,268 +1,172 @@
-# Railway Deployment Guide for Happy Web App
+# Railway Deployment Guide for Combined Memory Coder Web App
 
 ## Overview
-This document provides critical deployment instructions for the Happy web app on Railway at https://app.combinedmemory.com/
+This document provides deployment instructions for the Combined Memory Coder web app on Railway.
 
-**IMPORTANT: Read this entire document before making ANY changes to the deployment configuration.**
+**IMPORTANT: This is a custom iOS-only app. Web deployment is for testing purposes only.**
 
-## Current Working Configuration
+## Current Configuration
 
 ### Repository Details
-- **Repository**: `quinnbmay/happy` (forked from `slopus/happy`)
+- **Repository**: `quinnbmay/happy` (customized fork for Combined Memory)
 - **Branch**: `main`
-- **Working Commit**: `09ae8bd` - "Add pre-built Happy web app for Railway deployment"
-- **Deployment URL**: https://app.combinedmemory.com/
+- **Platform**: iOS production only
+- **Web Export**: For testing purposes
 - **Railway Project**: Combined Memory
-- **Railway Service**: Web App
+- **Railway Service**: Web App (if deployed)
+
+### App Configuration
+```
+App Name: Combined Memory Coder
+Bundle ID: com.combinedmemory.coder
+Platform: iOS only (production)
+Branding: Quinn Code Q icons
+```
 
 ### Critical Files
 ```
 happy-mobile/
-├── Dockerfile.railway          # NGINX configuration for serving static files
-├── dist-railway/               # Pre-built web app bundle (DO NOT REBUILD)
-│   ├── index.html             # Entry point
-│   └── _expo/static/js/web/
-│       └── index-1b4dcec35e68ae97c7600a69367e3fb7.js  # Working bundle
-├── app.config.js              # Expo configuration (DO NOT CHANGE DEFAULT VARIANT)
-└── sources/realtime/
-    └── RealtimeVoiceSession.tsx  # ElevenLabs voice agent configuration
+├── app.config.js              # iOS-only production config
+├── dist/                       # Web export output (for testing)
+├── sources/assets/images/
+│   ├── Q ICON BLACK.png       # Header icon (1.1 MB)
+│   ├── QUINN CODE.png         # Logo (188 KB)
+│   └── Icon-iOS-Default-1024x1024@1x.png  # iOS app icon
+└── sources/components/        # React Native components
 ```
 
-### Voice Agent Configuration
-**CRITICAL: DO NOT MODIFY THE VOICE AGENT**
+## Web Export (For Testing)
 
-The app uses a custom ElevenLabs voice agent:
-- **Agent ID**: `agent_1001k8zw6qdvfz7v2yabcqs8zwde`
-- **File**: `sources/realtime/RealtimeVoiceSession.tsx`
-- This is a custom-configured voice agent - do NOT change to generic/default agents
-
-## Deployment Process
-
-### Normal Deployment
-Railway auto-deploys when code is pushed to the `main` branch:
+To export the web version for testing:
 
 ```bash
-# Make your changes (if needed)
+# Export web app
+npx expo export --platform web
+
+# Test locally
+npx serve dist
+# Open http://localhost:8000
+```
+
+## Railway Deployment (Optional)
+
+If deploying to Railway for web testing:
+
+```bash
+# 1. Make changes
 git add .
 git commit -m "Your commit message"
 git push origin main
 
-# Railway will automatically build and deploy
-# Wait 1-2 minutes for deployment to complete
-# Verify at https://app.combinedmemory.com/
+# 2. Railway auto-deploys from main branch
+# Wait 1-2 minutes for deployment
 ```
 
-### Emergency Recovery (If App Breaks)
-If the app shows a blank screen or fails to load:
+## iOS Production Build
+
+The primary use case is iOS. Build with Expo EAS:
 
 ```bash
-cd /Users/quinnmay/developer/happy-mobile
+# Install EAS CLI if needed
+npm install -g eas-cli
 
-# Reset to last known working commit
-git reset --hard 09ae8bd
+# Login to Expo
+eas login
 
-# Force push to trigger Railway redeployment
-git push origin main --force
+# Build for iOS
+eas build --platform ios --profile production
 
-# Wait 1-2 minutes for Railway to rebuild
-# Clear browser cache or test in incognito mode
+# Or build locally
+eas build --platform ios --profile production --local
 ```
 
-## CRITICAL: What NOT to Change
+## What Has Changed
 
-### ❌ DO NOT Change `app.config.js` Default Variant
-```javascript
-// ❌ WRONG - This breaks the app
-const variant = process.env.APP_ENV || 'production';
+### Removed
+- ❌ Android support
+- ❌ Preview/development environment variants
+- ❌ Happy branding
+- ❌ Environment-based conditional logic
 
-// ✅ CORRECT - Keep as development
-const variant = process.env.APP_ENV || 'development';
-```
+### Updated
+- ✅ All branding to Quinn Code Q icons
+- ✅ iOS app icon (1024x1024)
+- ✅ Header icons (Q ICON BLACK.png)
+- ✅ Welcome/login screens (QUINN CODE.png)
+- ✅ App config simplified to production iOS only
 
-**Why**: Changing the default to 'production' alters the build configuration and breaks the web app.
+## Current Branding Assets
 
-### ❌ DO NOT Modify `Dockerfile.railway` Nginx Configuration
-```nginx
-# ❌ WRONG - Adding headers breaks nginx
-server {
-    add_header Content-Security-Policy "upgrade-insecure-requests";
-    # ... rest of config
-}
+All Happy logos replaced with:
+- **Main Logo**: `QUINN CODE.png` (188 KB) - Used on welcome/settings screens
+- **Header Icon**: `Q ICON BLACK.png` (1.1 MB) - Used in all navigation headers
+- **iOS App Icon**: `Icon-iOS-Default-1024x1024@1x.png` (1.1 MB)
 
-# ✅ CORRECT - Keep simple nginx config
-server {
-    listen 80;
-    location / {
-        root /usr/share/nginx/html;
-        try_files $uri /index.html;
-    }
-}
-```
+## Connected Services
 
-**Why**: Adding security headers or modifying the nginx configuration causes syntax errors and prevents the container from starting.
-
-### ❌ DO NOT Rebuild the Web App
-```bash
-# ❌ WRONG - Don't rebuild unless absolutely necessary
-yarn expo export --platform web --output-dir dist-railway --clear
-
-# ✅ CORRECT - Use existing pre-built bundle
-# Just commit and push changes to non-build files
-```
-
-**Why**: The current `dist-railway` folder contains a working pre-built bundle. Rebuilding may introduce errors or change the bundle hash, breaking the deployment.
-
-### ❌ DO NOT Change Voice Agent Configuration
-```javascript
-// ❌ WRONG - Don't change to generic agent
-agentId: 'default-eleven-labs-agent'
-
-// ✅ CORRECT - Keep custom agent
-agentId: 'agent_1001k8zw6qdvfz7v2yabcqs8zwde'
-```
-
-**Why**: The custom voice agent is specifically configured for this deployment. Changing it will break voice functionality.
-
-## What You CAN Safely Change
-
-### ✅ Text/Translation Changes
-- Update translation files in `sources/text/translations/`
-- Modify text strings in components
-- **Note**: These changes won't appear until you rebuild the web app (not recommended)
-
-### ✅ Image Assets
-- Replace logo files in `sources/assets/images/`
-- Update favicon
-- **Note**: These changes won't appear until you rebuild the web app (not recommended)
-
-### ✅ Non-Web Code
-- Update mobile-specific code (iOS/Android)
-- Modify native modules
-- Change mobile app configuration
-
-## Rebranding Process (If Needed)
-
-If you absolutely must rebrand the web app (change name, logos, etc.):
-
-1. **Backup Current State**
-   ```bash
-   git branch backup-working-$(date +%Y%m%d)
-   ```
-
-2. **Make Changes to Translation Files Only**
-   - Edit `sources/text/_default.ts`
-   - Change app name strings
-   - DO NOT touch `app.config.js`
-
-3. **Replace Image Assets**
-   - Replace `sources/assets/images/logo-white.png`
-   - Replace `sources/assets/images/logo-black.png`
-   - Replace `sources/assets/images/icon.png`
-   - Replace `sources/assets/images/favicon.png`
-
-4. **Rebuild Web App** (High Risk)
-   ```bash
-   # Clear caches
-   rm -rf dist-railway .expo node_modules/.cache
-
-   # Rebuild
-   yarn expo export --platform web --output-dir dist-railway --clear
-
-   # Test locally first
-   cd dist-railway && npx serve
-   # Open http://localhost:3000 and verify app works
-
-   # If working, commit and push
-   git add .
-   git commit -m "Rebrand to [New Name]"
-   git push origin main
-   ```
-
-5. **If Rebuild Fails**
-   ```bash
-   # Immediately revert
-   git reset --hard backup-working-$(date +%Y%m%d)
-   git push origin main --force
-   ```
+- **LibreChat Backend**: chat.combinedmemory.com
+- **MongoDB**: Railway hosted database
+- **LiveKit Voice**: Real-time voice AI interactions
+- **Expo Updates**: OTA updates for app
 
 ## Troubleshooting
 
-### Blank/Grey Screen
-**Symptoms**: App loads but shows blank grey screen, no content
+### Web Export Issues
+If web export shows old branding:
 
-**Cause**: JavaScript bundle failed to load or execute
-
-**Fix**:
 ```bash
-# 1. Clear browser cache (Cmd+Shift+R or Ctrl+Shift+R)
-# 2. Try incognito/private browsing mode
-# 3. If still broken, reset to working commit:
-git reset --hard 09ae8bd
-git push origin main --force
+# Clear cache and rebuild
+rm -rf dist .expo/web-cache
+npx expo export --platform web
 ```
 
-### Mixed Content Warnings
-**Symptoms**: Browser console shows "Mixed Content" warnings about HTTP resources
+### iOS Build Issues
+If iOS build fails:
 
-**Impact**: Cosmetic warning only - app still works
-
-**Fix**: Ignore these warnings. DO NOT attempt to fix by adding security headers to nginx.
-
-### Railway Deployment Failed
-**Symptoms**: Railway shows deployment failed or build error
-
-**Fix**:
 ```bash
-# Check Railway logs in browser at https://railway.app
-# If nginx config error, revert Dockerfile changes
-git reset --hard 09ae8bd
-git push origin main --force
-```
+# Clear Expo cache
+npx expo start -c
 
-### Voice Agent Not Working
-**Symptoms**: Voice functionality doesn't respond or errors
-
-**Fix**: Verify `sources/realtime/RealtimeVoiceSession.tsx` has correct agent ID:
-```javascript
-agentId: 'agent_1001k8zw6qdvfz7v2yabcqs8zwde'
+# Or rebuild with EAS
+eas build --platform ios --profile production --clear-cache
 ```
 
 ## Verification Checklist
 
-After any deployment, verify:
+After deployment:
 
-- [ ] App loads at https://app.combinedmemory.com/
-- [ ] No blank/grey screen - content is visible
-- [ ] Title shows "Happy" in browser tab
-- [ ] Voice button is visible and clickable
-- [ ] Console has no critical errors (warnings are OK)
-- [ ] JavaScript bundle URL in HTML matches deployed file:
-  ```bash
-  curl -s https://app.combinedmemory.com/ | grep script
-  # Should show: index-1b4dcec35e68ae97c7600a69367e3fb7.js
-  ```
+- [ ] Q icon appears in headers (not white square)
+- [ ] QUINN CODE logo on welcome/login screens
+- [ ] iOS app icon shows Q branding
+- [ ] App name shows "Combined Memory Coder"
+- [ ] No Android-related errors in logs
+- [ ] No environment variant warnings
 
-## Additional Notes
+## Important Notes
 
-### Railway Configuration
-- **Auto-Deploy**: Enabled from `main` branch
-- **Build Command**: Uses `Dockerfile.railway`
-- **Port**: 80 (nginx)
-- **Domain**: app.combinedmemory.com (via Cloudflare)
+### Platform Focus
+- **Primary**: iOS production app
+- **Secondary**: Web export for testing only
+- **Not Supported**: Android
 
-### Cloudflare Settings
-- Railway deployment goes through Cloudflare CDN
-- Cache may take 1-2 minutes to update after deployment
-- Always test in incognito mode after deployment
+### Configuration
+- Single production configuration only
+- No environment variants (development/preview removed)
+- Simplified bundle ID: com.combinedmemory.coder
 
-### Git Workflow
-- **DO NOT** force push unless recovering from broken deployment
-- **DO** create backup branches before risky changes
-- **DO** test locally with `npx serve dist-railway` before deploying
+### Branding
+- All Happy branding replaced with Q branding
+- Custom Quinn Code assets throughout
+- tintColor removed from headers to show actual Q icon
 
-## Contact/Support
+## Contact
 
-For issues or questions about this deployment:
-- Check Railway logs: https://railway.app
-- Review this document thoroughly before making changes
-- Test all changes locally before pushing to production
+For deployment issues:
+- Email: quinn@combinedmemory.com
+- Repository: https://github.com/quinnbmay/happy
+
+---
+
+**Note**: This is a customized fork of Happy Coder for internal use by Quinn May at Combined Memory. Focus is on iOS production builds, not web deployment.
+
+Original project: [Happy Coder](https://github.com/slopus/happy)
