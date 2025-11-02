@@ -153,10 +153,9 @@ function HeaderLeft() {
     return (
         <View style={styles.logoContainer}>
             <Image
-                source={require('@/assets/images/Q-Logo.png')}
+                source={require('@/assets/images/Q ICON BLACK.png')}
                 contentFit="contain"
                 style={[{ width: 24, height: 24 }]}
-                tintColor={theme.colors.header.tint}
             />
         </View>
     );
