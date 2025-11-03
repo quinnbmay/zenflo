@@ -166,9 +166,8 @@ CRITICAL: Natural Voice Conversation Rules
                 },
                 overrides: {
                     agent: {
-                        language: elevenLabsLanguage
-                        // Don't override prompt - use base configuration from dashboard
-                        // The base config already has the system prompt with {{threadContext}} placeholder
+                        language: elevenLabsLanguage,
+                        firstMessage: `Hey Quinn! Ready to work on ${sessionName}?`
                     }
                 }
             });
