@@ -25,11 +25,9 @@ class RealtimeVoiceSessionImpl implements VoiceSession {
             const userLanguagePreference = storage.getState().settings.voiceAssistantLanguage;
             const elevenLabsLanguage = getElevenLabsCodeFromPreference(userLanguagePreference);
 
-            // Build system prompt with Happy mode information and thread context
+            // Build system prompt with Happy mode information
+            // Note: Thread context is injected by ElevenLabs via {{threadContext}} variable
             const systemPrompt = `You are Max, Quinn's intelligent voice assistant for development work.
-
-CURRENT THREAD CONTEXT:
-{{threadContext}}
 
 YOUR ROLE & HOW YOU WORK WITH CLAUDE/CODEX:
 You're Quinn's voice intermediary who works alongside:
@@ -168,12 +166,9 @@ CRITICAL: Natural Voice Conversation Rules
                 },
                 overrides: {
                     agent: {
-                        language: elevenLabsLanguage,
-                        // Use dynamic variables in first message
-                        firstMessage: `Hey Quinn! Ready to work on {{sessionName}}?`,
-                        prompt: {
-                            prompt: systemPrompt
-                        }
+                        language: elevenLabsLanguage
+                        // Don't override prompt - use base configuration from dashboard
+                        // The base config already has the system prompt with {{threadContext}} placeholder
                     }
                 }
             });
