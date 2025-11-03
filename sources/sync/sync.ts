@@ -39,6 +39,7 @@ import { fetchFeed } from './apiFeed';
 import { FeedItem } from './feedTypes';
 import { UserProfile } from './friendTypes';
 import { initializeTodoSync } from '../-zen/model/ops';
+import { getSessionName } from '@/utils/sessionUtils';
 
 class Sync {
 
@@ -284,7 +285,7 @@ class Sync {
                 permissionMode: permissionMode || 'default',
                 model,
                 fallbackModel,
-                appendSystemPrompt: systemPrompt,
+                appendSystemPrompt: systemPrompt + `\n\n# Current Thread Context\n\nYou are currently in the conversation thread titled: "${getSessionName(session)}"`,
                 ...(displayText && { displayText }) // Add displayText if provided
             }
         };
