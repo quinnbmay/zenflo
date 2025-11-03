@@ -39,6 +39,7 @@ import { fetchFeed } from './apiFeed';
 import { FeedItem } from './feedTypes';
 import { UserProfile } from './friendTypes';
 import { initializeTodoSync } from '../-zen/model/ops';
+import { getSessionName } from '@/utils/sessionUtils';
 
 class Sync {
 
@@ -284,7 +285,7 @@ class Sync {
                 permissionMode: permissionMode || 'default',
                 model,
                 fallbackModel,
-                appendSystemPrompt: systemPrompt,
+                appendSystemPrompt: systemPrompt + `\n\n# Current Thread Context\n\nYou are currently in the conversation thread titled: "${getSessionName(session)}"`,
                 ...(displayText && { displayText }) // Add displayText if provided
             }
         };
@@ -844,82 +845,6 @@ class Sync {
             storage.getState().updateArtifact(updatedArtifact);
         } catch (error) {
             console.error('Failed to update artifact:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Update the summary text for a session. This allows manual renaming of sessions
-     * by users, providing better thread management and identification.
-     */
-    public async updateSessionSummary(sessionId: string, summaryText: string): Promise<void> {
-        if (!this.credentials) {
-            throw new Error('Not authenticated');
-        }
-
-        try {
-            // Get current session
-            const session = storage.getState().sessions[sessionId];
-            if (!session) {
-                throw new Error('Session not found');
-            }
-
-            // Get session encryption
-            const sessionEncryption = this.encryption.getSessionEncryption(sessionId);
-            if (!sessionEncryption) {
-                throw new Error('Session encryption not found');
-            }
-
-            // Create updated metadata with new summary
-            const updatedMetadata: Metadata = {
-                ...(session.metadata || {
-                    path: '',
-                    host: '',
-                }),
-                summary: {
-                    text: summaryText,
-                    updatedAt: Date.now()
-                }
-            };
-
-            // Encrypt the updated metadata
-            const encryptedMetadata = await sessionEncryption.encryptMetadata(updatedMetadata);
-
-            // Send update to server
-            const API_ENDPOINT = getServerUrl();
-            const response = await fetch(`${API_ENDPOINT}/v1/sessions/${sessionId}/metadata`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${this.credentials.token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    metadata: encryptedMetadata,
-                    expectedVersion: session.metadataVersion
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                if (errorData.error === 'version-mismatch') {
-                    throw new Error('Session was modified by another client. Please refresh and try again.');
-                }
-                throw new Error(`Failed to update session summary: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            // Update local storage
-            this.applySessions([{
-                ...session,
-                metadata: updatedMetadata,
-                metadataVersion: data.version || session.metadataVersion + 1,
-                updatedAt: Date.now()
-            }]);
-
-            log.log(`✏️ Updated session ${sessionId} summary to: "${summaryText}"`);
-        } catch (error) {
-            console.error('Failed to update session summary:', error);
             throw error;
         }
     }
@@ -1645,6 +1570,50 @@ class Sync {
                         }
                         if (hasMutableTool) {
                             gitStatusSync.invalidate(updateData.body.sid);
+                        }
+
+                        // Send notification for AI messages (enables Apple Watch replies)
+                        if (lastMessage.role === 'assistant' || lastMessage.role === 'agent') {
+                            // Only notify if app is in background
+                            const appState = AppState.currentState;
+                            if (appState === 'background' || appState === 'inactive') {
+                                // Get session for context
+                                const session = storage.getState().sessions[updateData.body.sid];
+                                if (session) {
+                                    // Extract message text (handle different content types)
+                                    let messageText = '';
+                                    if (lastMessage.content[0]) {
+                                        const content = lastMessage.content[0];
+                                        if (content.type === 'text') {
+                                            messageText = content.text || '';
+                                        } else if (content.type === 'tool-use') {
+                                            messageText = `Using tool: ${content.name}`;
+                                        } else if (content.type === 'tool-result') {
+                                            messageText = 'Tool completed';
+                                        }
+                                    }
+
+                                    // Send notification with interactive actions
+                                    Notifications.scheduleNotificationAsync({
+                                        content: {
+                                            title: getSessionName(session),
+                                            body: messageText.slice(0, 100) + (messageText.length > 100 ? '...' : ''),
+                                            categoryIdentifier: 'ai-message',
+                                            sound: 'default',
+                                            data: {
+                                                sessionId: updateData.body.sid,
+                                                messageId: lastMessage.id,
+                                                type: 'ai-response'
+                                            }
+                                        },
+                                        trigger: null // Immediate
+                                    }).catch((error) => {
+                                        console.error('Failed to send notification:', error);
+                                    });
+
+                                    console.log(`📱 Sent interactive notification for session ${updateData.body.sid}`);
+                                }
+                            }
                         }
                     }
                 }

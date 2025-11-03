@@ -26,6 +26,9 @@ import { StatusBarProvider } from '@/components/StatusBarProvider';
 import { monkeyPatchConsoleForRemoteLoggingForFasterAiAutoDebuggingOnlyInLocalBuilds } from '@/utils/remoteLogger';
 import { useUnistyles } from 'react-native-unistyles';
 import { AsyncLock } from '@/utils/lock';
+import { setupInteractiveNotifications } from '@/notifications/interactiveCategories';
+import { handleNotificationResponse } from '@/notifications/notificationResponseHandler';
+import * as Notifications from 'expo-notifications';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -165,11 +168,23 @@ export default function RootLayout() {
                     await syncRestore(credentials);
                 }
 
+                // Setup interactive notifications for Apple Watch
+                await setupInteractiveNotifications();
+
                 setInitState({ credentials });
             } catch (error) {
                 console.error('Error initializing:', error);
             }
         })();
+    }, []);
+
+    // Setup notification response listener for Apple Watch actions
+    React.useEffect(() => {
+        const subscription = Notifications.addNotificationResponseReceivedListener(
+            handleNotificationResponse
+        );
+
+        return () => subscription.remove();
     }, []);
 
     React.useEffect(() => {
