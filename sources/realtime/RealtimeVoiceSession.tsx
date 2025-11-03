@@ -96,17 +96,26 @@ CRITICAL: Natural Voice Conversation Rules
 - NEVER list things with "first, second, third" - speak organically
 - Don't over-explain - trust Quinn will ask if he needs more detail`;
 
+            // Get session name for first message
+            const session = storage.getState().sessions[config.sessionId];
+            const sessionName = session?.name || 'your project';
+            const threadContext = config.initialContext ? ` We're working on: ${config.initialContext}` : '';
+
             // Use hardcoded agent ID for Eleven Labs
             const conversationId = await conversationInstance.startSession({
                 agentId: 'agent_1001k8zw6qdvfz7v2yabcqs8zwde',
                 // Pass session ID and initial context as dynamic variables
                 dynamicVariables: {
                     sessionId: config.sessionId,
-                    initialConversationContext: config.initialContext || ''
+                    sessionName: sessionName,
+                    initialConversationContext: config.initialContext || '',
+                    hasContext: !!config.initialContext
                 },
                 overrides: {
                     agent: {
                         language: elevenLabsLanguage,
+                        // Use dynamic variables in first message
+                        firstMessage: `Hey Quinn! Ready to work on {{sessionName}}?${threadContext}`,
                         prompt: {
                             prompt: systemPrompt
                         }

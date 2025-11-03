@@ -91,13 +91,13 @@ async function updateAgent() {
                 name: 'Max Code',
                 conversation_config: {
                     agent: {
-                        first_message: "Hey Quinn, ready to code?",
+                        // First message uses dynamic variable that will be filled at runtime
+                        first_message: "Hey Quinn! Ready to work on {{sessionName}}?",
+                        language: 'en',
                         prompt: {
-                            prompt: systemPrompt
-                        },
-                        // Keep existing LLM configuration but use better model
-                        llm: {
-                            model: 'gpt-4o',
+                            prompt: systemPrompt,
+                            // Use GPT-4o for best performance
+                            llm: 'gpt-4o',
                             temperature: 0.7,
                             max_tokens: 1000
                         }
