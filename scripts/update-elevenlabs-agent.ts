@@ -88,12 +88,14 @@ async function updateAgent() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                name: 'Max Code',
                 conversation_config: {
                     agent: {
+                        first_message: "Hey Quinn, ready to code?",
                         prompt: {
                             prompt: systemPrompt
                         },
-                        // Keep existing LLM configuration
+                        // Keep existing LLM configuration but use better model
                         llm: {
                             model: 'gpt-4o',
                             temperature: 0.7,
