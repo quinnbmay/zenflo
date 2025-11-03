@@ -273,6 +273,50 @@ class Sync {
                 break;
         }
 
+        // Build thread context with recent conversation history
+        let threadContext = `# Current Thread Context\n\nYou are currently in the conversation thread titled: "${getSessionName(session)}"`;
+
+        // Get recent messages for context (last 10 messages or last 8000 chars)
+        const sessionMessages = storage.getState().sessionMessages[sessionId];
+        if (sessionMessages && sessionMessages.messages.length > 0) {
+            const recentMessages = sessionMessages.messages.slice(-10); // Last 10 messages
+            let contextMessages: string[] = [];
+            let totalChars = 0;
+            const maxChars = 8000; // Limit context to ~8k chars to avoid token bloat
+
+            // Build context from most recent messages backwards
+            for (let i = recentMessages.length - 1; i >= 0; i--) {
+                const msg = recentMessages[i];
+                let messagePreview = '';
+
+                // Extract text from message content
+                if (msg.content && msg.content.length > 0) {
+                    const firstContent = msg.content[0];
+                    if (firstContent.type === 'text') {
+                        messagePreview = firstContent.text?.slice(0, 500) || '';
+                    } else if (firstContent.type === 'tool-use') {
+                        messagePreview = `[Used tool: ${firstContent.name}]`;
+                    } else if (firstContent.type === 'tool-result') {
+                        messagePreview = '[Tool result]';
+                    }
+                }
+
+                if (messagePreview) {
+                    const roleName = msg.role === 'user' ? 'User' : msg.role === 'assistant' || msg.role === 'agent' ? 'Assistant' : msg.role;
+                    const msgText = `${roleName}: ${messagePreview}${messagePreview.length >= 500 ? '...' : ''}`;
+
+                    if (totalChars + msgText.length > maxChars) break;
+
+                    contextMessages.unshift(msgText);
+                    totalChars += msgText.length;
+                }
+            }
+
+            if (contextMessages.length > 0) {
+                threadContext += '\n\n## Recent Conversation:\n' + contextMessages.join('\n\n');
+            }
+        }
+
         // Create user message content with metadata
         const content: RawRecord = {
             role: 'user',
@@ -285,7 +329,7 @@ class Sync {
                 permissionMode: permissionMode || 'default',
                 model,
                 fallbackModel,
-                appendSystemPrompt: systemPrompt + `\n\n# Current Thread Context\n\nYou are currently in the conversation thread titled: "${getSessionName(session)}"`,
+                appendSystemPrompt: systemPrompt + '\n\n' + threadContext,
                 ...(displayText && { displayText }) // Add displayText if provided
             }
         };
@@ -1570,6 +1614,50 @@ class Sync {
                         }
                         if (hasMutableTool) {
                             gitStatusSync.invalidate(updateData.body.sid);
+                        }
+
+                        // Send notification for AI messages (enables Apple Watch replies)
+                        if (lastMessage.role === 'assistant' || lastMessage.role === 'agent') {
+                            // Only notify if app is in background
+                            const appState = AppState.currentState;
+                            if (appState === 'background' || appState === 'inactive') {
+                                // Get session for context
+                                const session = storage.getState().sessions[updateData.body.sid];
+                                if (session) {
+                                    // Extract message text (handle different content types)
+                                    let messageText = '';
+                                    if (lastMessage.content[0]) {
+                                        const content = lastMessage.content[0];
+                                        if (content.type === 'text') {
+                                            messageText = content.text || '';
+                                        } else if (content.type === 'tool-use') {
+                                            messageText = `Using tool: ${content.name}`;
+                                        } else if (content.type === 'tool-result') {
+                                            messageText = 'Tool completed';
+                                        }
+                                    }
+
+                                    // Send notification with interactive actions
+                                    Notifications.scheduleNotificationAsync({
+                                        content: {
+                                            title: getSessionName(session),
+                                            body: messageText.slice(0, 100) + (messageText.length > 100 ? '...' : ''),
+                                            categoryIdentifier: 'ai-message',
+                                            sound: 'default',
+                                            data: {
+                                                sessionId: updateData.body.sid,
+                                                messageId: lastMessage.id,
+                                                type: 'ai-response'
+                                            }
+                                        },
+                                        trigger: null // Immediate
+                                    }).catch((error) => {
+                                        console.error('Failed to send notification:', error);
+                                    });
+
+                                    console.log(`📱 Sent interactive notification for session ${updateData.body.sid}`);
+                                }
+                            }
                         }
                     }
                 }
