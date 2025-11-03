@@ -163,11 +163,6 @@ CRITICAL: Natural Voice Conversation Rules
                     threadContext: threadContextText,
                     initialConversationContext: config.initialContext || '',
                     hasContext: !!config.initialContext
-                },
-                overrides: {
-                    agent: {
-                        language: elevenLabsLanguage
-                    }
                 }
             });
 
