@@ -166,8 +166,7 @@ CRITICAL: Natural Voice Conversation Rules
                 },
                 overrides: {
                     agent: {
-                        language: elevenLabsLanguage,
-                        firstMessage: `Hey Quinn! Ready to work on ${sessionName}?`
+                        language: elevenLabsLanguage
                     }
                 }
             });
