@@ -542,6 +542,43 @@ export const storage = create<StorageState>()((set, get) => {
                 };
             });
 
+            // Send new messages to Max via WebSocket (if this is the active realtime session)
+            const currentRealtimeSessionId = getCurrentRealtimeSessionId();
+            const voiceSession = getVoiceSession();
+
+            if (currentRealtimeSessionId === sessionId && voiceSession && changed.size > 0) {
+                const state = get();
+                const sessionMessages = state.sessionMessages[sessionId];
+
+                if (sessionMessages) {
+                    // Build message updates for Max
+                    const messageUpdates: string[] = [];
+
+                    for (const messageId of changed) {
+                        const message = sessionMessages.messagesMap[messageId];
+                        if (!message) continue;
+
+                        // Format message for Max based on type
+                        if (message.kind === 'text') {
+                            const role = message.role === 'user' ? 'Quinn' : 'Assistant';
+                            const text = message.text?.slice(0, 800) || '';
+                            messageUpdates.push(`${role}: ${text}${text.length >= 800 ? '...' : ''}`);
+                        } else if (message.kind === 'tool-call') {
+                            messageUpdates.push(`Assistant used tool: ${message.tool?.name || 'unknown'}`);
+                        } else if (message.kind === 'tool-result') {
+                            // Skip tool results - too verbose for voice
+                            continue;
+                        }
+                    }
+
+                    // Send all updates as a single contextual update
+                    if (messageUpdates.length > 0) {
+                        const update = messageUpdates.join('\n');
+                        voiceSession.sendContextualUpdate(update);
+                    }
+                }
+            }
+
             return { changed: Array.from(changed), hasReadyEvent };
         },
         applyMessagesLoaded: (sessionId: string) => set((state) => {
