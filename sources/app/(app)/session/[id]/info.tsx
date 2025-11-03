@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, Animated } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,7 +20,6 @@ import { CodeView } from '@/components/CodeView';
 import { Session } from '@/sync/storageTypes';
 import { useHappyAction } from '@/hooks/useHappyAction';
 import { HappyError } from '@/utils/errors';
-import { RenameSessionModal } from '@/components/RenameSessionModal';
 
 // Animated status dot component
 function StatusDot({ color, isPulsing, size = 8 }: { color: string; isPulsing?: boolean; size?: number }) {
@@ -67,7 +66,6 @@ function SessionInfoContent({ session }: { session: Session }) {
     const devModeEnabled = __DEV__;
     const sessionName = getSessionName(session);
     const sessionStatus = useSessionStatus(session);
-    const [renameModalVisible, setRenameModalVisible] = useState(false);
 
     // Check if CLI version is outdated
     const isCliOutdated = session.metadata?.version && !isVersionSupported(session.metadata.version, MINIMUM_CLI_VERSION);
@@ -251,12 +249,6 @@ function SessionInfoContent({ session }: { session: Session }) {
 
                 {/* Quick Actions */}
                 <ItemGroup title={t('sessionInfo.quickActions')}>
-                    <Item
-                        title={t('common.rename')}
-                        subtitle="Change session name"
-                        icon={<Ionicons name="pencil-outline" size={29} color="#007AFF" />}
-                        onPress={() => setRenameModalVisible(true)}
-                    />
                     {session.metadata?.machineId && (
                         <Item
                             title={t('sessionInfo.viewMachine')}
@@ -458,13 +450,6 @@ function SessionInfoContent({ session }: { session: Session }) {
                     </ItemGroup>
                 )}
             </ItemList>
-
-            {/* Rename Session Modal */}
-            <RenameSessionModal
-                visible={renameModalVisible}
-                session={session}
-                onClose={() => setRenameModalVisible(false)}
-            />
         </>
     );
 }
