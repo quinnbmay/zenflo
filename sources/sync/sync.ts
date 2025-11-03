@@ -273,6 +273,50 @@ class Sync {
                 break;
         }
 
+        // Build thread context with recent conversation history
+        let threadContext = `# Current Thread Context\n\nYou are currently in the conversation thread titled: "${getSessionName(session)}"`;
+
+        // Get recent messages for context (last 10 messages or last 8000 chars)
+        const sessionMessages = storage.getState().sessionMessages[sessionId];
+        if (sessionMessages && sessionMessages.messages.length > 0) {
+            const recentMessages = sessionMessages.messages.slice(-10); // Last 10 messages
+            let contextMessages: string[] = [];
+            let totalChars = 0;
+            const maxChars = 8000; // Limit context to ~8k chars to avoid token bloat
+
+            // Build context from most recent messages backwards
+            for (let i = recentMessages.length - 1; i >= 0; i--) {
+                const msg = recentMessages[i];
+                let messagePreview = '';
+
+                // Extract text from message content
+                if (msg.content && msg.content.length > 0) {
+                    const firstContent = msg.content[0];
+                    if (firstContent.type === 'text') {
+                        messagePreview = firstContent.text?.slice(0, 500) || '';
+                    } else if (firstContent.type === 'tool-use') {
+                        messagePreview = `[Used tool: ${firstContent.name}]`;
+                    } else if (firstContent.type === 'tool-result') {
+                        messagePreview = '[Tool result]';
+                    }
+                }
+
+                if (messagePreview) {
+                    const roleName = msg.role === 'user' ? 'User' : msg.role === 'assistant' || msg.role === 'agent' ? 'Assistant' : msg.role;
+                    const msgText = `${roleName}: ${messagePreview}${messagePreview.length >= 500 ? '...' : ''}`;
+
+                    if (totalChars + msgText.length > maxChars) break;
+
+                    contextMessages.unshift(msgText);
+                    totalChars += msgText.length;
+                }
+            }
+
+            if (contextMessages.length > 0) {
+                threadContext += '\n\n## Recent Conversation:\n' + contextMessages.join('\n\n');
+            }
+        }
+
         // Create user message content with metadata
         const content: RawRecord = {
             role: 'user',
@@ -285,7 +329,7 @@ class Sync {
                 permissionMode: permissionMode || 'default',
                 model,
                 fallbackModel,
-                appendSystemPrompt: systemPrompt + `\n\n# Current Thread Context\n\nYou are currently in the conversation thread titled: "${getSessionName(session)}"`,
+                appendSystemPrompt: systemPrompt + '\n\n' + threadContext,
                 ...(displayText && { displayText }) // Add displayText if provided
             }
         };
