@@ -26,7 +26,7 @@ class RealtimeVoiceSessionImpl implements VoiceSession {
             const elevenLabsLanguage = getElevenLabsCodeFromPreference(userLanguagePreference);
 
             // Build system prompt with Happy mode information
-            const systemPrompt = `You are Sam, Quinn's intelligent voice assistant for development work.
+            const systemPrompt = `You are Max, Quinn's intelligent voice assistant for development work.
 
 YOUR ROLE & HOW YOU WORK WITH CLAUDE/CODEX:
 You're Quinn's voice intermediary who works alongside:
