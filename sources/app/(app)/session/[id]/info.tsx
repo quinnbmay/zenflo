@@ -11,7 +11,7 @@ import { useSession, useIsDataReady } from '@/sync/storage';
 import { getSessionName, useSessionStatus, formatOSPlatform, formatPathRelativeToHome, getSessionAvatarId } from '@/utils/sessionUtils';
 import * as Clipboard from 'expo-clipboard';
 import { Modal } from '@/modal';
-import { sessionKill, sessionDelete } from '@/sync/ops';
+import { sessionKill, sessionDelete, sessionAbort } from '@/sync/ops';
 import { useUnistyles } from 'react-native-unistyles';
 import { layout } from '@/components/layout';
 import { t } from '@/text';
@@ -92,10 +92,20 @@ function SessionInfoContent({ session }: { session: Session }) {
 
     // Use HappyAction for archiving - it handles errors automatically
     const [archivingSession, performArchive] = useHappyAction(async () => {
-        const result = await sessionKill(session.id);
-        if (!result.success) {
-            throw new HappyError(result.message || t('sessionInfo.failedToArchiveSession'), false);
+        // Gemini sessions use abort RPC instead of killSession
+        const isGemini = session.metadata?.flavor === 'gemini';
+
+        if (isGemini) {
+            // For Gemini, sessionAbort returns void and throws on error
+            await sessionAbort(session.id);
+        } else {
+            // For Claude/other sessions, use sessionKill which returns success/message
+            const result = await sessionKill(session.id);
+            if (!result.success) {
+                throw new HappyError(result.message || t('sessionInfo.failedToArchiveSession'), false);
+            }
         }
+
         // Success - navigate back
         router.back();
         router.back();
