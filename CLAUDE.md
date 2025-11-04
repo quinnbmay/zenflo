@@ -254,6 +254,70 @@ await conversationInstance.startSession({
 - **Platform-specific SDKs** - Web and native use different packages with slightly different APIs
 - **Language support** - Both platforms use `getElevenLabsCodeFromPreference()` to map user language preferences to ElevenLabs language codes
 
+#### Voice Assistant Context Management
+
+The voice assistant (Max) receives real-time context updates about Claude Code sessions via WebSocket.
+
+**Context Update Architecture:**
+```
+App Event (new message)
+    ↓ WebSocket
+Happy Backend → Mobile App (apiSocket)
+    ↓ applyMessages()
+Storage updated
+    ↓ voiceHooks triggered
+Context formatted → Max (ElevenLabs WebSocket)
+```
+
+**Key Files:**
+- `sources/realtime/hooks/voiceHooks.ts` - Event handlers that trigger context updates
+- `sources/realtime/hooks/contextFormatters.ts` - Formats messages and session info for Max
+- `sources/realtime/voiceConfig.ts` - Configuration constants (MAX_HISTORY_MESSAGES = 50)
+
+**Critical Implementation Details:**
+
+1. **Message History Window** (`contextFormatters.ts:76-82`):
+   ```typescript
+   // Takes the LAST 50 messages (most recent), not the first 50
+   let messagesToFormat = VOICE_CONFIG.MAX_HISTORY_MESSAGES > 0
+       ? messages.slice(-VOICE_CONFIG.MAX_HISTORY_MESSAGES)  // ✅ Correct
+       : messages;
+   ```
+   **Important:** Must use negative slice (`-50`) to get recent messages, not `slice(0, 50)` which takes oldest messages.
+
+2. **Real-Time Event Triggers** (`voiceHooks.ts`):
+   - `onSessionFocus()` - When user opens/switches threads
+   - `onMessages()` - When new messages arrive
+   - `onPermissionRequested()` - When Claude requests tool permission
+   - `onReady()` - When Claude finishes processing
+   - `onVoiceStarted()` - Initial context when voice session begins
+
+3. **Session Tracking** (`voiceHooks.ts:28-65`):
+   - `shownSessions` Set prevents duplicate full context sends
+   - Cleared on voice session start/stop
+   - First time a session is shown, full history is sent
+
+4. **Agent Prompt Configuration** (`scripts/update-agent-final.json`):
+   - Max's system prompt includes instructions for reading thread context
+   - "So what does this tell me?" → Look at END of message history for latest message
+   - Context variable: `{{threadContext}}` contains formatted session info
+
+**Common Issues & Solutions:**
+
+- **Issue:** Max can't see recent messages after app restart
+  - **Cause:** Using `slice(0, 50)` instead of `slice(-50)` in formatHistory()
+  - **Fix:** Always use negative slice to get most recent messages
+
+- **Issue:** Max confused about "last message"
+  - **Cause:** Ambiguous prompt instructions
+  - **Fix:** Explicitly instruct to look at "END of message history"
+
+**Testing Context Updates:**
+1. Start voice session in a thread
+2. Check console logs with `VOICE_CONFIG.ENABLE_DEBUG_LOGGING: true`
+3. Verify `🎤 Voice: Reporting contextual update:` logs show recent messages
+4. Test "what did Claude just say?" queries to Max
+
 ### Development Guidelines
 
 - Use **4 spaces** for indentation

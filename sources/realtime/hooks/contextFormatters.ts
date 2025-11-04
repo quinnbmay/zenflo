@@ -73,12 +73,33 @@ export function formatNewMessages(sessionId: string, messages: Message[]): strin
     return 'New messages in session: ' + sessionId + '\n\n' + formatted.join('\n\n');
 }
 
+/**
+ * Formats message history for voice assistant context.
+ *
+ * CRITICAL: This function must use negative array slicing to get the MOST RECENT messages.
+ *
+ * Bug History (2025-01-03):
+ * - Previously used messages.slice(0, MAX_HISTORY_MESSAGES) which took the FIRST 50 messages (oldest)
+ * - This caused Max voice assistant to not see recent messages after app restart
+ * - Fixed by using messages.slice(-MAX_HISTORY_MESSAGES) to take LAST 50 messages (most recent)
+ *
+ * Why this matters:
+ * - When user asks "so what does this tell me?", Max needs to see the latest Claude response
+ * - Without recent context, Max gives confused or outdated responses
+ * - This is especially problematic after app restart when voice session reinitializes
+ *
+ * @param sessionId - The session ID for logging/context
+ * @param messages - Full array of messages in the session (ordered chronologically)
+ * @returns Formatted string containing the most recent N messages
+ */
 export function formatHistory(sessionId: string, messages: Message[]): string {
+    // Take the LAST N messages (most recent), not the first N
+    // Using negative slice (-50) means "take last 50 items from the end"
     let messagesToFormat = VOICE_CONFIG.MAX_HISTORY_MESSAGES > 0
-        ? messages.slice(0, VOICE_CONFIG.MAX_HISTORY_MESSAGES)
+        ? messages.slice(-VOICE_CONFIG.MAX_HISTORY_MESSAGES)  // ✅ Gets most recent messages
         : messages;
     let formatted = messagesToFormat.map(formatMessage).filter(Boolean);
-    return 'History of messages in session: ' + sessionId + '\n\n' + formatted.join('\n\n');
+    return 'History of messages in session: ' + sessionId + ' (most recent messages first)\n\n' + formatted.join('\n\n');
 }
 
 //

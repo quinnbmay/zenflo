@@ -1,5 +1,24 @@
 # Changelog
 
+## Combined Memory Coder Custom Build - 2025-11-03
+
+### Voice Assistant Bug Fixes
+
+This update resolves a critical issue where the Max voice assistant couldn't access recent messages after app restart, causing confusion when asked to summarize or explain the latest conversation.
+
+- Fixed message history bug where Max received oldest 50 messages instead of most recent 50 messages
+- Updated context formatter to use `messages.slice(-50)` ensuring Max always sees latest conversation
+- Enhanced Max's prompt to explicitly look at the END of message history for "what does this tell me?" queries
+- Improved real-time context synchronization for better voice assistant responses
+- Added comprehensive documentation for voice assistant context management architecture
+
+**Technical Details:**
+- Modified `sources/realtime/hooks/contextFormatters.ts` formatHistory() function
+- Updated `scripts/update-agent-final.json` with clearer instructions for last message lookup
+- Documented WebSocket-based context update flow in CLAUDE.md
+
+---
+
 ## Combined Memory Coder Custom Build - 2025-11-02
 
 Custom iOS-only production build for internal use at Combined Memory.
