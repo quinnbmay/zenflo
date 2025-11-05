@@ -212,13 +212,13 @@ function NewSessionScreen() {
     // Agent selection
     //
 
-    const [agentType, setAgentType] = React.useState<'claude' | 'codex'>(() => {
+    const [agentType, setAgentType] = React.useState<'claude' | 'codex' | 'qwen'>(() => {
         // Check if agent type was provided in temp data
         if (tempSessionData?.agentType) {
             return tempSessionData.agentType;
         }
         // Initialize with last used agent if valid, otherwise default to 'claude'
-        if (lastUsedAgent === 'claude' || lastUsedAgent === 'codex') {
+        if (lastUsedAgent === 'claude' || lastUsedAgent === 'codex' || lastUsedAgent === 'qwen') {
             return lastUsedAgent;
         }
         return 'claude';
@@ -226,7 +226,10 @@ function NewSessionScreen() {
 
     const handleAgentClick = React.useCallback(() => {
         setAgentType(prev => {
-            const newAgent = prev === 'claude' ? 'codex' : 'claude';
+            let newAgent: 'claude' | 'codex' | 'qwen';
+            if (prev === 'claude') newAgent = 'codex';
+            else if (prev === 'codex') newAgent = 'qwen';
+            else newAgent = 'claude';
             // Save the new selection immediately
             sync.applySettings({ lastUsedAgent: newAgent });
             return newAgent;

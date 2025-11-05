@@ -10,6 +10,15 @@ export const CLAUDE_OAUTH_CONFIG = {
     SCOPE: 'user:inference',
 };
 
+// OAuth Configuration for Qwen
+export const QWEN_OAUTH_CONFIG = {
+    CLIENT_ID: process.env.EXPO_PUBLIC_QWEN_CLIENT_ID || 'your-qwen-client-id',
+    AUTHORIZE_URL: 'https://dashscope.aliyuncs.com/oauth/authorize',
+    TOKEN_URL: 'https://dashscope.aliyuncs.com/oauth/token',
+    REDIRECT_URI: 'http://localhost:54546/callback',
+    SCOPE: 'public_data:read',
+};
+
 export interface PKCECodes {
     verifier: string;
     challenge: string;
@@ -19,6 +28,15 @@ export interface ClaudeAuthTokens {
     raw: any;
     token: string;
     expires: number;
+}
+
+export interface QwenAuthTokens {
+    access_token: string;
+    refresh_token?: string;
+    token_type: string;
+    expires_in?: number;
+    scope?: string;
+    id_token?: string;
 }
 
 /**
@@ -62,41 +80,50 @@ export function generateState(): string {
 }
 
 /**
- * Build OAuth authorization URL
+ * Build OAuth authorization URL for a specific service
  */
-export function buildAuthorizationUrl(challenge: string, state: string): string {
+export function buildAuthorizationUrl(challenge: string, state: string, service: 'claude' | 'qwen' = 'claude'): string {
+    const config = service === 'qwen' ? QWEN_OAUTH_CONFIG : CLAUDE_OAUTH_CONFIG;
+    
     const params = new URLSearchParams({
-        code: 'true',  // This tells Claude.ai to show the code AND redirect
-        client_id: CLAUDE_OAUTH_CONFIG.CLIENT_ID,
+        client_id: config.CLIENT_ID,
         response_type: 'code',
-        redirect_uri: CLAUDE_OAUTH_CONFIG.REDIRECT_URI,
-        scope: CLAUDE_OAUTH_CONFIG.SCOPE,
+        redirect_uri: config.REDIRECT_URI,
+        scope: config.SCOPE,
         code_challenge: challenge,
         code_challenge_method: 'S256',
         state: state,
     });
+    
+    // Claude has special 'code' parameter
+    if (service === 'claude') {
+        params.set('code', 'true');  // This tells Claude.ai to show the code AND redirect
+    }
 
-    return `${CLAUDE_OAUTH_CONFIG.AUTHORIZE_URL}?${params}`;
+    return `${config.AUTHORIZE_URL}?${params}`;
 }
 
 /**
- * Exchange authorization code for tokens
+ * Exchange authorization code for tokens for a specific service
  */
 export async function exchangeCodeForTokens(
     code: string,
     verifier: string,
-    state: string
-): Promise<ClaudeAuthTokens> {
-    const tokenResponse = await fetch(CLAUDE_OAUTH_CONFIG.TOKEN_URL, {
+    state: string,
+    service: 'claude' | 'qwen' = 'claude'
+): Promise<ClaudeAuthTokens | QwenAuthTokens> {
+    const config = service === 'qwen' ? QWEN_OAUTH_CONFIG : CLAUDE_OAUTH_CONFIG;
+
+    const tokenResponse = await fetch(config.TOKEN_URL, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify({
+        body: new URLSearchParams({
             grant_type: 'authorization_code',
             code: code,
-            redirect_uri: CLAUDE_OAUTH_CONFIG.REDIRECT_URI,
-            client_id: CLAUDE_OAUTH_CONFIG.CLIENT_ID,
+            redirect_uri: config.REDIRECT_URI,
+            client_id: config.CLIENT_ID,
             code_verifier: verifier,
             state: state,
         }),
@@ -109,11 +136,22 @@ export async function exchangeCodeForTokens(
 
     const tokenData = await tokenResponse.json() as any;
 
-    return {
-        raw: tokenData,
-        token: tokenData.access_token,
-        expires: Date.now() + tokenData.expires_in * 1000,
-    };
+    if (service === 'claude') {
+        return {
+            raw: tokenData,
+            token: tokenData.access_token,
+            expires: Date.now() + tokenData.expires_in * 1000,
+        } as ClaudeAuthTokens;
+    } else {
+        return {
+            access_token: tokenData.access_token,
+            refresh_token: tokenData.refresh_token,
+            token_type: tokenData.token_type,
+            expires_in: tokenData.expires_in,
+            scope: tokenData.scope,
+            id_token: tokenData.id_token,
+        } as QwenAuthTokens;
+    }
 }
 
 /**

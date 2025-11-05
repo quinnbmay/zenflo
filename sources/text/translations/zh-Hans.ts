@@ -128,6 +128,7 @@ export const zhHans: TranslationStructure = {
         githubConnected: ({ login }: { login: string }) => `已连接为 @${login}`,
         connectGithubAccount: '连接您的 GitHub 账户',
         claudeAuthSuccess: '成功连接到 Claude',
+        qwenAuthSuccess: '成功连接到 Qwen',
         exchangingTokens: '正在交换令牌...',
         usage: '使用情况',
         usageSubtitle: '查看 API 使用情况和费用',
@@ -391,6 +392,7 @@ export const zhHans: TranslationStructure = {
         agent: {
             claude: 'Claude',
             codex: 'Codex',
+            qwen: 'Qwen',
         },
         model: {
             title: '模型',

@@ -56,7 +56,7 @@ interface AgentInputProps {
     };
     alwaysShowContextSize?: boolean;
     onFileViewerPress?: () => void;
-    agentType?: 'claude' | 'codex';
+    agentType?: 'claude' | 'codex' | 'qwen';
     onAgentClick?: () => void;
     machineName?: string | null;
     onMachineClick?: () => void;
@@ -293,6 +293,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
     
     // Check if this is a Codex session
     const isCodex = props.metadata?.flavor === 'codex';
+    const isQwen = props.metadata?.flavor === 'qwen';
 
     // Calculate context warning
     const contextWarning = props.usageData?.contextSize
@@ -488,7 +489,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isCodex, props.modelMode, props.onModelModeChange]);
+    }, [isCodex, isQwen, props.modelMode, props.onModelModeChange]);
 
 
 
@@ -834,7 +835,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         fontWeight: '600',
                                         ...Typography.default('semiBold'),
                                     }}>
-                                        {props.agentType === 'claude' ? t('agentInput.agent.claude') : t('agentInput.agent.codex')}
+                                        {props.agentType === 'claude' ? t('agentInput.agent.claude') : props.agentType === 'codex' ? t('agentInput.agent.codex') : t('agentInput.agent.qwen')}
                                     </Text>
                                 </Pressable>
                             )}

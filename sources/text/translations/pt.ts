@@ -126,6 +126,7 @@ export const pt: TranslationStructure = {
         githubConnected: ({ login }: { login: string }) => `Conectado como @${login}`,
         connectGithubAccount: 'Conecte sua conta GitHub',
         claudeAuthSuccess: 'Conectado ao Claude com sucesso',
+        qwenAuthSuccess: 'Conectado ao Qwen com sucesso',
         exchangingTokens: 'Trocando tokens...',
         usage: 'Uso',
         usageSubtitle: 'Visualizar uso da API e custos',
@@ -389,6 +390,7 @@ export const pt: TranslationStructure = {
         agent: {
             claude: 'Claude',
             codex: 'Codex',
+            qwen: 'Qwen',
         },
         model: {
             title: 'MODELO',

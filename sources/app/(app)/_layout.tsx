@@ -298,6 +298,14 @@ export default function RootLayout() {
                 }}
             />
             <Stack.Screen
+                name="settings/connect/qwen"
+                options={{
+                    headerShown: true,
+                    headerTitle: 'Connect to Qwen',
+                    headerBackTitle: t('common.back'),
+                }}
+            />
+            <Stack.Screen
                 name="new/pick/machine"
                 options={{
                     headerTitle: '',
