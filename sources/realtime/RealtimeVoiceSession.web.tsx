@@ -34,15 +34,74 @@ class RealtimeVoiceSessionImpl implements VoiceSession {
             // Get user's preferred language for voice assistant
             const userLanguagePreference = storage.getState().settings.voiceAssistantLanguage;
             const elevenLabsLanguage = getElevenLabsCodeFromPreference(userLanguagePreference);
-            
+
+            // Get session name and build thread context from recent messages
+            const session = storage.getState().sessions[config.sessionId];
+            const sessionName = session?.metadata?.summary?.text || 'your project';
+
+            // Build comprehensive thread context with recent conversation history
+            let threadContextText = `Thread: "${sessionName}"\n\n`;
+
+            if (config.initialContext) {
+                threadContextText += `Current Focus: ${config.initialContext}\n\n`;
+            }
+
+            // Get recent messages for full context (last 15 messages or last 10,000 chars)
+            const sessionMessages = storage.getState().sessionMessages[config.sessionId];
+            if (sessionMessages && sessionMessages.messages.length > 0) {
+                const recentMessages = sessionMessages.messages.slice(-15); // Last 15 messages
+                let contextMessages: string[] = [];
+                let totalChars = 0;
+                const maxChars = 10000; // Expanded to 10k chars for voice context
+
+                // Build context from most recent messages backwards
+                for (let i = recentMessages.length - 1; i >= 0; i--) {
+                    const msg = recentMessages[i];
+                    let messagePreview = '';
+
+                    // Extract text from message content
+                    if (msg.content && msg.content.length > 0) {
+                        const firstContent = msg.content[0];
+                        if (firstContent.type === 'text') {
+                            messagePreview = firstContent.text?.slice(0, 800) || '';
+                        } else if (firstContent.type === 'tool-use') {
+                            messagePreview = `[Used tool: ${firstContent.name}]`;
+                        } else if (firstContent.type === 'tool-result') {
+                            messagePreview = '[Tool result]';
+                        }
+                    }
+
+                    if (messagePreview) {
+                        const roleName = msg.role === 'user' ? 'Quinn' : msg.role === 'assistant' || msg.role === 'agent' ? 'Assistant' : msg.role;
+                        const msgText = `${roleName}: ${messagePreview}${messagePreview.length >= 800 ? '...' : ''}`;
+
+                        if (totalChars + msgText.length > maxChars) break;
+
+                        contextMessages.unshift(msgText);
+                        totalChars += msgText.length;
+                    }
+                }
+
+                if (contextMessages.length > 0) {
+                    threadContextText += 'Recent Conversation:\n' + contextMessages.join('\n\n');
+                } else {
+                    threadContextText += 'No recent conversation history.';
+                }
+            } else {
+                threadContextText += 'Starting fresh conversation.';
+            }
+
             // Use hardcoded agent ID for Eleven Labs
             const conversationId = await conversationInstance.startSession({
                 agentId: 'agent_1001k8zw6qdvfz7v2yabcqs8zwde',
                 connectionType: 'webrtc', // Use WebRTC for better performance
-                // Pass session ID and initial context as dynamic variables
+                // Pass session ID, name, and full thread context as dynamic variables
                 dynamicVariables: {
                     sessionId: config.sessionId,
-                    initialConversationContext: config.initialContext || ''
+                    sessionName: sessionName,
+                    threadContext: threadContextText,
+                    initialConversationContext: config.initialContext || '',
+                    hasContext: !!config.initialContext
                 },
                 overrides: {
                     agent: {
