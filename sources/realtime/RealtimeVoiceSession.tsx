@@ -99,7 +99,7 @@ CRITICAL: Natural Voice Conversation Rules
 
             // Get session name and build thread context from recent messages
             const session = storage.getState().sessions[config.sessionId];
-            const sessionName = session?.name || 'your project';
+            const sessionName = session?.metadata?.summary?.text || 'your project';
 
             // Build comprehensive thread context with recent conversation history
             let threadContextText = `Thread: "${sessionName}"\n\n`;
