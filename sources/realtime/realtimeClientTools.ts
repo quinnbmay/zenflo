@@ -4,6 +4,7 @@ import { sessionAllow, sessionDeny } from '@/sync/ops';
 import { storage } from '@/sync/storage';
 import { trackPermissionResponse } from '@/track';
 import { getCurrentRealtimeSessionId } from './RealtimeSession';
+import { getSessionName } from '@/utils/sessionUtils';
 
 /**
  * Helper function to extract readable text content from message content array
@@ -144,7 +145,7 @@ export const realtimeClientTools = {
 
         const details = {
             id: session.id,
-            title: session.metadata?.summary?.text || session.metadata?.name || 'Untitled Session',
+            title: getSessionName(session),
             path: session.metadata?.path,
             isOnline: session.presence === 'online',
             isThinking: session.thinking,
@@ -218,7 +219,7 @@ export const realtimeClientTools = {
 
                 return {
                     id: session.id,
-                    title: session.metadata?.summary?.text || session.metadata?.name || 'Untitled Session',
+                    title: getSessionName(session),
                     path: session.metadata?.path,
                     isOnline: session.presence === 'online',
                     isThinking: session.thinking,
@@ -274,7 +275,7 @@ export const realtimeClientTools = {
             .filter(session => session.active)
             .map(session => ({
                 id: session.id,
-                title: session.metadata?.summary?.text || session.metadata?.name || 'Untitled Session',
+                title: getSessionName(session),
                 path: session.metadata?.path,
                 isOnline: session.presence === 'online',
                 isThinking: session.thinking,
