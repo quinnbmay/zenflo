@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useConversation } from '@elevenlabs/react-native';
 import { registerVoiceSession } from './RealtimeSession';
 import { storage } from '@/sync/storage';
+import { buildMessagePreview } from '@/sync/messagePreview';
 import { realtimeClientTools } from './realtimeClientTools';
 import { getElevenLabsCodeFromPreference } from '@/constants/Languages';
 import type { VoiceSession, VoiceSessionConfig } from './types';
@@ -118,30 +119,32 @@ CRITICAL: Natural Voice Conversation Rules
 
                 // Build context from most recent messages backwards
                 for (let i = recentMessages.length - 1; i >= 0; i--) {
-                    const msg = recentMessages[i];
-                    let messagePreview = '';
-
-                    // Extract text from message content
-                    if (msg.content && msg.content.length > 0) {
-                        const firstContent = msg.content[0];
-                        if (firstContent.type === 'text') {
-                            messagePreview = firstContent.text?.slice(0, 800) || '';
-                        } else if (firstContent.type === 'tool-use') {
-                            messagePreview = `[Used tool: ${firstContent.name}]`;
-                        } else if (firstContent.type === 'tool-result') {
-                            messagePreview = '[Tool result]';
-                        }
+                    const preview = buildMessagePreview(recentMessages[i]);
+                    if (!preview || !preview.text) {
+                        continue;
                     }
 
-                    if (messagePreview) {
-                        const roleName = msg.role === 'user' ? 'Quinn' : msg.role === 'assistant' || msg.role === 'agent' ? 'Assistant' : msg.role;
-                        const msgText = `${roleName}: ${messagePreview}${messagePreview.length >= 800 ? '...' : ''}`;
+                    const roleName =
+                        preview.speaker === 'user'
+                            ? 'Quinn'
+                            : preview.speaker === 'assistant'
+                                ? 'Assistant'
+                                : 'System';
 
-                        if (totalChars + msgText.length > maxChars) break;
+                    const truncatedText = preview.text.length > 800
+                        ? `${preview.text.slice(0, 800)}...`
+                        : preview.text;
 
-                        contextMessages.unshift(msgText);
-                        totalChars += msgText.length;
+                    if (!truncatedText) {
+                        continue;
                     }
+
+                    const msgText = `${roleName}: ${truncatedText}`;
+
+                    if (totalChars + msgText.length > maxChars) break;
+
+                    contextMessages.unshift(msgText);
+                    totalChars += msgText.length;
                 }
 
                 if (contextMessages.length > 0) {

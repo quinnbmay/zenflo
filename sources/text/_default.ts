@@ -41,6 +41,7 @@ export const en = {
         continue: 'Continue',
         back: 'Back',
         create: 'Create',
+        rename: 'Rename',
         reset: 'Reset',
         logout: 'Logout',
         yes: 'Yes',
@@ -391,6 +392,7 @@ export const en = {
             claude: 'Claude',
             codex: 'Codex',
             qwen: 'Qwen',
+            gemini: 'Gemini',
         },
         model: {
             title: 'MODEL',

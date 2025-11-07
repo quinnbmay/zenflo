@@ -34,6 +34,7 @@ export const ca: TranslationStructure = {
         cancel: 'Cancel·la',
         authenticate: 'Autentica',
         save: 'Desa',
+        saving: 'Desant...',
         error: 'Error',
         success: 'Èxit',
         ok: 'D\'acord',
@@ -391,6 +392,7 @@ export const ca: TranslationStructure = {
             claude: 'Claude',
             codex: 'Codex',
             qwen: 'Qwen',
+            gemini: 'Gemini',
         },
         model: {
             title: 'MODEL',

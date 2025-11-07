@@ -999,9 +999,7 @@ export const storage = create<StorageState>()((set, get) => {
             return get().users[userId];  // Returns UserProfile | null | undefined
         },
         assumeUsers: async (userIds: string[]) => {
-            // This will be implemented in sync.ts as it needs access to credentials
-            // Just a placeholder here for the interface
-            const { sync } = await import('./sync');
+            // Use the statically imported sync module (imported at top of file)
             return sync.assumeUsers(userIds);
         },
         // Feed methods

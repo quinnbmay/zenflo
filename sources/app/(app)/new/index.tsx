@@ -164,15 +164,20 @@ function NewSessionScreen() {
                 // This handles the case where machines load after initial render
                 const currentMachine = machines.find(m => m.id === selectedMachineId);
                 if (currentMachine && !hasManuallySelectedPath) {
+                    console.log('[NEW SESSION] Auto-update path check:', { hasManuallySelectedPath, selectedPath });
                     // Update path based on recent paths (only if path hasn't been manually changed)
                     const bestPath = getRecentPathForMachine(selectedMachineId, recentMachinePaths);
                     setSelectedPath(prevPath => {
                         // Only update if current path is the default /home/
                         if (prevPath === '/home/' && bestPath !== '/home/') {
+                            console.log('[NEW SESSION] Auto-updating path from /home/ to:', bestPath);
                             return bestPath;
                         }
+                        console.log('[NEW SESSION] Keeping current path:', prevPath);
                         return prevPath;
                     });
+                } else if (currentMachine && hasManuallySelectedPath) {
+                    console.log('[NEW SESSION] Skipping auto-update because path was manually selected');
                 }
             }
         }
@@ -180,11 +185,13 @@ function NewSessionScreen() {
 
     React.useEffect(() => {
         let handler = (machineId: string) => {
+            console.log('[NEW SESSION] Machine manually selected:', machineId);
             let machine = storage.getState().machines[machineId];
             if (machine) {
                 setSelectedMachineId(machineId);
                 // Also update the path when machine changes
                 const bestPath = getRecentPathForMachine(machineId, recentMachinePaths);
+                console.log('[NEW SESSION] Setting path for new machine:', bestPath);
                 setSelectedPath(bestPath);
                 setHasManuallySelectedPath(false); // Reset manual flag when machine changes
             }

@@ -138,7 +138,7 @@ export interface SpawnSessionOptions {
     directory: string;
     approvedNewDirectoryCreation?: boolean;
     token?: string;
-    agent?: 'codex' | 'claude' | 'qwen';
+    agent?: 'codex' | 'claude' | 'qwen' | 'gemini';
 }
 
 // Exported session operation functions
@@ -156,7 +156,7 @@ export async function machineSpawnNewSession(options: SpawnSessionOptions): Prom
             directory: string
             approvedNewDirectoryCreation?: boolean,
             token?: string,
-            agent?: 'codex' | 'claude' | 'qwen'
+            agent?: 'codex' | 'claude' | 'qwen' | 'gemini'
         }>(
             machineId,
             'spawn-happy-session',
@@ -489,9 +489,11 @@ export async function sessionDelete(sessionId: string): Promise<{ success: boole
         const response = await apiSocket.request(`/v1/sessions/${sessionId}`, {
             method: 'DELETE'
         });
-        
-        if (response.ok) {
-            const result = await response.json();
+
+        if (response.ok || response.status === 404) {
+            // Remove the session from local state
+            // Treat 404 as success - if session doesn't exist on server, still remove it locally
+            sync.removeSessionLocally(sessionId);
             return { success: true };
         } else {
             const error = await response.text();

@@ -45,6 +45,7 @@ export const ru: TranslationStructure = {
         cancel: 'Отмена',
         authenticate: 'Авторизация',
         save: 'Сохранить',
+        saving: 'Сохранение...',
         error: 'Ошибка',
         success: 'Успешно',
         ok: 'ОК',
@@ -401,6 +402,7 @@ export const ru: TranslationStructure = {
             claude: 'Claude',
             codex: 'Codex',
             qwen: 'Qwen',
+            gemini: 'Gemini',
         },
         model: {
             title: 'МОДЕЛЬ',

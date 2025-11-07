@@ -15,6 +15,7 @@
     "ota": "APP_ENV=preview NODE_ENV=preview tsx sources/scripts/parseChangelog.ts && yarn typecheck && eas update --branch preview",
     "ota:production": "npx eas-cli@latest workflow:run ota.yaml",
     "typecheck": "tsc --noEmit",
+    "type-check": "yarn typecheck",
     "postinstall": "patch-package",
     "generate-theme": "tsx sources/theme.gen.ts"
   },

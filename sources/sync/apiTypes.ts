@@ -44,7 +44,8 @@ export const ApiDeleteSessionSchema = z.object({
 
 export const ApiUpdateSessionStateSchema = z.object({
     t: z.literal('update-session'),
-    id: z.string(),
+    id: z.string().optional(),
+    sid: z.string().optional(),
     agentState: z.object({
         version: z.number(),
         value: z.string()
@@ -53,6 +54,13 @@ export const ApiUpdateSessionStateSchema = z.object({
         version: z.number(),
         value: z.string()
     }).nullish(),
+    active: z.boolean().optional(),
+    activeAt: z.number().optional(),
+    thinking: z.boolean().optional(),
+    thinkingAt: z.number().optional(),
+}).refine((data) => !!(data.id || data.sid), {
+    message: 'update-session requires id or sid',
+    path: ['id']
 });
 
 export const ApiUpdateAccountSchema = z.object({

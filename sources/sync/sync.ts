@@ -204,6 +204,23 @@ class Sync {
         }
     }
 
+    /**
+     * Remove a session from local caches and state without waiting for a server update.
+     */
+    removeSessionLocally(sessionId: string) {
+        // Remove session from storage and associated caches
+        storage.getState().deleteSession(sessionId);
+
+        // Clear encryption keys held in memory for this session
+        this.encryption.removeSessionEncryption(sessionId);
+
+        // Remove session from the project manager
+        projectManager.removeSession(sessionId);
+
+        // Drop any cached git status for the session
+        gitStatusSync.clearForSession(sessionId);
+    }
+
 
     async sendMessage(sessionId: string, text: string, displayText?: string) {
 
@@ -1673,61 +1690,66 @@ class Sync {
             log.log('🗑️ Delete session update received');
             const sessionId = updateData.body.sid;
             
-            // Remove session from storage
-            storage.getState().deleteSession(sessionId);
-            
-            // Remove encryption keys from memory
-            this.encryption.removeSessionEncryption(sessionId);
-            
-            // Remove from project manager
-            projectManager.removeSession(sessionId);
-            
-            // Clear any cached git status
-            gitStatusSync.clearForSession(sessionId);
+            this.removeSessionLocally(sessionId);
             
             log.log(`🗑️ Session ${sessionId} deleted from local storage`);
         } else if (updateData.body.t === 'update-session') {
-            const session = storage.getState().sessions[updateData.body.id];
-            if (session) {
-                // Get session encryption
-                const sessionEncryption = this.encryption.getSessionEncryption(updateData.body.id);
-                if (!sessionEncryption) {
-                    console.error(`Session encryption not found for ${updateData.body.id} - this should never happen`);
-                    return;
-                }
+            const sessionId = updateData.body.id ?? updateData.body.sid;
+            if (!sessionId) {
+                console.error('update-session update received without session id');
+                return;
+            }
 
-                const agentState = updateData.body.agentState && sessionEncryption
-                    ? await sessionEncryption.decryptAgentState(updateData.body.agentState.version, updateData.body.agentState.value)
-                    : session.agentState;
-                const metadata = updateData.body.metadata && sessionEncryption
-                    ? await sessionEncryption.decryptMetadata(updateData.body.metadata.version, updateData.body.metadata.value)
-                    : session.metadata;
+            const session = storage.getState().sessions[sessionId];
+            if (!session) {
+                this.sessionsSync.invalidate();
+                return;
+            }
 
-                this.applySessions([{
-                    ...session,
-                    agentState,
-                    agentStateVersion: updateData.body.agentState
-                        ? updateData.body.agentState.version
-                        : session.agentStateVersion,
-                    metadata,
-                    metadataVersion: updateData.body.metadata
-                        ? updateData.body.metadata.version
-                        : session.metadataVersion,
-                    updatedAt: updateData.createdAt,
-                    seq: updateData.seq
-                }]);
+            // Get session encryption
+            const sessionEncryption = this.encryption.getSessionEncryption(sessionId);
+            if (!sessionEncryption) {
+                console.error(`Session encryption not found for ${sessionId} - this should never happen`);
+                return;
+            }
 
-                // Invalidate git status when agent state changes (files may have been modified)
-                if (updateData.body.agentState) {
-                    gitStatusSync.invalidate(updateData.body.id);
+            const agentState = updateData.body.agentState
+                ? await sessionEncryption.decryptAgentState(updateData.body.agentState.version, updateData.body.agentState.value)
+                : session.agentState;
+            const metadata = updateData.body.metadata
+                ? await sessionEncryption.decryptMetadata(updateData.body.metadata.version, updateData.body.metadata.value)
+                : session.metadata;
 
-                    // Check for new permission requests and notify voice assistant
-                    if (agentState?.requests && Object.keys(agentState.requests).length > 0) {
-                        const requestIds = Object.keys(agentState.requests);
-                        const firstRequest = agentState.requests[requestIds[0]];
-                        const toolName = firstRequest?.tool;
-                        voiceHooks.onPermissionRequested(updateData.body.id, requestIds[0], toolName, firstRequest?.arguments);
-                    }
+            const updatedSession = {
+                ...session,
+                agentState,
+                agentStateVersion: updateData.body.agentState
+                    ? updateData.body.agentState.version
+                    : session.agentStateVersion,
+                metadata,
+                metadataVersion: updateData.body.metadata
+                    ? updateData.body.metadata.version
+                    : session.metadataVersion,
+                active: updateData.body.active ?? session.active,
+                activeAt: updateData.body.activeAt ?? session.activeAt,
+                thinking: updateData.body.thinking ?? session.thinking ?? false,
+                thinkingAt: updateData.body.thinkingAt ?? session.thinkingAt ?? session.activeAt,
+                updatedAt: updateData.createdAt,
+                seq: updateData.seq
+            } satisfies Session;
+
+            this.applySessions([updatedSession]);
+
+            // Invalidate git status when agent state changes (files may have been modified)
+            if (updateData.body.agentState) {
+                gitStatusSync.invalidate(sessionId);
+
+                // Check for new permission requests and notify voice assistant
+                if (agentState?.requests && Object.keys(agentState.requests).length > 0) {
+                    const requestIds = Object.keys(agentState.requests);
+                    const firstRequest = agentState.requests[requestIds[0]];
+                    const toolName = firstRequest?.tool;
+                    voiceHooks.onPermissionRequested(sessionId, requestIds[0], toolName, firstRequest?.arguments);
                 }
             }
         } else if (updateData.body.t === 'update-account') {

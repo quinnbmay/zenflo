@@ -45,6 +45,7 @@ export const pl: TranslationStructure = {
         cancel: 'Anuluj',
         authenticate: 'Uwierzytelnij',
         save: 'Zapisz',
+        saving: 'Zapisywanie...',
         error: 'Błąd',
         success: 'Sukces',
         ok: 'OK',
@@ -401,6 +402,7 @@ export const pl: TranslationStructure = {
             claude: 'Claude',
             codex: 'Codex',
             qwen: 'Qwen',
+            gemini: 'Gemini',
         },
         model: {
             title: 'MODEL',
