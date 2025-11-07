@@ -25,13 +25,19 @@ const todoLock = new AsyncLock();
 // Types
 //
 
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED';
+
 export interface TodoItem {
     id: string;
     title: string;
-    done: boolean;
+    done: boolean;  // Keep for backward compatibility with existing UI
+    status: TaskStatus;  // Enhanced status for MCP
+    priority?: TaskPriority;  // Optional priority level
     createdAt: number;
     updatedAt: number;
     completedAt?: number;  // Timestamp when marked as done
+    cancelledAt?: number;  // Timestamp when cancelled
     linkedSessions?: {
         [sessionId: string]: {
             title: string;      // Display title (e.g., "Clarify: Task Name")
@@ -168,7 +174,9 @@ export async function initializeTodoSync(credentials: AuthCredentials): Promise<
  */
 export async function addTodo(
     credentials: AuthCredentials,
-    title: string
+    title: string,
+    priority?: TaskPriority,
+    status?: TaskStatus
 ): Promise<string> {
     const id = randomUUID();
     const now = Date.now();
@@ -177,6 +185,8 @@ export async function addTodo(
         id,
         title,
         done: false,
+        status: status || 'TODO',
+        priority: priority,
         createdAt: now,
         updatedAt: now,
         linkedSessions: {}  // Initialize with empty map
@@ -401,11 +411,16 @@ export async function toggleTodo(
     }
 
     const now = Date.now();
+    const newDone = !todo.done;
+    const newStatus: TaskStatus = newDone ? 'DONE' : 'TODO';
+
     const updatedTodo: TodoItem = {
         ...todo,
-        done: !todo.done,
+        done: newDone,
+        status: newStatus,
         updatedAt: now,
-        completedAt: !todo.done ? now : undefined  // Set completedAt when marking as done
+        completedAt: newDone ? now : undefined,  // Set completedAt when marking as done
+        cancelledAt: undefined  // Clear cancelled timestamp if toggling
     };
 
     // Calculate new orders optimistically
@@ -448,12 +463,14 @@ export async function toggleTodo(
                 todoVersion = todoResponse.version;
                 try {
                     const existingTodo = await decryptTodoData(todoResponse.value) as TodoItem;
-                    // Merge: keep server data but update done status and timestamps
+                    // Merge: keep server data but update done status, status enum, and timestamps
                     serverTodo = {
                         ...existingTodo,
                         done: updatedTodo.done,
+                        status: updatedTodo.status,
                         updatedAt: now,
-                        completedAt: updatedTodo.done ? now : undefined
+                        completedAt: updatedTodo.done ? now : undefined,
+                        cancelledAt: undefined
                     };
                 } catch (err) {
                     console.error('Failed to decrypt server todo', err);
@@ -526,6 +543,188 @@ export async function toggleTodo(
             }
         } catch (error) {
             console.error('Failed to toggle todo:', error);
+            // Keep optimistic update even on error
+        }
+    });
+}
+
+/**
+ * Update a todo's status and/or priority (for MCP)
+ */
+export async function updateTodoStatusAndPriority(
+    credentials: AuthCredentials,
+    id: string,
+    status?: TaskStatus,
+    priority?: TaskPriority
+): Promise<void> {
+    const currentState = storage.getState();
+    const { todos, undoneOrder, doneOrder, versions } = currentState.todoState || {
+        todos: {},
+        undoneOrder: [],
+        doneOrder: [],
+        versions: {}
+    };
+
+    const todo = todos[id];
+    if (!todo) {
+        console.error(`Todo ${id} not found`);
+        return;
+    }
+
+    const now = Date.now();
+    const newStatus = status !== undefined ? status : todo.status;
+    const newPriority = priority !== undefined ? priority : todo.priority;
+    const newDone = (newStatus === 'DONE' || newStatus === 'CANCELLED');
+
+    const updatedTodo: TodoItem = {
+        ...todo,
+        status: newStatus,
+        priority: newPriority,
+        done: newDone,
+        updatedAt: now,
+        completedAt: newStatus === 'DONE' ? now : (newStatus === 'DONE' ? todo.completedAt : undefined),
+        cancelledAt: newStatus === 'CANCELLED' ? now : (newStatus === 'CANCELLED' ? todo.cancelledAt : undefined)
+    };
+
+    // Calculate new orders if status changed between done/undone
+    let optimisticUndoneOrder = [...undoneOrder];
+    let optimisticDoneOrder = [...doneOrder];
+
+    if (newDone !== todo.done) {
+        if (newDone) {
+            // Moving to done/cancelled
+            optimisticUndoneOrder = optimisticUndoneOrder.filter(tid => tid !== id);
+            optimisticDoneOrder = [id, ...optimisticDoneOrder.filter(tid => tid !== id)];
+        } else {
+            // Moving to todo/in_progress
+            optimisticDoneOrder = optimisticDoneOrder.filter(tid => tid !== id);
+            optimisticUndoneOrder = [...optimisticUndoneOrder.filter(tid => tid !== id), id];
+        }
+    }
+
+    // Apply optimistic update immediately
+    storage.getState().applyTodos({
+        todos: { ...todos, [id]: updatedTodo },
+        undoneOrder: optimisticUndoneOrder,
+        doneOrder: optimisticDoneOrder,
+        versions
+    });
+
+    // Sync to server inside lock
+    await todoLock.inLock(async () => {
+        try {
+            const todoKey = getTodoKey(id);
+            const [todoResponse, indexResponse] = await Promise.all([
+                kvGet(credentials, todoKey),
+                kvGet(credentials, TODO_INDEX_KEY)
+            ]);
+
+            // Prepare todo for backend
+            let serverTodo = updatedTodo;
+            let todoVersion = -1;
+
+            if (todoResponse) {
+                todoVersion = todoResponse.version;
+                try {
+                    const existingTodo = await decryptTodoData(todoResponse.value) as TodoItem;
+                    // Merge: keep server data but update status, priority, and timestamps
+                    serverTodo = {
+                        ...existingTodo,
+                        status: newStatus,
+                        priority: newPriority,
+                        done: newDone,
+                        updatedAt: now,
+                        completedAt: updatedTodo.completedAt,
+                        cancelledAt: updatedTodo.cancelledAt
+                    };
+                } catch (err) {
+                    console.error('Failed to decrypt server todo', err);
+                }
+            }
+
+            // Handle index update if done status changed
+            let mutations: KvMutation[] = [{
+                key: todoKey,
+                value: await encryptTodoData(serverTodo),
+                version: todoVersion
+            }];
+
+            if (newDone !== todo.done) {
+                // Update index
+                let currentIndex: TodoIndex = { undoneOrder: [], completedOrder: [] };
+                let indexVersion = -1;
+
+                if (indexResponse) {
+                    indexVersion = indexResponse.version;
+                    try {
+                        currentIndex = await decryptTodoData(indexResponse.value) as TodoIndex;
+                    } catch (err) {
+                        console.error('Failed to decrypt server index', err);
+                    }
+                }
+
+                let newUndoneOrder = (currentIndex.undoneOrder || []).filter(tid => tid !== id);
+                let newCompletedOrder = (currentIndex.completedOrder || []).filter(tid => tid !== id);
+
+                if (newDone) {
+                    newCompletedOrder = [id, ...newCompletedOrder];
+                } else {
+                    newUndoneOrder = [...newUndoneOrder, id];
+                }
+
+                const mergedIndex: TodoIndex = {
+                    undoneOrder: newUndoneOrder,
+                    completedOrder: newCompletedOrder
+                };
+
+                mutations.push({
+                    key: TODO_INDEX_KEY,
+                    value: await encryptTodoData(mergedIndex),
+                    version: indexVersion
+                });
+            }
+
+            const result = await kvMutate(credentials, mutations);
+
+            if (result.success) {
+                // Update versions
+                const newVersions = { ...versions };
+                for (const res of result.results) {
+                    newVersions[res.key] = res.version;
+                }
+
+                // Update storage with final merged state
+                if (newDone !== todo.done && indexResponse) {
+                    try {
+                        const finalIndex = await decryptTodoData(mutations.find(m => m.key === TODO_INDEX_KEY)?.value || '') as TodoIndex;
+                        storage.getState().applyTodos({
+                            todos: { ...todos, [id]: serverTodo },
+                            undoneOrder: finalIndex.undoneOrder,
+                            doneOrder: finalIndex.completedOrder,
+                            versions: newVersions
+                        });
+                    } catch {
+                        storage.getState().applyTodos({
+                            todos: { ...todos, [id]: serverTodo },
+                            undoneOrder: optimisticUndoneOrder,
+                            doneOrder: optimisticDoneOrder,
+                            versions: newVersions
+                        });
+                    }
+                } else {
+                    storage.getState().applyTodos({
+                        todos: { ...todos, [id]: serverTodo },
+                        undoneOrder,
+                        doneOrder,
+                        versions: newVersions
+                    });
+                }
+            } else {
+                console.error('Todo status/priority update failed, refetching all todos...');
+                await initializeTodoSync(credentials);
+            }
+        } catch (error) {
+            console.error('Failed to update todo status/priority:', error);
             // Keep optimistic update even on error
         }
     });
