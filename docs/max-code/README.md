@@ -46,6 +46,7 @@ Claude Code Backend (WebSocket sync)
 - Brief responses (1-3 sentences)
 - Uses contractions and natural speech
 - Mirrors user energy
+- **NEVER mentions session IDs** - only readable titles like "voice-agent-hub"
 
 ---
 
@@ -181,7 +182,10 @@ export const realtimeClientTools = {
 ## Common Issues
 
 ### Issue: Max says session ID instead of name
-**Fix:** Session name extraction now uses `getSessionName()` from sessionUtils
+**Fix:**
+1. Session name extraction uses `getSessionName()` from sessionUtils
+2. Prompt explicitly says "NEVER SAY SESSION IDs - ALWAYS use readable titles"
+3. Max trained to look at "title" field, NOT "id" field in tool responses
 
 ### Issue: Max explains he "can't access" something
 **Fix:** Update prompt with "NEVER explain limitations - USE YOUR TOOLS"
