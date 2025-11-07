@@ -90,20 +90,26 @@ function SessionInfoContent({ session }: { session: Session }) {
         }
     }, [session]);
 
-    // Use HappyAction for archiving - it handles errors automatically
+    // Use HappyAction for archiving - now deletes the session permanently
     const [archivingSession, performArchive] = useHappyAction(async () => {
-        // Gemini sessions use abort RPC instead of killSession
+        // First, kill the session if it's active
         const isGemini = session.metadata?.flavor === 'gemini';
 
-        if (isGemini) {
-            // For Gemini, sessionAbort returns void and throws on error
-            await sessionAbort(session.id);
-        } else {
-            // For Claude/other sessions, use sessionKill which returns success/message
-            const result = await sessionKill(session.id);
-            if (!result.success) {
-                throw new HappyError(result.message || t('sessionInfo.failedToArchiveSession'), false);
+        if (sessionStatus.isConnected) {
+            if (isGemini) {
+                await sessionAbort(session.id);
+            } else {
+                const killResult = await sessionKill(session.id);
+                if (!killResult.success) {
+                    throw new HappyError(killResult.message || t('sessionInfo.failedToArchiveSession'), false);
+                }
             }
+        }
+
+        // Then delete the session from the database
+        const result = await sessionDelete(session.id);
+        if (!result.success) {
+            throw new HappyError(result.message || t('sessionInfo.failedToDeleteSession'), false);
         }
 
         // Success - navigate back
@@ -114,7 +120,7 @@ function SessionInfoContent({ session }: { session: Session }) {
     const handleArchiveSession = useCallback(() => {
         Modal.alert(
             t('sessionInfo.archiveSession'),
-            t('sessionInfo.archiveSessionConfirm'),
+            'This will permanently delete this session and all its messages. This cannot be undone.',
             [
                 { text: t('common.cancel'), style: 'cancel' },
                 {
