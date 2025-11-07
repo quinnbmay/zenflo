@@ -163,7 +163,7 @@ function NewSessionScreen() {
                 // Machine is already selected, but check if we need to update path
                 // This handles the case where machines load after initial render
                 const currentMachine = machines.find(m => m.id === selectedMachineId);
-                if (currentMachine) {
+                if (currentMachine && !hasManuallySelectedPath) {
                     // Update path based on recent paths (only if path hasn't been manually changed)
                     const bestPath = getRecentPathForMachine(selectedMachineId, recentMachinePaths);
                     setSelectedPath(prevPath => {
@@ -186,6 +186,7 @@ function NewSessionScreen() {
                 // Also update the path when machine changes
                 const bestPath = getRecentPathForMachine(machineId, recentMachinePaths);
                 setSelectedPath(bestPath);
+                setHasManuallySelectedPath(false); // Reset manual flag when machine changes
             }
         };
         onMachineSelected = handler;
@@ -196,7 +197,9 @@ function NewSessionScreen() {
 
     React.useEffect(() => {
         let handler = (path: string) => {
+            console.log('[NEW SESSION] Path manually selected:', path);
             setSelectedPath(path);
+            setHasManuallySelectedPath(true);
         };
         onPathSelected = handler;
         return () => {
@@ -212,13 +215,13 @@ function NewSessionScreen() {
     // Agent selection
     //
 
-    const [agentType, setAgentType] = React.useState<'claude' | 'codex' | 'qwen'>(() => {
+    const [agentType, setAgentType] = React.useState<'claude' | 'codex' | 'qwen' | 'gemini'>(() => {
         // Check if agent type was provided in temp data
         if (tempSessionData?.agentType) {
             return tempSessionData.agentType;
         }
         // Initialize with last used agent if valid, otherwise default to 'claude'
-        if (lastUsedAgent === 'claude' || lastUsedAgent === 'codex' || lastUsedAgent === 'qwen') {
+        if (lastUsedAgent === 'claude' || lastUsedAgent === 'codex' || lastUsedAgent === 'qwen' || lastUsedAgent === 'gemini') {
             return lastUsedAgent;
         }
         return 'claude';
@@ -226,9 +229,10 @@ function NewSessionScreen() {
 
     const handleAgentClick = React.useCallback(() => {
         setAgentType(prev => {
-            let newAgent: 'claude' | 'codex' | 'qwen';
+            let newAgent: 'claude' | 'codex' | 'qwen' | 'gemini';
             if (prev === 'claude') newAgent = 'codex';
             else if (prev === 'codex') newAgent = 'qwen';
+            else if (prev === 'qwen') newAgent = 'gemini';
             else newAgent = 'claude';
             // Save the new selection immediately
             sync.applySettings({ lastUsedAgent: newAgent });
@@ -303,6 +307,8 @@ function NewSessionScreen() {
         // Initialize with the path from the selected machine (which should be the most recent if available)
         return getRecentPathForMachine(selectedMachineId, recentMachinePaths);
     });
+    const [hasManuallySelectedPath, setHasManuallySelectedPath] = React.useState(false);
+
     const handlePathClick = React.useCallback(() => {
         if (selectedMachineId) {
             router.push(`/new/pick/path?machineId=${selectedMachineId}`);
@@ -339,6 +345,7 @@ function NewSessionScreen() {
 
         setIsSending(true);
         try {
+            console.log('[NEW SESSION] Creating with selectedPath:', selectedPath, 'machineId:', selectedMachineId);
             let actualPath = selectedPath;
             
             // Handle worktree creation if selected and experiments are enabled
