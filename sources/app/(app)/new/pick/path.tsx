@@ -122,8 +122,11 @@ export default function PathPickerScreen() {
 
     const handleSelectPath = React.useCallback(() => {
         const pathToUse = customPath.trim() || machine?.metadata?.homeDir || '/home';
+        console.log('[PATH PICKER] Checkmark clicked, path:', pathToUse);
+        console.log('[PATH PICKER] Calling callbacks.onPathSelected');
         // Set the selection and go back
         callbacks.onPathSelected(pathToUse);
+        console.log('[PATH PICKER] Called callbacks.onPathSelected, now going back');
         router.back();
     }, [customPath, router, machine]);
 
@@ -234,6 +237,7 @@ export default function PathPickerScreen() {
                                                 />
                                             }
                                             onPress={() => {
+                                                console.log('[PATH PICKER] Recent path clicked:', path);
                                                 setCustomPath(path);
                                                 setTimeout(() => inputRef.current?.focus(), 50);
                                             }}
