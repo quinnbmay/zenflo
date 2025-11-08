@@ -31,6 +31,7 @@ export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED';
 export interface TodoItem {
     id: string;
     title: string;
+    description?: string;  // Multi-line description for task context
     done: boolean;  // Keep for backward compatibility with existing UI
     status: TaskStatus;  // Enhanced status for MCP
     priority?: TaskPriority;  // Optional priority level
@@ -279,12 +280,13 @@ export async function addTodo(
 }
 
 /**
- * Update a todo's title
+ * Update a todo's title and/or description
  */
 export async function updateTodoTitle(
     credentials: AuthCredentials,
     id: string,
-    title: string
+    title: string,
+    description?: string
 ): Promise<void> {
     const currentState = storage.getState();
     const { todos, undoneOrder, doneOrder, versions } = currentState.todoState || {
@@ -303,6 +305,7 @@ export async function updateTodoTitle(
     const updatedTodo: TodoItem = {
         ...todo,
         title,
+        description: description !== undefined ? description : todo.description,
         updatedAt: Date.now()
     };
 
@@ -346,15 +349,16 @@ export async function updateTodoTitle(
                     serverTodo = updatedTodo; // Use our version as fallback
                 }
 
-                // Merge: keep server data but update title and timestamp
+                // Merge: keep server data but update title, description and timestamp
                 const mergedTodo: TodoItem = {
                     ...serverTodo,
                     title,
+                    description: description !== undefined ? description : serverTodo.description,
                     updatedAt: Date.now()
                 };
 
                 // Only write if something changed
-                if (serverTodo.title !== title) {
+                if (serverTodo.title !== title || (description !== undefined && serverTodo.description !== description)) {
                     const encrypted = await encryptTodoData(mergedTodo);
                     const newVersion = await kvSet(credentials, todoKey, encrypted, todoResponse.version);
 

@@ -33,12 +33,15 @@ export const ZenView = React.memo(() => {
         return {
             id: todoItem.id,
             title: todoItem.title,
+            description: todoItem.description,
             done: todoItem.done
         };
     }));
 
     const [isEditing, setIsEditing] = React.useState(false);
+    const [isEditingDescription, setIsEditingDescription] = React.useState(false);
     const [editedText, setEditedText] = React.useState(todo?.title || '');
+    const [editedDescription, setEditedDescription] = React.useState(todo?.description || '');
 
     // Get linked sessions for this task
     const linkedSessions = React.useMemo(() => {
@@ -49,6 +52,7 @@ export const ZenView = React.memo(() => {
     React.useEffect(() => {
         if (todo) {
             setEditedText(todo.title);
+            setEditedDescription(todo.description || '');
         }
     }, [todo]);
 
@@ -75,9 +79,16 @@ export const ZenView = React.memo(() => {
 
     const handleSave = async () => {
         if (editedText.trim() && editedText !== todo.title && auth?.credentials) {
-            await updateTodoTitle(auth.credentials, todoId, editedText.trim());
+            await updateTodoTitle(auth.credentials, todoId, editedText.trim(), editedDescription);
         }
         setIsEditing(false);
+    };
+
+    const handleSaveDescription = async () => {
+        if (auth?.credentials && editedDescription !== (todo?.description || '')) {
+            await updateTodoTitle(auth.credentials, todoId, todo?.title || '', editedDescription);
+        }
+        setIsEditingDescription(false);
     };
 
     const handleToggleDone = async () => {
@@ -208,6 +219,51 @@ export const ZenView = React.memo(() => {
                                 </Pressable>
                             )}
                         </View>
+                    </View>
+
+                    {/* Description Section */}
+                    <View style={{ marginTop: 16 }}>
+                        {isEditingDescription ? (
+                            <TextInput
+                                style={[
+                                    styles.descriptionInput,
+                                    {
+                                        color: theme.colors.text,
+                                        borderColor: theme.colors.divider,
+                                        backgroundColor: theme.colors.surfaceHighest,
+                                    }
+                                ]}
+                                value={editedDescription}
+                                onChangeText={setEditedDescription}
+                                onBlur={handleSaveDescription}
+                                placeholder="Add description..."
+                                placeholderTextColor={theme.colors.textSecondary}
+                                autoFocus
+                                multiline
+                                numberOfLines={4}
+                            />
+                        ) : (
+                            <Pressable onPress={() => setIsEditingDescription(true)}>
+                                {editedDescription ? (
+                                    <Text style={[
+                                        styles.descriptionText,
+                                        {
+                                            color: todo.done ? theme.colors.textSecondary : theme.colors.text,
+                                            opacity: todo.done ? 0.6 : 0.8,
+                                        }
+                                    ]}>
+                                        {editedDescription}
+                                    </Text>
+                                ) : (
+                                    <Text style={[
+                                        styles.descriptionPlaceholder,
+                                        { color: theme.colors.textSecondary }
+                                    ]}>
+                                        Tap to add description...
+                                    </Text>
+                                )}
+                            </Pressable>
+                        )}
                     </View>
 
                     {/* Actions */}
@@ -363,6 +419,28 @@ const styles = StyleSheet.create((theme) => ({
     linkedSessionText: {
         flex: 1,
         fontSize: 14,
+        ...Typography.default(),
+    },
+    descriptionInput: {
+        fontSize: 15,
+        lineHeight: 22,
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        minHeight: 100,
+        textAlignVertical: 'top',
+        ...Typography.default(),
+    },
+    descriptionText: {
+        fontSize: 15,
+        lineHeight: 22,
+        ...Typography.default(),
+    },
+    descriptionPlaceholder: {
+        fontSize: 15,
+        lineHeight: 22,
+        fontStyle: 'italic',
         ...Typography.default(),
     },
 }));
