@@ -1,16 +1,16 @@
 // Production iOS only - internal use
-const name = "Combined Memory Coder";
-const bundleId = "com.combinedmemory.coder";
+const name = "ZenFlo Coder";
+const bundleId = "com.combinedmemory.coder"; // Keep unchanged to avoid new App Store submission
 
 export default {
     expo: {
         name,
-        slug: "happy",
+        slug: "zenflo",
         version: "1.5.1",
         runtimeVersion: "18",
         orientation: "default",
         icon: "./sources/assets/images/icon.png",
-        scheme: "happy",
+        scheme: ["zenflo", "happy"], // Support both schemes during transition
         userInterfaceStyle: "automatic",
         newArchEnabled: true,
         notification: {
