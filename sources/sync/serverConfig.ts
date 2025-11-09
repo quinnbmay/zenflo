@@ -7,8 +7,9 @@ const SERVER_KEY = 'custom-server-url';
 const DEFAULT_SERVER_URL = 'https://happy.combinedmemory.com';
 
 export function getServerUrl(): string {
-    return serverConfigStorage.getString(SERVER_KEY) || 
-           process.env.EXPO_PUBLIC_HAPPY_SERVER_URL || 
+    return serverConfigStorage.getString(SERVER_KEY) ||
+           process.env.EXPO_PUBLIC_ZENFLO_SERVER_URL ||
+           process.env.EXPO_PUBLIC_HAPPY_SERVER_URL || // Legacy support
            DEFAULT_SERVER_URL;
 }
 
