@@ -1,4 +1,4 @@
-# Happy
+# ZenFlo
 
 Code on the go controlling claude code from your mobile device.
 
@@ -7,13 +7,13 @@ Free. Open source. Code anywhere.
 ## Installation
 
 ```bash
-npm install -g happy-coder
+npm install -g zenflo
 ```
 
 ## Usage
 
 ```bash
-happy
+zenflo
 ```
 
 This will:
@@ -23,12 +23,12 @@ This will:
 
 ## Commands
 
-- `happy auth` – Manage authentication
-- `happy codex` – Start Codex mode
-- `happy connect` – Store AI vendor API keys in Happy cloud
-- `happy notify` – Send a push notification to your devices
-- `happy daemon` – Manage background service
-- `happy doctor` – System diagnostics & troubleshooting
+- `zenflo auth` – Manage authentication
+- `zenflo codex` – Start Codex mode
+- `zenflo connect` – Store AI vendor API keys in ZenFlo cloud
+- `zenflo notify` – Send a push notification to your devices
+- `zenflo daemon` – Manage background service
+- `zenflo doctor` – System diagnostics & troubleshooting
 
 ## Options
 
@@ -41,9 +41,9 @@ This will:
 
 ## Environment Variables
 
-- `HAPPY_SERVER_URL` - Custom server URL (default: https://api.cluster-fluster.com)
-- `HAPPY_WEBAPP_URL` - Custom web app URL (default: https://app.happy.engineering)
-- `HAPPY_HOME_DIR` - Custom home directory for Happy data (default: ~/.happy)
+- `HAPPY_SERVER_URL` - Custom server URL (default: https://zenflo.combinedmemory.com)
+- `HAPPY_WEBAPP_URL` - Custom web app URL (default: https://app.combinedmemory.com)
+- `HAPPY_HOME_DIR` - Custom home directory for ZenFlo data (default: ~/.happy)
 - `HAPPY_DISABLE_CAFFEINATE` - Disable macOS sleep prevention (set to `true`, `1`, or `yes`)
 - `HAPPY_EXPERIMENTAL` - Enable experimental features (set to `true`, `1`, or `yes`)
 

@@ -1,8 +1,8 @@
 {
-  "name": "@zenflo/cli",
+  "name": "zenflo",
   "version": "0.11.2",
   "description": "Mobile and Web client for Claude Code and Codex - ZenFlo edition",
-  "author": "Kirill Dubovitskiy",
+  "author": "Combined Memory",
   "license": "MIT",
   "type": "module",
   "homepage": "https://github.com/combinedmemory/zenflo",

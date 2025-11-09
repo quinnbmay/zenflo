@@ -1,12 +1,12 @@
-# Happy CLI Codebase Overview
+# ZenFlo CLI Codebase Overview
 
 ## Project Overview
 
-Happy CLI (`handy-cli`) is a command-line tool that wraps Claude Code to enable remote control and session sharing. It's part of a three-component system:
+ZenFlo CLI is a command-line tool that wraps Claude Code to enable remote control and session sharing. It's part of a three-component system:
 
-1. **handy-cli** (this project) - CLI wrapper for Claude Code
-2. **handy** - React Native mobile client
-3. **handy-server** - Node.js server with Prisma (hosted at https://api.happy-servers.com/)
+1. **zenflo-cli** (this project) - CLI wrapper for Claude Code
+2. **zenflo-mobile** - React Native mobile client
+3. **zenflo-backend** - Node.js server with Prisma (hosted at https://zenflo.combinedmemory.com/)
 
 ## Code Style Preferences
 
@@ -140,17 +140,17 @@ User interface components.
 
 ## Starting the Daemon
 ```bash
-# From the happy-cli directory:
-./bin/happy.mjs daemon start
+# From the zenflo-cli directory:
+./bin/zenflo.mjs daemon start
 
 # With custom server URL (for local development):
-HAPPY_SERVER_URL=http://localhost:3005 ./bin/happy.mjs daemon start
+HAPPY_SERVER_URL=http://localhost:3005 ./bin/zenflo.mjs daemon start
 
 # Stop the daemon:
-./bin/happy.mjs daemon stop
+./bin/zenflo.mjs daemon stop
 
 # Check daemon status:
-./bin/happy.mjs daemon status
+./bin/zenflo.mjs daemon status
 ```
 
 ## Daemon Logs
@@ -219,7 +219,7 @@ Lines 7-8: New messages from current interaction
 {"parentUuid":"...","sessionId":"1433467f-ff14-4292-b5b2-2aac77a808f0","message":{"role":"user","content":"what file did we just see?"},...}
 ```
 
-## Implications for handy-cli
+## Implications for zenflo-cli
 
 When using --resume:
 1. Must handle new session ID in responses

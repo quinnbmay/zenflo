@@ -1,16 +1,16 @@
-# Happy CLI Daemon: Control Flow and Lifecycle
+# ZenFlo CLI Daemon: Control Flow and Lifecycle
 
-The daemon is a persistent background process that manages Happy sessions, enables remote control from the mobile app, and handles auto-updates when the CLI version changes.
+The daemon is a persistent background process that manages ZenFlo sessions, enables remote control from the mobile app, and handles auto-updates when the CLI version changes.
 
 ## 1. Daemon Lifecycle
 
 ### Starting the Daemon
 
-Command: `happy daemon start`
+Command: `zenflo daemon start`
 
 Control Flow:
 1. `src/index.ts` receives `daemon start` command
-2. Spawns detached process via `spawnHappyCLI(['daemon', 'start-sync'], { detached: true })`
+2. Spawns detached process via `spawnZenFloCLI(['daemon', 'start-sync'], { detached: true })`
 3. New process calls `startDaemon()` from `src/daemon/run.ts`
 4. `startDaemon()` performs startup:
    - Sets up shutdown promise and handlers (SIGINT, SIGTERM, uncaughtException, unhandledRejection)
@@ -40,11 +40,11 @@ Control Flow:
 
 ### Version Mismatch Auto-Update
 
-The daemon detects when `npm upgrade happy-coder` occurs:
+The daemon detects when `npm upgrade zenflo` occurs:
 1. Heartbeat reads package.json from disk
 2. Compares `JSON.parse(package.json).version` with compiled `configuration.currentCliVersion`
 3. If mismatch detected:
-   - Spawns new daemon via `spawnHappyCLI(['daemon', 'start'])`
+   - Spawns new daemon via `spawnZenFloCLI(['daemon', 'start'])`
    - Hangs and waits to be killed
 4. New daemon starts, sees old daemon.state.json version != its compiled version
 5. New daemon calls `stopDaemon()` which tries HTTP `/stop`, falls back to SIGKILL
@@ -52,7 +52,7 @@ The daemon detects when `npm upgrade happy-coder` occurs:
 
 ### Stopping the Daemon
 
-Command: `happy daemon stop`
+Command: `zenflo daemon stop`
 
 Control Flow:
 1. `stopDaemon()` in `controlClient.ts` reads daemon.state.json
@@ -70,31 +70,31 @@ Control Flow:
 ### Daemon-Spawned Sessions (Remote)
 
 Initiated by mobile app via backend RPC:
-1. Backend forwards RPC `spawn-happy-session` to daemon via WebSocket
+1. Backend forwards RPC `spawn-zenflo-session` to daemon via WebSocket
 2. `ApiMachineClient` invokes `spawnSession()` handler
 3. `spawnSession()`:
    - Creates directory if needed
-   - Spawns detached Happy process with `--happy-starting-mode remote --started-by daemon`
+   - Spawns detached ZenFlo process with `--zenflo-starting-mode remote --started-by daemon`
    - Adds to `pidToTrackedSession` map
    - Sets up 10-second awaiter for session webhook
-4. New Happy process:
-   - Creates session with backend, receives `happySessionId`
+4. New ZenFlo process:
+   - Creates session with backend, receives `zenfloSessionId`
    - Calls `notifyDaemonSessionStarted()` to POST to daemon's `/session-started`
-5. Daemon updates tracking with `happySessionId`, resolves awaiter
+5. Daemon updates tracking with `zenfloSessionId`, resolves awaiter
 6. RPC returns session info to mobile app
 
 ### Terminal-Spawned Sessions
 
-User runs `happy` directly:
+User runs `zenflo` directly:
 1. CLI auto-starts daemon if configured
-2. Happy process calls `notifyDaemonSessionStarted()` 
-3. Daemon receives webhook, creates `TrackedSession` with `startedBy: 'happy directly...'`
+2. ZenFlo process calls `notifyDaemonSessionStarted()`
+3. Daemon receives webhook, creates `TrackedSession` with `startedBy: 'zenflo directly...'`
 4. Session tracked for health monitoring
 
 ### Session Termination
 
 Via RPC `stop-session` or health check:
-1. `stopSession()` finds session by `happySessionId`
+1. `stopSession()` finds session by `zenfloSessionId`
 2. Sends SIGTERM to process
 3. `on('exit')` handler removes from tracking map
 
@@ -111,16 +111,16 @@ Local HTTP server (127.0.0.1 only) provides:
 
 ### Doctor Command
 
-`happy doctor` uses `ps aux | grep` to find all Happy processes:
-- Production: matches `happy.mjs`, `happy-coder`, `dist/index.mjs`
+`zenflo doctor` uses `ps aux | grep` to find all ZenFlo processes:
+- Production: matches `zenflo.mjs`, `zenflo`, `dist/index.mjs`
 - Development: matches `tsx.*src/index.ts`
 - Categorizes by command args: daemon, daemon-spawned, user-session, doctor
 
 ### Clean Runaway Processes
 
-`happy doctor clean`:
-1. `findRunawayHappyProcesses()` filters for likely orphans
-2. `killRunawayHappyProcesses()`:
+`zenflo doctor clean`:
+1. `findRunawayZenFloProcesses()` filters for likely orphans
+2. `killRunawayZenFloProcesses()`:
    - Sends SIGTERM
    - Waits 1 second
    - Sends SIGKILL if still alive
