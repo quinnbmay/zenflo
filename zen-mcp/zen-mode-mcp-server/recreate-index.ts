@@ -14,7 +14,7 @@ import axios from 'axios';
 import nacl from 'tweetnacl';
 import naclUtil from 'tweetnacl-util';
 
-const HAPPY_SERVER = 'https://happy.combinedmemory.com';
+const HAPPY_SERVER = 'https://zenflo.combinedmemory.com';
 const AUTH_TOKEN = process.env.HAPPY_AUTH_TOKEN!;
 const SECRET_KEY = process.env.HAPPY_SECRET_KEY!;
 

@@ -155,7 +155,7 @@ class ZenFloApiClient {
   private token?: string;
   private masterSecret?: Uint8Array;
 
-  constructor(private baseURL: string = 'https://happy.combinedmemory.com') {
+  constructor(private baseURL: string = 'https://zenflo.combinedmemory.com') {
     this.client = axios.create({
       baseURL: this.baseURL,
       timeout: 30000,

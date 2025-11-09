@@ -496,7 +496,7 @@ export class ZenModeNotificationService {
 
 // Main entry point
 const config: NotificationConfig = {
-  happyServerUrl: process.env.HAPPY_SERVER_URL || 'https://happy.combinedmemory.com',
+  happyServerUrl: process.env.HAPPY_SERVER_URL || 'https://zenflo.combinedmemory.com',
   authToken: process.env.HAPPY_AUTH_TOKEN || '',
   secretKey: process.env.HAPPY_SECRET_KEY || '',
 };

@@ -74,7 +74,7 @@ async function generateToken(secretStr: string): Promise<string> {
   const challenge = nacl.randomBytes(32);
   const signature = nacl.sign.detached(challenge, keypair.secretKey);
 
-  const response = await axios.post('https://happy.combinedmemory.com/v1/auth', {
+  const response = await axios.post('https://zenflo.combinedmemory.com/v1/auth', {
     challenge: naclUtil.encodeBase64(challenge),
     signature: naclUtil.encodeBase64(signature),
     publicKey: naclUtil.encodeBase64(keypair.publicKey),

@@ -1,5 +1,5 @@
 {
-  "name": "zenflo-webapp",
+  "name": "@zenflo/webapp",
   "main": "index.ts",
   "version": "1.0.0",
   "scripts": {

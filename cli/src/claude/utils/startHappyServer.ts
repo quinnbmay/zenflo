@@ -1,6 +1,6 @@
 /**
- * Happy MCP server
- * Provides Happy CLI specific tools including chat session title management and inbox messaging
+ * ZenFlo MCP server
+ * Provides ZenFlo CLI specific tools including chat session title management and inbox messaging
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -36,9 +36,9 @@ export async function startHappyServer(client: ApiSessionClient, apiClient: ApiC
     //
 
     const mcp = new McpServer({
-        name: "Happy MCP",
+        name: "ZenFlo MCP",
         version: "1.0.0",
-        description: "Happy CLI MCP server with chat session management tools",
+        description: "ZenFlo CLI MCP server with chat session management tools",
     });
 
     mcp.registerTool('change_title', {
@@ -75,7 +75,7 @@ export async function startHappyServer(client: ApiSessionClient, apiClient: ApiC
     });
 
     mcp.registerTool('send_inbox_message', {
-        description: 'Send a message to Quinn\'s Happy app inbox for cross-session communication',
+        description: 'Send a message to Quinn\'s ZenFlo app inbox for cross-session communication',
         title: 'Send Inbox Message',
         inputSchema: {
             title: z.string().describe('Message title (e.g., "Task completed", "Found a bug")'),
