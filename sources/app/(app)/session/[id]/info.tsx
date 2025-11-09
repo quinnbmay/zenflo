@@ -74,7 +74,7 @@ function SessionInfoContent({ session }: { session: Session }) {
         if (!session) return;
         try {
             await Clipboard.setStringAsync(session.id);
-            Modal.alert(t('common.success'), t('sessionInfo.happySessionIdCopied'));
+            Modal.alert(t('common.success'), t('sessionInfo.zenFloSessionIdCopied'));
         } catch (error) {
             Modal.alert(t('common.error'), t('sessionInfo.failedToCopySessionId'));
         }
@@ -161,7 +161,7 @@ function SessionInfoContent({ session }: { session: Session }) {
     }, []);
 
     const handleCopyUpdateCommand = useCallback(async () => {
-        const updateCommand = 'npm install -g happy-coder@latest';
+        const updateCommand = 'npm install -g zenflo-coder@latest';
         try {
             await Clipboard.setStringAsync(updateCommand);
             Modal.alert(t('common.success'), updateCommand);
@@ -217,7 +217,7 @@ function SessionInfoContent({ session }: { session: Session }) {
                 {/* Session Details */}
                 <ItemGroup>
                     <Item
-                        title={t('sessionInfo.happySessionId')}
+                        title={t('sessionInfo.zenFloSessionId')}
                         subtitle={`${session.id.substring(0, 8)}...${session.id.substring(session.id.length - 8)}`}
                         icon={<Ionicons name="finger-print-outline" size={29} color="#007AFF" />}
                         onPress={handleCopySessionId}
