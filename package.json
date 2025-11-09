@@ -1,0 +1,29 @@
+{
+  "name": "zenflo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ZenFlo monorepo - AI-powered coding assistant",
+  "workspaces": [
+    "mobile",
+    "webapp",
+    "backend",
+    "zen-mcp/*",
+    "experimental/*"
+  ],
+  "scripts": {
+    "mobile": "yarn workspace @zenflo/mobile",
+    "webapp": "yarn workspace @zenflo/webapp",
+    "backend": "yarn workspace @zenflo/backend",
+    "build:all": "yarn workspaces run build",
+    "test:all": "yarn workspaces run test",
+    "typecheck:all": "yarn workspaces run typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.3",
+    "typescript": "^5.4.3"
+  },
+  "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
