@@ -1,0 +1,26 @@
+{
+  "name": "zen-mode-mcp-cloudflare",
+  "version": "1.0.0",
+  "description": "Zen Mode MCP Server for Cloudflare Workers",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "keywords": [
+    "mcp",
+    "zen-mode",
+    "zenflo",
+    "cloudflare-workers"
+  ],
+  "author": "Quinn May",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.84.0"
+  },
+  "dependencies": {
+    "@noble/ed25519": "^3.0.0"
+  }
+}
