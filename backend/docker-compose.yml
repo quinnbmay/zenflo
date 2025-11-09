@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  happy-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: happy-server
+    ports:
+      - "3000:3005"  # Map external 3000 to internal 3005
+      - "9090:9090"  # Metrics port
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:rLhQ6cC5tVv9MaikOycnwvJY3k0Ijs+8@postgres:5432/happy-server
+      - HANDY_MASTER_SECRET=pd3P1heAw96GqAe9/8PtXdPI3DghZhPJOTml9RlNCQQ=
+      - PORT=3005
+      - METRICS_ENABLED=true
+      - METRICS_PORT=9090
+      - REDIS_URL=redis://redis:6379
+      # S3/MinIO Configuration (using MinIO for file storage)
+      - S3_HOST=minio
+      - S3_PORT=9000
+      - S3_USE_SSL=false
+      - S3_ACCESS_KEY=minioadmin
+      - S3_SECRET_KEY=minioadmin
+      - S3_BUCKET=happy
+      - S3_PUBLIC_URL=http://localhost:9001/happy
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - happy-network
+    volumes:
+      - happy-data:/app/data
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: happy-postgres
+    environment:
+      - POSTGRES_DB=happy-server
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=rLhQ6cC5tVv9MaikOycnwvJY3k0Ijs+8
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Use 5433 externally to avoid conflict
+    networks:
+      - happy-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: happy-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6380:6379"  # Use 6380 externally to avoid conflict
+    networks:
+      - happy-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    container_name: happy-minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"  # S3 API
+      - "9001:9001"  # MinIO Console
+    networks:
+      - happy-network
+    restart: unless-stopped
+
+networks:
+  happy-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  happy-data:
+    driver: local
+  minio-data:
+    driver: local
