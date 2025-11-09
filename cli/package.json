@@ -1,0 +1,125 @@
+{
+  "name": "@zenflo/cli",
+  "version": "0.11.2",
+  "description": "Mobile and Web client for Claude Code and Codex - ZenFlo edition",
+  "author": "Kirill Dubovitskiy",
+  "license": "MIT",
+  "type": "module",
+  "homepage": "https://github.com/combinedmemory/zenflo",
+  "bugs": "https://github.com/combinedmemory/zenflo/issues",
+  "repository": "combinedmemory/zenflo",
+  "bin": {
+    "zenflo": "./bin/zenflo.mjs",
+    "zenflo-mcp": "./bin/zenflo-mcp.mjs"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      }
+    },
+    "./lib": {
+      "require": {
+        "types": "./dist/lib.d.cts",
+        "default": "./dist/lib.cjs"
+      },
+      "import": {
+        "types": "./dist/lib.d.mts",
+        "default": "./dist/lib.mjs"
+      }
+    },
+    "./codex/happyMcpStdioBridge": {
+      "require": {
+        "types": "./dist/codex/happyMcpStdioBridge.d.cts",
+        "default": "./dist/codex/happyMcpStdioBridge.cjs"
+      },
+      "import": {
+        "types": "./dist/codex/happyMcpStdioBridge.d.mts",
+        "default": "./dist/codex/happyMcpStdioBridge.mjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "bin",
+    "scripts",
+    "tools",
+    "package.json"
+  ],
+  "scripts": {
+    "why do we need to build before running tests / dev?": "We need the binary to be built so we run daemon commands which directly run the binary - we don't want them to go out of sync or have custom spawn logic depending how we started zenflo",
+    "typecheck": "tsc --noEmit",
+    "build": "shx rm -rf dist && npx tsc --noEmit && pkgroll",
+    "test": "yarn build && tsx --env-file .env.integration-test node_modules/.bin/vitest run",
+    "start": "yarn build && ./bin/zenflo.mjs",
+    "dev": "tsx src/index.ts",
+    "dev:local-server": "yarn build && tsx --env-file .env.dev-local-server src/index.ts",
+    "dev:integration-test-env": "yarn build && tsx --env-file .env.integration-test src/index.ts",
+    "prepublishOnly": "yarn build && yarn test",
+    "release": "release-it",
+    "postinstall": "node scripts/unpack-tools.cjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-code": "2.0.14",
+    "@anthropic-ai/sdk": "0.65.0",
+    "@modelcontextprotocol/sdk": "^1.15.1",
+    "@stablelib/base64": "^2.0.1",
+    "@stablelib/hex": "^2.0.1",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/http-proxy": "^1.17.16",
+    "@types/ps-list": "^6.2.1",
+    "@types/qrcode-terminal": "^0.12.2",
+    "@types/react": "^19.1.9",
+    "@types/tmp": "^0.2.6",
+    "axios": "^1.10.0",
+    "chalk": "^5.4.1",
+    "cross-spawn": "^7.0.6",
+    "expo-server-sdk": "^3.15.0",
+    "fastify": "^5.5.0",
+    "fastify-type-provider-zod": "4.0.2",
+    "http-proxy": "^1.18.1",
+    "http-proxy-middleware": "^3.0.5",
+    "ink": "^6.1.0",
+    "open": "^10.2.0",
+    "ps-list": "^8.1.1",
+    "qrcode-terminal": "^0.12.0",
+    "react": "^19.1.1",
+    "socket.io-client": "^4.8.1",
+    "tar": "^7.4.3",
+    "tmp": "^0.2.5",
+    "tweetnacl": "^1.0.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^1",
+    "@types/node": ">=20",
+    "cross-env": "^10.0.0",
+    "dotenv": "^16.6.1",
+    "eslint": "^9",
+    "eslint-config-prettier": "^10",
+    "pkgroll": "^2.14.2",
+    "release-it": "^19.0.4",
+    "shx": "^0.3.3",
+    "ts-node": "^10",
+    "tsx": "^4.20.3",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  },
+  "resolutions": {
+    "whatwg-url": "14.2.0",
+    "parse-path": "7.0.3",
+    "@types/parse-path": "7.0.3"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "packageManager": "yarn@1.22.22"
+}
