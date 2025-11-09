@@ -6,7 +6,7 @@ export default {
     expo: {
         name,
         slug: "happy", // Keep EAS project slug unchanged for deployment compatibility
-        version: "1.5.1",
+        version: "1.6.0",
         runtimeVersion: "18",
         orientation: "default",
         icon: "./sources/assets/images/icon.png",
