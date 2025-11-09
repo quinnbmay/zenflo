@@ -5,7 +5,7 @@ const bundleId = "com.combinedmemory.coder"; // Keep unchanged to avoid new App 
 export default {
     expo: {
         name,
-        slug: "zenflo",
+        slug: "happy", // Keep EAS project slug unchanged for deployment compatibility
         version: "1.5.1",
         runtimeVersion: "18",
         orientation: "default",
