@@ -13,10 +13,10 @@ import { ApiSessionClient } from "@/api/apiSession";
 import { ApiClient } from "@/api/api";
 import { randomUUID } from "node:crypto";
 
-export async function startHappyServer(client: ApiSessionClient, apiClient: ApiClient) {
+export async function startZenfloServer(client: ApiSessionClient, apiClient: ApiClient) {
     // Handler that sends title updates via the client
     const handler = async (title: string) => {
-        logger.debug('[happyMCP] Changing title to:', title);
+        logger.debug('[zenfloMCP] Changing title to:', title);
         try {
             // Send title as a summary message, similar to title generator
             client.sendClaudeSessionMessage({
@@ -49,7 +49,7 @@ export async function startHappyServer(client: ApiSessionClient, apiClient: ApiC
         },
     }, async (args) => {
         const response = await handler(args.title);
-        logger.debug('[happyMCP] Response:', response);
+        logger.debug('[zenfloMCP] Response:', response);
 
         if (response.success) {
             return {
@@ -84,7 +84,7 @@ export async function startHappyServer(client: ApiSessionClient, apiClient: ApiC
             priority: z.enum(['low', 'normal', 'high']).optional().describe('Message priority (affects icon and color)'),
         },
     }, async (args) => {
-        logger.debug('[happyMCP] Sending inbox message:', args.title);
+        logger.debug('[zenfloMCP] Sending inbox message:', args.title);
         try {
             await apiClient.sendInboxMessage({
                 title: args.title,
@@ -103,7 +103,7 @@ export async function startHappyServer(client: ApiSessionClient, apiClient: ApiC
                 isError: false,
             };
         } catch (error) {
-            logger.debug('[happyMCP] Error sending inbox message:', error);
+            logger.debug('[zenfloMCP] Error sending inbox message:', error);
             return {
                 content: [
                     {
@@ -149,7 +149,7 @@ export async function startHappyServer(client: ApiSessionClient, apiClient: ApiC
         url: baseUrl.toString(),
         toolNames: ['change_title', 'send_inbox_message'],
         stop: () => {
-            logger.debug('[happyMCP] Stopping server');
+            logger.debug('[zenfloMCP] Stopping server');
             mcp.close();
             server.close();
         }

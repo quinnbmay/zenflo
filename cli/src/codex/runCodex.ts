@@ -18,7 +18,7 @@ import { hashObject } from '@/utils/deterministicJson';
 import { projectPath } from '@/projectPath';
 import { resolve, join } from 'node:path';
 import fs from 'node:fs';
-import { startHappyServer } from '@/claude/utils/startHappyServer';
+import { startZenfloServer } from '@/claude/utils/startZenfloServer';
 import { MessageBuffer } from "@/ui/ink/messageBuffer";
 import { CodexDisplay } from "@/ui/ink/CodexDisplay";
 import { trimIdent } from "@/utils/trimIdent";
@@ -285,7 +285,7 @@ export async function runCodex(opts: {
             stopCaffeinate();
 
             // Stop Happy MCP server
-            happyServer.stop();
+            zenfloServer.stop();
 
             logger.debug('[Codex] Session termination complete, exiting');
             process.exit(0);
@@ -533,13 +533,13 @@ export async function runCodex(opts: {
         }
     });
 
-    // Start Happy MCP server (HTTP) and prepare STDIO bridge config for Codex
-    const happyServer = await startHappyServer(session, api);
-    const bridgeCommand = join(projectPath(), 'bin', 'happy-mcp.mjs');
+    // Start ZenFlo MCP server (HTTP) and prepare STDIO bridge config for Codex
+    const zenfloServer = await startZenfloServer(session, api);
+    const bridgeCommand = join(projectPath(), 'bin', 'zenflo-mcp.mjs');
     const mcpServers = {
         happy: {
             command: bridgeCommand,
-            args: ['--url', happyServer.url]
+            args: ['--url', zenfloServer.url]
         }
     } as const;
     let first = true;
@@ -741,8 +741,8 @@ export async function runCodex(opts: {
         await client.disconnect();
         logger.debug('[codex]: client.disconnect done');
         // Stop Happy MCP server
-        logger.debug('[codex]: happyServer.stop');
-        happyServer.stop();
+        logger.debug('[codex]: zenfloServer.stop');
+        zenfloServer.stop();
 
         // Clean up ink UI
         if (process.stdin.isTTY) {

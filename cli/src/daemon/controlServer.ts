@@ -63,7 +63,7 @@ export function startDaemonControlServer({
           200: z.object({
             children: z.array(z.object({
               startedBy: z.string(),
-              happySessionId: z.string(),
+              zenfloSessionId: z.string(),
               pid: z.number()
             }))
           })
@@ -74,10 +74,10 @@ export function startDaemonControlServer({
       logger.debug(`[CONTROL SERVER] Listing ${children.length} sessions`);
       return { 
         children: children
-          .filter(child => child.happySessionId !== undefined)
+          .filter(child => child.zenfloSessionId !== undefined)
           .map(child => ({
             startedBy: child.startedBy,
-            happySessionId: child.happySessionId!,
+            zenfloSessionId: child.zenfloSessionId!,
             pid: child.pid
           }))
       }

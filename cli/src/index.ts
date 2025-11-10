@@ -25,7 +25,7 @@ import { runDoctorCommand } from './ui/doctor'
 import { listDaemonSessions, stopDaemonSession } from './daemon/controlClient'
 import { handleAuthCommand } from './commands/auth'
 import { handleConnectCommand } from './commands/connect'
-import { spawnHappyCLI } from './utils/spawnHappyCLI'
+import { spawnZenfloCLI } from './utils/spawnZenfloCLI'
 import { claudeCliPath } from './claude/claudeLocal'
 import { execFileSync } from 'node:child_process'
 
@@ -35,7 +35,7 @@ import { execFileSync } from 'node:child_process'
 
   // If --version is passed - do not log, its likely daemon inquiring about our version
   if (!args.includes('--version')) {
-    logger.debug('Starting happy CLI with args: ', process.argv)
+    logger.debug('Starting ZenFlo CLI with args: ', process.argv)
   }
 
   // Check if first argument is a subcommand
@@ -164,7 +164,7 @@ import { execFileSync } from 'node:child_process'
 
     } else if (daemonSubcommand === 'start') {
       // Spawn detached daemon process
-      const child = spawnHappyCLI(['daemon', 'start-sync'], {
+      const child = spawnZenfloCLI(['daemon', 'start-sync'], {
         detached: true,
         stdio: 'ignore',
         env: process.env
@@ -341,13 +341,13 @@ ${chalk.bold.cyan('Claude Code Options (from `claude --help`):')}
     } = await authAndSetupMachineIfNeeded();
 
     // Always auto-start daemon for simplicity
-    logger.debug('Ensuring Happy background service is running & matches our version...');
+    logger.debug('Ensuring ZenFlo background service is running & matches our version...');
 
     if (!(await isDaemonRunningCurrentlyInstalledHappyVersion())) {
-      logger.debug('Starting Happy background service...');
+      logger.debug('Starting ZenFlo background service...');
 
       // Use the built binary to spawn daemon
-      const daemonProcess = spawnHappyCLI(['daemon', 'start-sync'], {
+      const daemonProcess = spawnZenfloCLI(['daemon', 'start-sync'], {
         detached: true,
         stdio: 'ignore',
         env: process.env

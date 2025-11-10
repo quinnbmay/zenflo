@@ -18,7 +18,7 @@ import { getEnvironmentInfo } from '@/ui/doctor';
 import { configuration } from '@/configuration';
 import { notifyDaemonSessionStarted } from '@/daemon/controlClient';
 import { initialMachineMetadata } from '@/daemon/run';
-import { startHappyServer } from '@/claude/utils/startHappyServer';
+import { startZenfloServer } from '@/claude/utils/startZenfloServer';
 import { registerKillSessionHandler } from './registerKillSessionHandler';
 import { projectPath } from '../projectPath';
 import { resolve } from 'node:path';
@@ -38,7 +38,7 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
     const sessionTag = randomUUID();
 
     // Log environment info at startup
-    logger.debugLargeJson('[START] Happy process started', getEnvironmentInfo());
+    logger.debugLargeJson('[START] ZenFlo process started', getEnvironmentInfo());
     logger.debug(`[START] Options: startedBy=${options.startedBy}, startingMode=${options.startingMode}`);
 
     // Validate daemon spawn requirements
@@ -123,9 +123,9 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
     // Create realtime session
     const session = api.sessionSyncClient(response);
 
-    // Start Happy MCP server
-    const happyServer = await startHappyServer(session, api);
-    logger.debug(`[START] Happy MCP server started at ${happyServer.url}`);
+    // Start ZenFlo MCP server
+    const zenfloServer = await startZenfloServer(session, api);
+    logger.debug(`[START] ZenFlo MCP server started at ${zenfloServer.url}`);
 
     // Print log file path
     const logPath = logger.logFilePath;
@@ -314,8 +314,8 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
             // Stop caffeinate
             stopCaffeinate();
 
-            // Stop Happy MCP server
-            happyServer.stop();
+            // Stop ZenFlo MCP server
+            zenfloServer.stop();
 
             logger.debug('[START] Cleanup complete, exiting');
             process.exit(0);
@@ -350,7 +350,7 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
         startingMode: options.startingMode,
         messageQueue,
         api,
-        allowedTools: happyServer.toolNames.map(toolName => `mcp__happy__${toolName}`),
+        allowedTools: zenfloServer.toolNames.map(toolName => `mcp__zenflo__${toolName}`),
         onModeChange: (newMode) => {
             session.sendSessionEvent({ type: 'switch', mode: newMode });
             session.updateAgentState((currentState) => ({
@@ -362,9 +362,9 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
             // Intentionally unused
         },
         mcpServers: {
-            'happy': {
+            'zenflo': {
                 type: 'http' as const,
-                url: happyServer.url,
+                url: zenfloServer.url,
             }
         },
         session,
@@ -387,9 +387,9 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
     stopCaffeinate();
     logger.debug('Stopped sleep prevention');
 
-    // Stop Happy MCP server
-    happyServer.stop();
-    logger.debug('Stopped Happy MCP server');
+    // Stop ZenFlo MCP server
+    zenfloServer.stop();
+    logger.debug('Stopped ZenFlo MCP server');
 
     // Exit
     process.exit(0);

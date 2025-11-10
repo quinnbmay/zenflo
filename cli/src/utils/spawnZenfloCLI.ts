@@ -1,5 +1,5 @@
 /**
- * Cross-platform Happy CLI spawning utility
+ * Cross-platform ZenFlo CLI spawning utility
  * 
  * ## Background
  * 
@@ -56,17 +56,17 @@ import { logger } from '@/ui/logger';
 import { existsSync } from 'node:fs';
 
 /**
- * Spawn the Happy CLI with the given arguments in a cross-platform way.
+ * Spawn the ZenFlo CLI with the given arguments in a cross-platform way.
  * 
  * This function bypasses the wrapper script (bin/happy.mjs) and spawns the 
  * actual CLI entrypoint (dist/index.mjs) directly with Node.js, ensuring
  * compatibility across all platforms including Windows.
  * 
- * @param args - Arguments to pass to the Happy CLI
+ * @param args - Arguments to pass to the ZenFlo CLI
  * @param options - Spawn options (same as child_process.spawn)
  * @returns ChildProcess instance
  */
-export function spawnHappyCLI(args: string[], options: SpawnOptions = {}): ChildProcess {
+export function spawnZenfloCLI(args: string[], options: SpawnOptions = {}): ChildProcess {
   const projectRoot = projectPath();
   const entrypoint = join(projectRoot, 'dist', 'index.mjs');
 
@@ -77,12 +77,12 @@ export function spawnHappyCLI(args: string[], options: SpawnOptions = {}): Child
     directory = process.cwd()
   }
   // Note: We're actually executing 'node' with the calculated entrypoint path below,
-  // bypassing the 'happy' wrapper that would normally be found in the shell's PATH.
-  // However, we log it as 'happy' here because other engineers are typically looking
-  // for when "happy" was started and don't care about the underlying node process
+  // bypassing the 'zenflo' wrapper that would normally be found in the shell's PATH.
+  // However, we log it as 'zenflo' here because other engineers are typically looking
+  // for when "zenflo" was started and don't care about the underlying node process
   // details and flags we use to achieve the same result.
-  const fullCommand = `happy ${args.join(' ')}`;
-  logger.debug(`[SPAWN HAPPY CLI] Spawning: ${fullCommand} in ${directory}`);
+  const fullCommand = `zenflo ${args.join(' ')}`;
+  logger.debug(`[SPAWN ZENFLO CLI] Spawning: ${fullCommand} in ${directory}`);
   
   // Use the same Node.js flags that the wrapper script uses
   const nodeArgs = [
@@ -95,7 +95,7 @@ export function spawnHappyCLI(args: string[], options: SpawnOptions = {}): Child
   // Sanity check of the entrypoint path exists
   if (!existsSync(entrypoint)) {
     const errorMessage = `Entrypoint ${entrypoint} does not exist`;
-    logger.debug(`[SPAWN HAPPY CLI] ${errorMessage}`);
+    logger.debug(`[SPAWN ZENFLO CLI] ${errorMessage}`);
     throw new Error(errorMessage);
   }
   

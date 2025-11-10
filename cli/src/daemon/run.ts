@@ -12,7 +12,7 @@ import { configuration } from '@/configuration';
 import { startCaffeinate, stopCaffeinate } from '@/utils/caffeinate';
 import packageJson from '../../package.json';
 import { getEnvironmentInfo } from '@/ui/doctor';
-import { spawnHappyCLI } from '@/utils/spawnHappyCLI';
+import { spawnZenfloCLI } from '@/utils/spawnZenfloCLI';
 import { writeDaemonState, DaemonLocallyPersistedState, readDaemonState, acquireDaemonLock, releaseDaemonLock } from '@/persistence';
 
 import { cleanupDaemonState, isDaemonRunningCurrentlyInstalledHappyVersion, stopDaemon } from './controlClient';
@@ -158,8 +158,8 @@ export async function startDaemon(): Promise<void> {
 
       if (existingSession && existingSession.startedBy === 'daemon') {
         // Update daemon-spawned session with reported data
-        existingSession.happySessionId = sessionId;
-        existingSession.happySessionMetadataFromLocalWebhook = sessionMetadata;
+        existingSession.zenfloSessionId = sessionId;
+        existingSession.zenfloSessionMetadataFromLocalWebhook = sessionMetadata;
         logger.debug(`[DAEMON RUN] Updated daemon-spawned session ${sessionId} with metadata`);
 
         // Resolve any awaiter for this PID
@@ -173,8 +173,8 @@ export async function startDaemon(): Promise<void> {
         // New session started externally
         const trackedSession: TrackedSession = {
           startedBy: 'happy directly - likely by user from terminal',
-          happySessionId: sessionId,
-          happySessionMetadataFromLocalWebhook: sessionMetadata,
+          zenfloSessionId: sessionId,
+          zenfloSessionMetadataFromLocalWebhook: sessionMetadata,
           pid
         };
         pidToTrackedSession.set(pid, trackedSession);
@@ -265,7 +265,7 @@ export async function startDaemon(): Promise<void> {
 
         // TODO: In future, sessionId could be used with --resume to continue existing sessions
         // For now, we ignore it - each spawn creates a new session
-        const happyProcess = spawnHappyCLI(args, {
+        const zenfloProcess = spawnZenfloCLI(args, {
           cwd: directory,
           detached: true,  // Sessions stay alive when daemon stops
           stdio: ['ignore', 'pipe', 'pipe'],  // Capture stdout/stderr for debugging
@@ -277,71 +277,71 @@ export async function startDaemon(): Promise<void> {
 
         // Log output for debugging
         if (process.env.DEBUG) {
-          happyProcess.stdout?.on('data', (data) => {
+          zenfloProcess.stdout?.on('data', (data) => {
             logger.debug(`[DAEMON RUN] Child stdout: ${data.toString()}`);
           });
-          happyProcess.stderr?.on('data', (data) => {
+          zenfloProcess.stderr?.on('data', (data) => {
             logger.debug(`[DAEMON RUN] Child stderr: ${data.toString()}`);
           });
         }
 
-        if (!happyProcess.pid) {
+        if (!zenfloProcess.pid) {
           logger.debug('[DAEMON RUN] Failed to spawn process - no PID returned');
           return {
             type: 'error',
-            errorMessage: 'Failed to spawn Happy process - no PID returned'
+            errorMessage: 'Failed to spawn ZenFlo process - no PID returned'
           };
         }
 
-        logger.debug(`[DAEMON RUN] Spawned process with PID ${happyProcess.pid}`);
+        logger.debug(`[DAEMON RUN] Spawned process with PID ${zenfloProcess.pid}`);
 
         const trackedSession: TrackedSession = {
           startedBy: 'daemon',
-          pid: happyProcess.pid,
-          childProcess: happyProcess,
+          pid: zenfloProcess.pid,
+          childProcess: zenfloProcess,
           directoryCreated,
           message: directoryCreated ? `The path '${directory}' did not exist. We created a new folder and spawned a new session there.` : undefined
         };
 
-        pidToTrackedSession.set(happyProcess.pid, trackedSession);
+        pidToTrackedSession.set(zenfloProcess.pid, trackedSession);
 
-        happyProcess.on('exit', (code, signal) => {
-          logger.debug(`[DAEMON RUN] Child PID ${happyProcess.pid} exited with code ${code}, signal ${signal}`);
-          if (happyProcess.pid) {
-            onChildExited(happyProcess.pid);
+        zenfloProcess.on('exit', (code, signal) => {
+          logger.debug(`[DAEMON RUN] Child PID ${zenfloProcess.pid} exited with code ${code}, signal ${signal}`);
+          if (zenfloProcess.pid) {
+            onChildExited(zenfloProcess.pid);
           }
         });
 
-        happyProcess.on('error', (error) => {
+        zenfloProcess.on('error', (error) => {
           logger.debug(`[DAEMON RUN] Child process error:`, error);
-          if (happyProcess.pid) {
-            onChildExited(happyProcess.pid);
+          if (zenfloProcess.pid) {
+            onChildExited(zenfloProcess.pid);
           }
         });
 
-        // Wait for webhook to populate session with happySessionId
-        logger.debug(`[DAEMON RUN] Waiting for session webhook for PID ${happyProcess.pid}`);
+        // Wait for webhook to populate session with zenfloSessionId
+        logger.debug(`[DAEMON RUN] Waiting for session webhook for PID ${zenfloProcess.pid}`);
 
         return new Promise((resolve) => {
           // Set timeout for webhook
           const timeout = setTimeout(() => {
-            pidToAwaiter.delete(happyProcess.pid!);
-            logger.debug(`[DAEMON RUN] Session webhook timeout for PID ${happyProcess.pid}`);
+            pidToAwaiter.delete(zenfloProcess.pid!);
+            logger.debug(`[DAEMON RUN] Session webhook timeout for PID ${zenfloProcess.pid}`);
             resolve({
               type: 'error',
-              errorMessage: `Session webhook timeout for PID ${happyProcess.pid}`
+              errorMessage: `Session webhook timeout for PID ${zenfloProcess.pid}`
             });
             // 15 second timeout - I have seen timeouts on 10 seconds
             // even though session was still created successfully in ~2 more seconds
           }, 15_000);
 
           // Register awaiter
-          pidToAwaiter.set(happyProcess.pid!, (completedSession) => {
+          pidToAwaiter.set(zenfloProcess.pid!, (completedSession) => {
             clearTimeout(timeout);
-            logger.debug(`[DAEMON RUN] Session ${completedSession.happySessionId} fully spawned with webhook`);
+            logger.debug(`[DAEMON RUN] Session ${completedSession.zenfloSessionId} fully spawned with webhook`);
             resolve({
               type: 'success',
-              sessionId: completedSession.happySessionId!
+              sessionId: completedSession.zenfloSessionId!
             });
           });
         });
@@ -361,7 +361,7 @@ export async function startDaemon(): Promise<void> {
 
       // Try to find by sessionId first
       for (const [pid, session] of pidToTrackedSession.entries()) {
-        if (session.happySessionId === sessionId ||
+        if (session.zenfloSessionId === sessionId ||
           (sessionId.startsWith('PID-') && pid === parseInt(sessionId.replace('PID-', '')))) {
 
           if (session.startedBy === 'daemon' && session.childProcess) {
@@ -495,7 +495,7 @@ export async function startDaemon(): Promise<void> {
         // 3. Next it will start a new daemon with the latest version with daemon-sync :D
         // Done!
         try {
-          spawnHappyCLI(['daemon', 'start'], {
+          spawnZenfloCLI(['daemon', 'start'], {
             detached: true,
             stdio: 'ignore'
           });

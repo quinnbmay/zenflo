@@ -1,5 +1,5 @@
 /**
- * Minimal persistence functions for happy CLI
+ * Minimal persistence functions for ZenFlo CLI
  * 
  * Handles settings and private key storage in ~/.happy/ or local .happy/
  */

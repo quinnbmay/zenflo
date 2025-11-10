@@ -1,7 +1,7 @@
 # App Store & Google Play Store Information
 
 ## App Name
-Happy Coder
+ZenFlo
 
 ## Subtitle / Short Description
 Claude Code on the go
@@ -12,13 +12,13 @@ Claude Code on the go
 - **Google Play**: Productivity > Developer Tools
 
 ## Keywords
-claude, code, ai, programming, developer, tools, encrypted, secure, coding, assistant, mobile, sync, offline, notifications, privacy
+claude, code, ai, programming, developer, tools, encrypted, secure, coding, assistant, mobile, sync, offline, notifications, privacy, zenflo
 
 ## App Description / Full Description
 
-Happy Coder is the secure mobile companion for Claude Code that lets you continue your AI coding sessions anywhere (not affiliated with Anthropic). Built by developers who needed to check on Claude's progress during coffee breaks, this app brings the full Claude Code experience to your phone with military-grade encryption.
+ZenFlo is the secure mobile companion for Claude Code that lets you continue your AI coding sessions anywhere (not affiliated with Anthropic). End-to-end encrypted with push notifications, ZenFlo brings the full Claude Code experience to your mobile device.
 
-**Important**: This app requires Claude Code to be installed on your computer. Happy Coder is a companion app that connects to your existing Claude Code setup.
+**Important**: This app requires Claude Code to be installed on your computer. ZenFlo is a companion app that connects to your existing Claude Code setup.
 
 **Key Features:**
 
@@ -30,9 +30,9 @@ Happy Coder is the secure mobile companion for Claude Code that lets you continu
 • Zero-knowledge architecture - we can't read your data
 
 **How It Works:**
-1. Install the happy-coder CLI on your computer
+1. Install the zenflo CLI on your computer
 2. Scan a QR code to securely pair your devices
-3. Use 'happy' instead of 'claude' to start encrypted sessions
+3. Use 'zenflo' instead of 'claude' to start encrypted sessions
 4. Switch between desktop and mobile instantly
 
 Perfect for developers who:
@@ -41,9 +41,7 @@ Perfect for developers who:
 - Value privacy and open-source transparency
 - Work from coffee shops, trains, or anywhere
 
-Happy Coder uses the same encryption as Signal (TweetNaCl) and is completely open source. Your encryption keys never leave your device, and all data is encrypted before transmission.
-
-Built by Bay Area engineers who believe the best tools come from scratching your own itch. We needed a way to securely check on our AI coding assistant while away from our desks - so we built it and shared it with the community.
+ZenFlo uses military-grade encryption (TweetNaCl - same as Signal) and is completely open source. Your encryption keys never leave your device, and all data is encrypted before transmission.
 
 Your code. Your privacy. Your Claude Code companion.
 
@@ -62,13 +60,13 @@ Your code. Your privacy. Your Claude Code companion.
 ## URLs
 
 ### Privacy Policy
-https://github.com/slopus/happy-coder/blob/main/PRIVACY.md
+https://github.com/combinedmemory/zenflo/blob/main/PRIVACY.md
 
 ### Support / Contact
-https://github.com/slopus/happy-coder/issues
+https://github.com/combinedmemory/zenflo/issues
 
 ### Website / Marketing
-https://github.com/slopus/happy-coder
+https://github.com/combinedmemory/zenflo
 
 ## Additional Google Play Requirements
 

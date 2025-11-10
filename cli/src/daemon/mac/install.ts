@@ -31,7 +31,7 @@ export async function install(): Promise<void> {
             execSync(`launchctl unload ${PLIST_FILE}`, { stdio: 'inherit' });
         }
 
-        // Get the path to the happy CLI executable
+        // Get the path to the ZenFlo CLI executable
         const happyPath = process.argv[0]; // Node.js executable
         const scriptPath = process.argv[1]; // Script path
 

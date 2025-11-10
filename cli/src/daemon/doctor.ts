@@ -9,7 +9,7 @@ import psList from 'ps-list';
 import spawn from 'cross-spawn';
 
 /**
- * Find all Happy CLI processes (including current process)
+ * Find all ZenFlo CLI processes (including current process)
  */
 export async function findAllHappyProcesses(): Promise<Array<{ pid: number, command: string, type: string }>> {
   try {
@@ -20,11 +20,11 @@ export async function findAllHappyProcesses(): Promise<Array<{ pid: number, comm
       const cmd = proc.cmd || '';
       const name = proc.name || '';
       
-      // Check if it's a Happy process
+      // Check if it's a ZenFlo process
       const isHappy = name.includes('happy') || 
                       name === 'node' && (cmd.includes('happy-cli') || cmd.includes('dist/index.mjs')) ||
                       cmd.includes('happy.mjs') ||
-                      cmd.includes('happy-coder') ||
+                      cmd.includes('zenflo') ||
                       (cmd.includes('tsx') && cmd.includes('src/index.ts') && cmd.includes('happy-cli'));
       
       if (!isHappy) continue;
@@ -57,7 +57,7 @@ export async function findAllHappyProcesses(): Promise<Array<{ pid: number, comm
 }
 
 /**
- * Find all runaway Happy CLI processes that should be killed
+ * Find all runaway ZenFlo CLI processes that should be killed
  */
 export async function findRunawayHappyProcesses(): Promise<Array<{ pid: number, command: string }>> {
   const allProcesses = await findAllHappyProcesses();
@@ -78,7 +78,7 @@ export async function findRunawayHappyProcesses(): Promise<Array<{ pid: number, 
 }
 
 /**
- * Kill all runaway Happy CLI processes
+ * Kill all runaway ZenFlo CLI processes
  */
 export async function killRunawayHappyProcesses(): Promise<{ killed: number, errors: Array<{ pid: number, error: string }> }> {
   const runawayProcesses = await findRunawayHappyProcesses();

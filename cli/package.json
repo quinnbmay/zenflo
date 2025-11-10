@@ -1,6 +1,6 @@
 {
   "name": "zenflo",
-  "version": "0.11.2",
+  "version": "0.11.3",
   "description": "Mobile and Web client for Claude Code and Codex - ZenFlo edition",
   "author": "Combined Memory",
   "license": "MIT",
@@ -36,14 +36,14 @@
         "default": "./dist/lib.mjs"
       }
     },
-    "./codex/happyMcpStdioBridge": {
+    "./codex/zenfloMcpStdioBridge": {
       "require": {
-        "types": "./dist/codex/happyMcpStdioBridge.d.cts",
-        "default": "./dist/codex/happyMcpStdioBridge.cjs"
+        "types": "./dist/codex/zenfloMcpStdioBridge.d.cts",
+        "default": "./dist/codex/zenfloMcpStdioBridge.cjs"
       },
       "import": {
-        "types": "./dist/codex/happyMcpStdioBridge.d.mts",
-        "default": "./dist/codex/happyMcpStdioBridge.mjs"
+        "types": "./dist/codex/zenfloMcpStdioBridge.d.mts",
+        "default": "./dist/codex/zenfloMcpStdioBridge.mjs"
       }
     }
   },

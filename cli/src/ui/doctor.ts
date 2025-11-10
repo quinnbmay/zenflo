@@ -2,7 +2,7 @@
  * Doctor command implementation
  * 
  * Provides comprehensive diagnostics and troubleshooting information
- * for happy CLI including configuration, daemon status, logs, and links
+ * for ZenFlo CLI including configuration, daemon status, logs, and links
  */
 
 import chalk from 'chalk'
@@ -77,13 +77,13 @@ export async function runDoctorCommand(filter?: 'all' | 'daemon'): Promise<void>
         filter = 'all';
     }
     
-    console.log(chalk.bold.cyan('\n🩺 Happy CLI Doctor\n'));
+    console.log(chalk.bold.cyan('\n🩺 ZenFlo CLI Doctor\n'));
 
     // For 'all' filter, show everything. For 'daemon', only show daemon-related info
     if (filter === 'all') {
         // Version and basic info
         console.log(chalk.bold('📋 Basic Information'));
-        console.log(`Happy CLI Version: ${chalk.green(packageJson.version)}`);
+        console.log(`ZenFlo CLI Version: ${chalk.green(packageJson.version)}`);
         console.log(`Platform: ${chalk.green(process.platform)} ${process.arch}`);
         console.log(`Node.js Version: ${chalk.green(process.version)}`);
         console.log('');
@@ -167,10 +167,10 @@ export async function runDoctorCommand(filter?: 'all' | 'daemon'): Promise<void>
             console.log(chalk.gray(JSON.stringify(state, null, 2)));
         }
 
-        // All Happy processes
+        // All ZenFlo processes
         const allProcesses = await findAllHappyProcesses();
         if (allProcesses.length > 0) {
-            console.log(chalk.bold('\n🔍 All Happy CLI Processes'));
+            console.log(chalk.bold('\n🔍 All ZenFlo CLI Processes'));
 
             // Group by type
             const grouped = allProcesses.reduce((groups, process) => {

@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  happy-server:
+  zenflo-server:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: happy-server
+    container_name: zenflo-server
     ports:
       - "3000:3005"  # Map external 3000 to internal 3005
       - "9090:9090"  # Metrics port
@@ -34,13 +34,13 @@ services:
       minio:
         condition: service_started
     networks:
-      - happy-network
+      - zenflo-network
     volumes:
-      - happy-data:/app/data
+      - zenflo-data:/app/data
 
   postgres:
     image: postgres:15-alpine
-    container_name: happy-postgres
+    container_name: zenflo-postgres
     environment:
       - POSTGRES_DB=happy-server
       - POSTGRES_USER=postgres
@@ -51,7 +51,7 @@ services:
     ports:
       - "5433:5432"  # Use 5433 externally to avoid conflict
     networks:
-      - happy-network
+      - zenflo-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -61,14 +61,14 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: happy-redis
+    container_name: zenflo-redis
     command: redis-server --appendonly yes
     volumes:
       - redis-data:/data
     ports:
       - "6380:6379"  # Use 6380 externally to avoid conflict
     networks:
-      - happy-network
+      - zenflo-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -78,7 +78,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: happy-minio
+    container_name: zenflo-minio
     command: server /data --console-address ":9001"
     environment:
       - MINIO_ROOT_USER=minioadmin
@@ -89,19 +89,23 @@ services:
       - "9000:9000"  # S3 API
       - "9001:9001"  # MinIO Console
     networks:
-      - happy-network
+      - zenflo-network
     restart: unless-stopped
 
 networks:
-  happy-network:
+  zenflo-network:
     driver: bridge
 
 volumes:
   postgres-data:
-    driver: local
+    external: true
+    name: happy-server_postgres-data
   redis-data:
-    driver: local
-  happy-data:
-    driver: local
+    external: true
+    name: happy-server_redis-data
+  zenflo-data:
+    external: true
+    name: happy-server_happy-data
   minio-data:
-    driver: local
+    external: true
+    name: happy-server_minio-data

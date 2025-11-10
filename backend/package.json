@@ -1,5 +1,5 @@
 {
-  "name": "@zenflo/backend",
+  "name": "zenflo-server",
   "version": "0.0.0",
   "repository": "https://github.com/slopus/zenflo-server.git",
   "author": "Steve Korshakov <steve@korshakov.com>",

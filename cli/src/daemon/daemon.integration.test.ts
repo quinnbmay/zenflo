@@ -29,7 +29,7 @@ import {
 } from '@/daemon/controlClient';
 import { readDaemonState, clearDaemonState } from '@/persistence';
 import { Metadata } from '@/api/types';
-import { spawnHappyCLI } from '@/utils/spawnHappyCLI';
+import { spawnZenfloCLI } from '@/utils/spawnZenfloCLI';
 import { getLatestDaemonLog } from '@/ui/logger';
 
 // Utility to wait for condition
@@ -82,7 +82,7 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
     
     // Start fresh daemon for this test
     // This will return and start a background process - we don't need to wait for it
-    void spawnHappyCLI(['daemon', 'start'], {
+    void spawnZenfloCLI(['daemon', 'start'], {
       stdio: 'ignore'
     });
     
@@ -133,7 +133,7 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
     
     const tracked = sessions[0];
     expect(tracked.startedBy).toBe('happy directly - likely by user from terminal');
-    expect(tracked.happySessionId).toBe('test-session-123');
+    expect(tracked.zenfloSessionId).toBe('test-session-123');
     expect(tracked.pid).toBe(99999);
   });
 
@@ -146,15 +146,15 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
     // Verify session is tracked
     const sessions = await listDaemonSessions();
     const spawnedSession = sessions.find(
-      (s: any) => s.happySessionId === response.sessionId
+      (s: any) => s.zenfloSessionId === response.sessionId
     );
     
     expect(spawnedSession).toBeDefined();
     expect(spawnedSession.startedBy).toBe('daemon');
     
     // Clean up - stop the spawned session
-    expect(spawnedSession.happySessionId).toBeDefined();
-    await stopDaemonSession(spawnedSession.happySessionId);
+    expect(spawnedSession.zenfloSessionId).toBeDefined();
+    await stopDaemonSession(spawnedSession.zenfloSessionId);
   });
 
   it('stress test: spawn / stop', { timeout: 60_000 }, async () => {
@@ -189,7 +189,7 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
 
   it('should track both daemon-spawned and terminal sessions', async () => {
     // Spawn a real happy process that looks like it was started from terminal
-    const terminalHappyProcess = spawnHappyCLI([
+    const terminalHappyProcess = spawnZenfloCLI([
       '--happy-starting-mode', 'remote',
       '--started-by', 'terminal'
     ], {
@@ -215,7 +215,7 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
       (s: any) => s.pid === terminalHappyProcess.pid
     );
     const daemonSession = sessions.find(
-      (s: any) => s.happySessionId === spawnResponse.sessionId
+      (s: any) => s.zenfloSessionId === spawnResponse.sessionId
     );
 
     expect(terminalSession).toBeDefined();
@@ -226,7 +226,7 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
 
     // Clean up both sessions
     await stopDaemonSession('terminal-session-aaa');
-    await stopDaemonSession(daemonSession.happySessionId);
+    await stopDaemonSession(daemonSession.zenfloSessionId);
     
     // Also kill the terminal process directly to be sure
     try {
@@ -242,7 +242,7 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
 
     // Verify webhook was processed (session ID updated)
     const sessions = await listDaemonSessions();
-    const session = sessions.find((s: any) => s.happySessionId === spawnResponse.sessionId);
+    const session = sessions.find((s: any) => s.zenfloSessionId === spawnResponse.sessionId);
     expect(session).toBeDefined();
 
     // Clean up
@@ -301,14 +301,14 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
     // List should show all sessions
     const sessions = await listDaemonSessions();
     const daemonSessions = sessions.filter(
-      (s: any) => s.startedBy === 'daemon' && spawnedSessionIds.includes(s.happySessionId)
+      (s: any) => s.startedBy === 'daemon' && spawnedSessionIds.includes(s.zenfloSessionId)
     );
     expect(daemonSessions.length).toBeGreaterThanOrEqual(3);
 
     // Stop all spawned sessions
     for (const session of daemonSessions) {
-      expect(session.happySessionId).toBeDefined();
-      await stopDaemonSession(session.happySessionId);
+      expect(session.zenfloSessionId).toBeDefined();
+      await stopDaemonSession(session.zenfloSessionId);
     }
   });
 
@@ -389,13 +389,13 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
    * 3. Test runs `yarn build` to recompile with new version
    * 4. Daemon's heartbeat (every 30s) reads package.json and compares to its compiled version
    * 5. Daemon detects mismatch: package.json != configuration.currentCliVersion
-   * 6. Daemon spawns new daemon via spawnHappyCLI(['daemon', 'start'])
+   * 6. Daemon spawns new daemon via spawnZenfloCLI(['daemon', 'start'])
    * 7. New daemon starts, reads daemon.state.json, sees old version != its compiled version
    * 8. New daemon calls stopDaemon() to kill old daemon, then takes over
    * 
-   * This simulates what happens during `npm upgrade happy-coder`:
+   * This simulates what happens during `npm upgrade zenflo`:
    * - Running daemon has OLD version loaded in memory (configuration.currentCliVersion)
-   * - npm replaces node_modules/happy-coder/ with NEW version files
+   * - npm replaces node_modules/zenflo/ with NEW version files
    * - package.json on disk now has NEW version
    * - Daemon reads package.json, detects mismatch, triggers self-update
    * - Key difference: npm atomically replaces the entire module directory, while
@@ -467,7 +467,7 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
 
   // TODO: Add a test to see if a corrupted file will work
   
-  // TODO: Test npm uninstall scenario - daemon should gracefully handle when happy-coder is uninstalled
+  // TODO: Test npm uninstall scenario - daemon should gracefully handle when zenflo is uninstalled
   // Current behavior: daemon tries to spawn new daemon on version mismatch but dist/index.mjs is gone
   // Expected: daemon should detect missing entrypoint and either exit cleanly or at minimum not respawn infinitely
 });
