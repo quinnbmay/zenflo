@@ -101,12 +101,12 @@ async function generateToken(secretStr: string, serverUrl: string = 'https://zen
 }
 
 // CLI interface
-const secretStr = process.argv[2] || process.env.HAPPY_SECRET;
-const serverUrl = process.argv[3] || process.env.HAPPY_SERVER_URL || 'https://zenflo.combinedmemory.com';
+const secretStr = process.argv[2] || process.env.ZENFLO_SECRET_KEY || process.env.HAPPY_SECRET;
+const serverUrl = process.argv[3] || process.env.ZENFLO_SERVER_URL || process.env.HAPPY_SERVER_URL || 'https://zenflo.combinedmemory.com';
 
 if (!secretStr) {
   console.error('Usage: tsx generateToken.ts <SECRET_KEY> [SERVER_URL]');
-  console.error('   or: HAPPY_SECRET=... tsx generateToken.ts');
+  console.error('   or: ZENFLO_SECRET_KEY=... tsx generateToken.ts');
   process.exit(1);
 }
 

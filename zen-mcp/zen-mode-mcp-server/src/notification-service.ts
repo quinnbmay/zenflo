@@ -496,13 +496,13 @@ export class ZenModeNotificationService {
 
 // Main entry point
 const config: NotificationConfig = {
-  happyServerUrl: process.env.HAPPY_SERVER_URL || 'https://zenflo.combinedmemory.com',
-  authToken: process.env.HAPPY_AUTH_TOKEN || '',
-  secretKey: process.env.HAPPY_SECRET_KEY || '',
+  happyServerUrl: process.env.ZENFLO_SERVER_URL || process.env.HAPPY_SERVER_URL || 'https://zenflo.combinedmemory.com',
+  authToken: process.env.ZENFLO_AUTH_TOKEN || process.env.HAPPY_AUTH_TOKEN || '',
+  secretKey: process.env.ZENFLO_SECRET_KEY || process.env.HAPPY_SECRET_KEY || '',
 };
 
 if (!config.authToken || !config.secretKey) {
-  console.error('❌ Missing required environment variables: HAPPY_AUTH_TOKEN, HAPPY_SECRET_KEY');
+  console.error('❌ Missing required environment variables: ZENFLO_AUTH_TOKEN, ZENFLO_SECRET_KEY');
   process.exit(1);
 }
 
