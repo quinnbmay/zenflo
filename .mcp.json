@@ -29,7 +29,7 @@
         "elevenlabs-mcp"
       ],
       "env": {
-        "ELEVENLABS_API_KEY": "${ELEVENLABS_API_KEY}"
+        "ELEVENLABS_API_KEY": "sk_f9bf84125ea4a0dcbbe4adcf9e655439a9c08ea8fef16ab6"
       }
     },
     "elevenlabs-agent": {
@@ -40,11 +40,10 @@
         "/Users/quinnmay/developer/mcp-servers/elevenlabs-agent-mcp",
         "run",
         "python",
-        "-m",
-        "elevenlabs_agent_mcp"
+        "src/server.py"
       ],
       "env": {
-        "ELEVENLABS_API_KEY": "${ELEVENLABS_API_KEY}"
+        "ELEVENLABS_API_KEY": "sk_f9bf84125ea4a0dcbbe4adcf9e655439a9c08ea8fef16ab6"
       }
     }
   }

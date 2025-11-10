@@ -536,11 +536,33 @@ export async function runCodex(opts: {
     // Start ZenFlo MCP server (HTTP) and prepare STDIO bridge config for Codex
     const zenfloServer = await startZenfloServer(session, api);
     const bridgeCommand = join(projectPath(), 'bin', 'zenflo-mcp.mjs');
+
+    // Build zen-mode MCP server config with env vars
+    const zenModeConfig: any = {
+        command: 'node',
+        args: [join(projectPath(), '..', 'zen-mcp', 'zen-mode-mcp-server', 'dist', 'index.js')]
+    };
+
+    // Add env vars if available
+    if (process.env.ZENFLO_AUTH_TOKEN || process.env.ZENFLO_SECRET_KEY || process.env.ZENFLO_USER_ID) {
+        zenModeConfig.env = {};
+        if (process.env.ZENFLO_AUTH_TOKEN) {
+            zenModeConfig.env.ZENFLO_AUTH_TOKEN = process.env.ZENFLO_AUTH_TOKEN;
+        }
+        if (process.env.ZENFLO_SECRET_KEY) {
+            zenModeConfig.env.ZENFLO_SECRET_KEY = process.env.ZENFLO_SECRET_KEY;
+        }
+        if (process.env.ZENFLO_USER_ID) {
+            zenModeConfig.env.ZENFLO_USER_ID = process.env.ZENFLO_USER_ID;
+        }
+    }
+
     const mcpServers = {
         happy: {
             command: bridgeCommand,
             args: ['--url', zenfloServer.url]
-        }
+        },
+        'zen-mode': zenModeConfig
     } as const;
     let first = true;
 
