@@ -1,0 +1,513 @@
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { Platform } from 'react-native';
+import { RTCPeerConnection, mediaDevices, MediaStream } from 'react-native-webrtc-web-shim';
+import { Audio } from 'expo-av';
+import InCallManager from 'react-native-incall-manager';
+import { zenTools, zenToolsSchema } from '../tools/zenTools';
+
+/**
+ * useZenVoice - React hook for WebRTC voice connection to OpenAI Realtime API
+ *
+ * This hook manages the full WebRTC lifecycle for Zen voice assistant:
+ * - Ephemeral token fetching from ZenFlo backend
+ * - WebRTC peer connection setup with OpenAI
+ * - Bidirectional audio streaming (user microphone + AI speech)
+ * - Data channel for function calls and transcripts
+ * - Audio session configuration (expo-av + InCallManager)
+ *
+ * Architecture:
+ * 1. Get ephemeral token from https://happy.combinedmemory.com/v1/voice/zen/session
+ * 2. Create RTCPeerConnection with OpenAI STUN servers
+ * 3. Set up data channel 'oai-events' for JSON messages
+ * 4. Get user audio via getUserMedia
+ * 5. Create SDP offer and exchange with OpenAI Realtime API
+ * 6. Handle incoming audio via remote stream
+ * 7. Process data channel messages (transcripts, function calls, state changes)
+ *
+ * @example
+ * const { connect, disconnect, isConnected, transcript, isSpeaking } = useZenVoice();
+ *
+ * // Start voice session
+ * await connect();
+ *
+ * // Cleanup
+ * disconnect();
+ */
+
+interface UseZenVoiceReturn {
+    isConnected: boolean;
+    isListening: boolean;
+    isSpeaking: boolean;
+    transcript: string;
+    connect: () => Promise<void>;
+    disconnect: () => void;
+    error: string | null;
+}
+
+interface OpenAIRealtimeEvent {
+    type: string;
+    [key: string]: any;
+}
+
+interface EphemeralTokenResponse {
+    token: string;
+}
+
+const OPENAI_REALTIME_API_URL = 'https://api.openai.com/v1/realtime';
+const ZEN_SESSION_ENDPOINT = 'https://happy.combinedmemory.com/v1/voice/zen/session';
+
+// System instructions for Zen personality
+const ZEN_SYSTEM_INSTRUCTIONS = `You are Zen, a calm, focused task assistant for ZenFlo.
+
+Your role:
+- Help users manage their tasks naturally through voice
+- Keep responses concise and action-oriented
+- Be calm, supportive, and encouraging
+- Focus on productivity without being pushy
+- Use a friendly, minimalist tone
+
+You have access to the user's task list through function calls:
+- list_tasks: View current tasks (can filter by priority)
+- create_task: Add new tasks
+- update_task: Change task status or priority
+
+When users ask about their tasks or want to add/update tasks, use these functions.
+Keep conversations brief - users are often multitasking.`;
+
+export function useZenVoice(): UseZenVoiceReturn {
+    // State
+    const [isConnected, setIsConnected] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [transcript, setTranscript] = useState('');
+    const [error, setError] = useState<string | null>(null);
+
+    // Refs for WebRTC connection management
+    const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+    const dataChannelRef = useRef<RTCDataChannel | null>(null);
+    const localStreamRef = useRef<MediaStream | null>(null);
+    const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
+
+    /**
+     * Configure audio session for voice calls
+     * Uses expo-av for audio mode and InCallManager for call routing
+     */
+    const configureAudioSession = useCallback(async () => {
+        try {
+            // Set audio mode for voice chat
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: true,
+                playsInSilentModeIOS: true,
+                staysActiveInBackground: true,
+                shouldDuckAndroid: true,
+                playThroughEarpieceAndroid: false,
+            });
+
+            // Configure call manager for proper audio routing
+            if (Platform.OS !== 'web') {
+                InCallManager.start({ media: 'audio', ringback: '' });
+                InCallManager.setForceSpeakerphoneOn(false);
+            }
+
+            console.log('✅ Audio session configured');
+        } catch (err) {
+            console.error('❌ Failed to configure audio session:', err);
+            throw new Error('Audio configuration failed');
+        }
+    }, []);
+
+    /**
+     * Cleanup audio session
+     */
+    const cleanupAudioSession = useCallback(async () => {
+        try {
+            if (Platform.OS !== 'web') {
+                InCallManager.stop();
+            }
+            console.log('✅ Audio session cleaned up');
+        } catch (err) {
+            console.error('⚠️ Failed to cleanup audio session:', err);
+        }
+    }, []);
+
+    /**
+     * Fetch ephemeral token from ZenFlo backend
+     */
+    const getEphemeralToken = useCallback(async (): Promise<string> => {
+        console.log('🔑 Fetching ephemeral token...');
+
+        try {
+            const response = await fetch(ZEN_SESSION_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to get ephemeral token: ${response.status}`);
+            }
+
+            const data: EphemeralTokenResponse = await response.json();
+            console.log('✅ Ephemeral token received');
+            return data.token;
+        } catch (err) {
+            console.error('❌ Failed to fetch ephemeral token:', err);
+            throw err;
+        }
+    }, []);
+
+    /**
+     * Handle incoming data channel messages from OpenAI
+     */
+    const handleDataChannelMessage = useCallback(async (event: MessageEvent) => {
+        try {
+            const message: OpenAIRealtimeEvent = JSON.parse(event.data);
+            console.log('📨 Data channel message:', message.type);
+
+            switch (message.type) {
+                case 'session.created':
+                    console.log('✅ Session created:', message.session?.id);
+                    setIsConnected(true);
+                    break;
+
+                case 'conversation.item.input_audio_transcription.completed':
+                    // User speech transcript
+                    if (message.transcript) {
+                        setTranscript(message.transcript);
+                        console.log('🎤 User said:', message.transcript);
+                    }
+                    break;
+
+                case 'response.audio_transcript.delta':
+                    // AI speech transcript (streaming)
+                    if (message.delta) {
+                        setTranscript(prev => prev + message.delta);
+                    }
+                    break;
+
+                case 'response.audio.delta':
+                    // Audio chunks being played
+                    setIsSpeaking(true);
+                    break;
+
+                case 'response.audio.done':
+                    // Audio playback finished
+                    setIsSpeaking(false);
+                    break;
+
+                case 'input_audio_buffer.speech_started':
+                    setIsListening(true);
+                    console.log('🎤 Speech detected');
+                    break;
+
+                case 'input_audio_buffer.speech_stopped':
+                    setIsListening(false);
+                    console.log('🎤 Speech ended');
+                    break;
+
+                case 'response.function_call_arguments.done':
+                    // Function call from AI
+                    await handleFunctionCall(message);
+                    break;
+
+                case 'error':
+                    console.error('❌ OpenAI error:', message.error);
+                    setError(message.error?.message || 'Unknown error');
+                    break;
+
+                default:
+                    // Log other events for debugging
+                    if (message.type !== 'response.audio.delta') {
+                        console.log('📝 Event:', message.type);
+                    }
+                    break;
+            }
+        } catch (err) {
+            console.error('❌ Failed to process data channel message:', err);
+        }
+    }, []);
+
+    /**
+     * Handle function calls from OpenAI
+     */
+    const handleFunctionCall = useCallback(async (message: OpenAIRealtimeEvent) => {
+        const { call_id, name, arguments: argsString } = message;
+
+        console.log(`🔧 Function call: ${name}`, argsString);
+
+        try {
+            // Parse arguments
+            const args = JSON.parse(argsString || '{}');
+
+            // Execute function from zenTools
+            const toolFunction = zenTools[name as keyof typeof zenTools];
+            if (!toolFunction) {
+                throw new Error(`Unknown function: ${name}`);
+            }
+
+            const result = await toolFunction(args);
+            console.log(`✅ Function result:`, result);
+
+            // Send result back to OpenAI
+            if (dataChannelRef.current?.readyState === 'open') {
+                const responseEvent = {
+                    type: 'conversation.item.create',
+                    item: {
+                        type: 'function_call_output',
+                        call_id,
+                        output: result
+                    }
+                };
+                dataChannelRef.current.send(JSON.stringify(responseEvent));
+                console.log('📤 Sent function result to OpenAI');
+            }
+        } catch (err) {
+            console.error(`❌ Function call failed:`, err);
+
+            // Send error response
+            if (dataChannelRef.current?.readyState === 'open') {
+                const errorEvent = {
+                    type: 'conversation.item.create',
+                    item: {
+                        type: 'function_call_output',
+                        call_id,
+                        output: JSON.stringify({
+                            success: false,
+                            error: err instanceof Error ? err.message : 'Unknown error'
+                        })
+                    }
+                };
+                dataChannelRef.current.send(JSON.stringify(errorEvent));
+            }
+        }
+    }, []);
+
+    /**
+     * Configure session with OpenAI Realtime API
+     */
+    const configureSession = useCallback(() => {
+        if (!dataChannelRef.current || dataChannelRef.current.readyState !== 'open') {
+            console.error('❌ Data channel not ready for session configuration');
+            return;
+        }
+
+        const sessionConfig = {
+            type: 'session.update',
+            session: {
+                model: 'gpt-4o-realtime-preview-2024-12-17',
+                modalities: ['text', 'audio'],
+                instructions: ZEN_SYSTEM_INSTRUCTIONS,
+                voice: 'verse',
+                input_audio_format: 'pcm16',
+                output_audio_format: 'pcm16',
+                input_audio_transcription: {
+                    model: 'whisper-1'
+                },
+                turn_detection: {
+                    type: 'server_vad',
+                    threshold: 0.5,
+                    prefix_padding_ms: 300,
+                    silence_duration_ms: 500
+                },
+                tools: zenToolsSchema,
+                tool_choice: 'auto',
+                temperature: 0.8,
+                max_response_output_tokens: 4096
+            }
+        };
+
+        console.log('⚙️ Configuring session...');
+        dataChannelRef.current.send(JSON.stringify(sessionConfig));
+        console.log('✅ Session configuration sent');
+    }, []);
+
+    /**
+     * Main connect function - establishes WebRTC connection to OpenAI
+     */
+    const connect = useCallback(async () => {
+        try {
+            console.log('🚀 Starting Zen voice connection...');
+            setError(null);
+
+            // Step 1: Configure audio session
+            await configureAudioSession();
+
+            // Step 2: Get ephemeral token
+            const token = await getEphemeralToken();
+
+            // Step 3: Create peer connection
+            const pc = new RTCPeerConnection({
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' }
+                ]
+            });
+            peerConnectionRef.current = pc;
+
+            console.log('📡 Peer connection created');
+
+            // Step 4: Set up data channel for events
+            const dc = pc.createDataChannel('oai-events');
+            dataChannelRef.current = dc;
+
+            dc.onopen = () => {
+                console.log('✅ Data channel opened');
+                configureSession();
+            };
+
+            dc.onmessage = handleDataChannelMessage;
+
+            dc.onerror = (err: Event) => {
+                console.error('❌ Data channel error:', err);
+                setError('Data channel error');
+            };
+
+            dc.onclose = () => {
+                console.log('📪 Data channel closed');
+                setIsConnected(false);
+            };
+
+            // Step 5: Get user audio
+            console.log('🎤 Requesting microphone access...');
+            const stream = await mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true,
+                    sampleRate: 24000
+                },
+                video: false
+            });
+            localStreamRef.current = stream;
+            console.log('✅ Microphone access granted');
+
+            // Add audio tracks to peer connection
+            stream.getTracks().forEach((track: MediaStreamTrack) => {
+                pc.addTrack(track, stream);
+                console.log('🎵 Added audio track:', track.kind);
+            });
+
+            // Step 6: Handle remote audio
+            pc.ontrack = (event: RTCTrackEvent) => {
+                console.log('🔊 Remote track received:', event.track.kind);
+
+                if (event.track.kind === 'audio') {
+                    const remoteStream = event.streams[0];
+
+                    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                        // Web: Use HTMLAudioElement
+                        if (!remoteAudioRef.current) {
+                            const audioElement = document.createElement('audio');
+                            audioElement.autoplay = true;
+                            remoteAudioRef.current = audioElement;
+                        }
+                        if (remoteAudioRef.current) {
+                            remoteAudioRef.current.srcObject = remoteStream;
+                        }
+                    } else {
+                        // Native: Stream is automatically played through device speakers
+                        console.log('🔊 Remote audio stream ready (native)');
+                    }
+                }
+            };
+
+            // Step 7: Create and send offer
+            console.log('📝 Creating SDP offer...');
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            console.log('✅ Local description set');
+
+            // Step 8: Send offer to OpenAI and get answer
+            console.log('📤 Sending offer to OpenAI...');
+            const response = await fetch(`${OPENAI_REALTIME_API_URL}?model=gpt-4o-realtime-preview-2024-12-17`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/sdp'
+                },
+                body: offer.sdp
+            });
+
+            if (!response.ok) {
+                throw new Error(`OpenAI API error: ${response.status}`);
+            }
+
+            const answerSdp = await response.text();
+            console.log('📥 Received answer from OpenAI');
+
+            // Step 9: Set remote description
+            await pc.setRemoteDescription({
+                type: 'answer',
+                sdp: answerSdp
+            });
+            console.log('✅ Remote description set');
+
+            console.log('🎉 Zen voice connection established!');
+
+        } catch (err) {
+            console.error('❌ Failed to connect:', err);
+            setError(err instanceof Error ? err.message : 'Connection failed');
+            disconnect();
+        }
+    }, [configureAudioSession, getEphemeralToken, handleDataChannelMessage, configureSession]);
+
+    /**
+     * Disconnect and cleanup
+     */
+    const disconnect = useCallback(() => {
+        console.log('🔌 Disconnecting Zen voice...');
+
+        // Close data channel
+        if (dataChannelRef.current) {
+            dataChannelRef.current.close();
+            dataChannelRef.current = null;
+        }
+
+        // Close peer connection
+        if (peerConnectionRef.current) {
+            peerConnectionRef.current.close();
+            peerConnectionRef.current = null;
+        }
+
+        // Stop local stream
+        if (localStreamRef.current) {
+            localStreamRef.current.getTracks().forEach(track => track.stop());
+            localStreamRef.current = null;
+        }
+
+        // Stop remote audio
+        if (remoteAudioRef.current) {
+            remoteAudioRef.current.srcObject = null;
+            remoteAudioRef.current = null;
+        }
+
+        // Cleanup audio session
+        cleanupAudioSession();
+
+        // Reset state
+        setIsConnected(false);
+        setIsListening(false);
+        setIsSpeaking(false);
+        setTranscript('');
+        setError(null);
+
+        console.log('✅ Disconnected and cleaned up');
+    }, [cleanupAudioSession]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            disconnect();
+        };
+    }, [disconnect]);
+
+    return {
+        isConnected,
+        isListening,
+        isSpeaking,
+        transcript,
+        connect,
+        disconnect,
+        error
+    };
+}

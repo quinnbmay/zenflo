@@ -852,5 +852,18 @@ export const zhHans: TranslationStructure = {
         friendRequestGeneric: '新的好友请求',
         friendAccepted: ({ name }: { name: string }) => `您现在与 ${name} 成为了好友`,
         friendAcceptedGeneric: '好友请求已接受',
+    },
+
+    zenVoice: {
+        // Zen Voice Assistant screen
+        title: 'Zen Voice 助手',
+        tapToStart: '点击开始',
+        listening: '正在聆听...',
+        speaking: '正在说话...',
+        tapToStop: '点击停止',
+        disconnecting: '正在断开连接...',
+        error: '连接错误',
+        retryConnection: '重试连接',
+        transcriptPlaceholder: '您的对话内容将在此显示...',
     }
 } as const;

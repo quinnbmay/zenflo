@@ -873,6 +873,19 @@ export const ru: TranslationStructure = {
         friendRequestGeneric: 'Новый запрос в друзья',
         friendAccepted: ({ name }: { name: string }) => `Вы теперь друзья с ${name}`,
         friendAcceptedGeneric: 'Запрос в друзья принят',
+    },
+
+    zenVoice: {
+        // Zen Voice Assistant screen
+        title: 'Помощник Zen Voice',
+        tapToStart: 'Нажмите чтобы начать',
+        listening: 'Слушаю...',
+        speaking: 'Говорю...',
+        tapToStop: 'Нажмите чтобы остановить',
+        disconnecting: 'Отключение...',
+        error: 'Ошибка подключения',
+        retryConnection: 'Повторить подключение',
+        transcriptPlaceholder: 'Ваш диалог будет отображаться здесь...',
     }
 } as const;
 

@@ -874,6 +874,19 @@ export const pl: TranslationStructure = {
         friendRequestGeneric: 'Nowe zaproszenie do znajomych',
         friendAccepted: ({ name }: { name: string }) => `Jesteś teraz znajomym z ${name}`,
         friendAcceptedGeneric: 'Zaproszenie do znajomych zaakceptowane',
+    },
+
+    zenVoice: {
+        // Zen Voice Assistant screen
+        title: 'Asystent Zen Voice',
+        tapToStart: 'Dotknij aby rozpocząć',
+        listening: 'Słuchanie...',
+        speaking: 'Mówienie...',
+        tapToStop: 'Dotknij aby zatrzymać',
+        disconnecting: 'Rozłączanie...',
+        error: 'Błąd połączenia',
+        retryConnection: 'Spróbuj ponownie',
+        transcriptPlaceholder: 'Twoja rozmowa pojawi się tutaj...',
     }
 } as const;
 

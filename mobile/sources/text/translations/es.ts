@@ -851,6 +851,19 @@ export const es: TranslationStructure = {
         friendRequestGeneric: 'Nueva solicitud de amistad',
         friendAccepted: ({ name }: { name: string }) => `Ahora eres amigo de ${name}`,
         friendAcceptedGeneric: 'Solicitud de amistad aceptada',
+    },
+
+    zenVoice: {
+        // Zen Voice Assistant screen
+        title: 'Asistente Zen Voice',
+        tapToStart: 'Toca para comenzar',
+        listening: 'Escuchando...',
+        speaking: 'Hablando...',
+        tapToStop: 'Toca para detener',
+        disconnecting: 'Desconectando...',
+        error: 'Error de conexión',
+        retryConnection: 'Reintentar conexión',
+        transcriptPlaceholder: 'Tu conversación aparecerá aquí...',
     }
 } as const;
 

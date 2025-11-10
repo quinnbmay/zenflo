@@ -852,6 +852,19 @@ export const en = {
         friendRequestGeneric: 'New friend request',
         friendAccepted: ({ name }: { name: string }) => `You are now friends with ${name}`,
         friendAcceptedGeneric: 'Friend request accepted',
+    },
+
+    zenVoice: {
+        // Zen Voice Assistant screen
+        title: 'Zen Voice Assistant',
+        tapToStart: 'Tap to Start',
+        listening: 'Listening...',
+        speaking: 'Speaking...',
+        tapToStop: 'Tap to Stop',
+        disconnecting: 'Disconnecting...',
+        error: 'Connection Error',
+        retryConnection: 'Retry Connection',
+        transcriptPlaceholder: 'Your conversation will appear here...',
     }
 } as const;
 

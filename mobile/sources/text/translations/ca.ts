@@ -850,6 +850,19 @@ export const ca: TranslationStructure = {
         friendRequestGeneric: 'Nova sol·licitud d\'amistat',
         friendAccepted: ({ name }: { name: string }) => `Ara ets amic de ${name}`,
         friendAcceptedGeneric: 'Sol·licitud d\'amistat acceptada',
+    },
+
+    zenVoice: {
+        // Zen Voice Assistant screen
+        title: 'Assistent Zen Voice',
+        tapToStart: 'Toca per començar',
+        listening: 'Escoltant...',
+        speaking: 'Parlant...',
+        tapToStop: 'Toca per parar',
+        disconnecting: 'Desconnectant...',
+        error: 'Error de connexió',
+        retryConnection: 'Reintentar connexió',
+        transcriptPlaceholder: 'La teva conversa apareixerà aquí...',
     }
 } as const;
 
