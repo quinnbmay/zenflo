@@ -29,18 +29,17 @@ class Configuration {
 
   constructor() {
     // Server configuration - priority: parameter > environment > default
-    this.serverUrl = process.env.ZENFLO_SERVER_URL || process.env.HAPPY_SERVER_URL || 'https://zenflo.combinedmemory.com'
-    this.webappUrl = process.env.ZENFLO_WEBAPP_URL || process.env.HAPPY_WEBAPP_URL || 'https://app.combinedmemory.com'
+    this.serverUrl = process.env.ZENFLO_SERVER_URL || 'https://zenflo.combinedmemory.com'
+    this.webappUrl = process.env.ZENFLO_WEBAPP_URL || 'https://app.combinedmemory.com'
 
     // Check if we're running as daemon based on process args
     const args = process.argv.slice(2)
     this.isDaemonProcess = args.length >= 2 && args[0] === 'daemon' && (args[1] === 'start-sync')
 
-    // Directory configuration - Priority: ZENFLO_HOME_DIR > HAPPY_HOME_DIR (legacy) > default home dir
-    if (process.env.ZENFLO_HOME_DIR || process.env.HAPPY_HOME_DIR) {
+    // Directory configuration
+    if (process.env.ZENFLO_HOME_DIR) {
       // Expand ~ to home directory if present
-      const homeDir = process.env.ZENFLO_HOME_DIR || process.env.HAPPY_HOME_DIR
-      const expandedPath = homeDir!.replace(/^~/, homedir())
+      const expandedPath = process.env.ZENFLO_HOME_DIR.replace(/^~/, homedir())
       this.happyHomeDir = expandedPath
     } else {
       this.happyHomeDir = join(homedir(), '.happy')

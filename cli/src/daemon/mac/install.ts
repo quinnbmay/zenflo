@@ -53,7 +53,7 @@ export async function install(): Promise<void> {
                 
                 <key>EnvironmentVariables</key>
                 <dict>
-                    <key>HAPPY_DAEMON_MODE</key>
+                    <key>ZENFLO_DAEMON_MODE</key>
                     <string>true</string>
                 </dict>
                 
