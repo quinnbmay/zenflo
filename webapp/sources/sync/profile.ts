@@ -57,10 +57,7 @@ Object.freeze(profileDefaults);
 export function profileParse(profile: unknown): Profile {
     const parsed = ProfileSchema.safeParse(profile);
     if (!parsed.success) {
-        // Log profile parsing errors only in development
-        if (import.meta.env.DEV) {
-            console.warn('Using default profile due to validation error');
-        }
+        console.error('Failed to parse profile:', parsed.error);
         return { ...profileDefaults };
     }
     return parsed.data;
