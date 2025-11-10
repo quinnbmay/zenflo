@@ -9,7 +9,16 @@ module.exports = function (api) {
     },
     plugins: [
       'react-native-worklets/plugin',
-      ['react-native-unistyles/plugin', { root: 'sources' }]
+      ['react-native-unistyles/plugin', { root: 'sources' }],
+      [
+        'module-resolver',
+        {
+          root: ['./'],
+          alias: {
+            '@': './sources',
+          },
+        },
+      ],
     ],
   };
 };
