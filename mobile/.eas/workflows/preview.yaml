@@ -3,6 +3,10 @@ name: Branch-based Updates
 on:
   push:
     branches: ['main']
+    paths:
+      - 'mobile/**'
+      - '!mobile/README.md'
+      - '!mobile/**/*.md'
 jobs:
   preview_ota:
     type: update
