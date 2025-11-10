@@ -16,7 +16,7 @@ import { zenTools, zenToolsSchema } from '../tools/zenTools';
  * - Audio session configuration (expo-av + InCallManager)
  *
  * Architecture:
- * 1. Get ephemeral token from https://happy.combinedmemory.com/v1/voice/zen/session
+ * 1. Get ephemeral token from https://zenflo.combinedmemory.com/v1/voice/zen/session
  * 2. Create RTCPeerConnection with OpenAI STUN servers
  * 3. Set up data channel 'oai-events' for JSON messages
  * 4. Get user audio via getUserMedia
@@ -54,7 +54,7 @@ interface EphemeralTokenResponse {
 }
 
 const OPENAI_REALTIME_API_URL = 'https://api.openai.com/v1/realtime';
-const ZEN_SESSION_ENDPOINT = 'https://happy.combinedmemory.com/v1/voice/zen/session';
+const ZEN_SESSION_ENDPOINT = 'https://zenflo.combinedmemory.com/v1/voice/zen/session';
 
 // System instructions for Zen personality
 const ZEN_SYSTEM_INSTRUCTIONS = `You are Zen, a calm, focused task assistant for ZenFlo.
