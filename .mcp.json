@@ -18,6 +18,34 @@
     "supermemory": {
       "type": "http",
       "url": "https://server.smithery.ai/@quinnbmay/supermemory/mcp?api_key=c0696122-7da9-4c99-84e2-1798ce74a954&profile=given-narwhal-PvFXc4"
+    },
+    "elevenlabs": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/quinnmay/developer/mcp-servers/elevenlabs-mcp",
+        "run",
+        "elevenlabs-mcp"
+      ],
+      "env": {
+        "ELEVENLABS_API_KEY": "${ELEVENLABS_API_KEY}"
+      }
+    },
+    "elevenlabs-agent": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/quinnmay/developer/mcp-servers/elevenlabs-agent-mcp",
+        "run",
+        "python",
+        "-m",
+        "elevenlabs_agent_mcp"
+      ],
+      "env": {
+        "ELEVENLABS_API_KEY": "${ELEVENLABS_API_KEY}"
+      }
     }
   }
 }
