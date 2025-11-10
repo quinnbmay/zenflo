@@ -1,6 +1,8 @@
 <div align="center">
 
-# 📱 ZenFlo Mobile
+<img src="../.github/zenflo-icon.png" alt="ZenFlo Mobile" width="128" height="128" />
+
+# ZenFlo Mobile
 
 **AI-Powered Coding Assistant in Your Pocket**
 

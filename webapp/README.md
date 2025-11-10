@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🌐 ZenFlo Web
+<img src="../.github/zenflo-icon.png" alt="ZenFlo Web" width="128" height="128" />
+
+# ZenFlo Web
 
 **AI Coding Assistant - Anywhere, Anytime**
 

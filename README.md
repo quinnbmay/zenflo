@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🎯 ZenFlo
+<img src=".github/zenflo-icon.png" alt="ZenFlo" width="128" height="128" />
+
+# ZenFlo
 
 **AI-Powered Coding Platform with Voice Intelligence**
 

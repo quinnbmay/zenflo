@@ -1,6 +1,8 @@
 <div align="center">
 
-# ⚙️ ZenFlo Server
+<img src="../.github/zenflo-icon.png" alt="ZenFlo Server" width="128" height="128" />
+
+# ZenFlo Server
 
 **Secure, High-Performance Backend for AI Coding Platform**
 
