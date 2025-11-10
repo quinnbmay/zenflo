@@ -5,7 +5,8 @@ import { addTodo, updateTodoStatusAndPriority, TaskPriority, TaskStatus } from '
 import { machineSpawnNewSession } from '@/sync/ops';
 import { sync } from '@/sync/sync';
 import type { Router } from 'expo-router';
-import { createToolCallExecutor } from '@supermemory/tools/openai';
+// SuperMemory integration temporarily disabled due to build issues
+// import { createToolCallExecutor } from '@supermemory/tools/openai';
 
 /**
  * OpenAI Realtime API tool definitions for Zen voice assistant.
@@ -20,8 +21,6 @@ import { createToolCallExecutor } from '@supermemory/tools/openai';
  * - list_sessions: List active/recent Claude sessions
  * - open_session: Navigate to a specific session
  * - create_session: Create new Claude session
- * - search_memory: Search user's memories using SuperMemory (mobile + desktop)
- * - remember_this: Store information to SuperMemory (mobile + desktop)
  *
  * Integration:
  * - zenToolsSchema: Array of OpenAI function definitions to pass to the Realtime API
@@ -155,63 +154,63 @@ export const zenToolsSchema = [
             },
             required: []
         }
-    },
-    {
-        type: 'function',
-        name: 'search_memory',
-        description: 'Search the user\'s memories and patterns using SuperMemory. Returns concise summary of relevant findings (1-3 sentences max).',
-        parameters: {
-            type: 'object',
-            properties: {
-                query: {
-                    type: 'string',
-                    description: 'What to search for in the user\'s memories'
-                },
-                projectId: {
-                    type: 'string',
-                    description: 'Optional project ID to filter memories by specific project'
-                }
-            },
-            required: ['query']
-        }
-    },
-    {
-        type: 'function',
-        name: 'remember_this',
-        description: 'Store information to the user\'s SuperMemory for future reference.',
-        parameters: {
-            type: 'object',
-            properties: {
-                information: {
-                    type: 'string',
-                    description: 'What to remember'
-                },
-                projectId: {
-                    type: 'string',
-                    description: 'Optional project ID to associate this memory with'
-                }
-            },
-            required: ['information']
-        }
     }
+    // SuperMemory tools temporarily disabled due to build issues
+    // {
+    //     type: 'function',
+    //     name: 'search_memory',
+    //     description: 'Search the user\'s memories and patterns using SuperMemory. Returns concise summary of relevant findings (1-3 sentences max).',
+    //     parameters: {
+    //         type: 'object',
+    //         properties: {
+    //             query: {
+    //                 type: 'string',
+    //                 description: 'What to search for in the user\'s memories'
+    //             },
+    //             projectId: {
+    //                 type: 'string',
+    //                 description: 'Optional project ID to filter memories by specific project'
+    //             }
+    //         },
+    //         required: ['query']
+    //     }
+    // },
+    // {
+    //     type: 'function',
+    //     name: 'remember_this',
+    //     description: 'Store information to the user\'s SuperMemory for future reference.',
+    //     parameters: {
+    //         type: 'object',
+    //         properties: {
+    //             information: {
+    //                 type: 'string',
+    //                 description: 'What to remember'
+    //             },
+    //             projectId: {
+    //                 type: 'string',
+    //                 description: 'Optional project ID to associate this memory with'
+    //             }
+    //         },
+    //         required: ['information']
+    //     }
+    // }
 ];
 
-// SuperMemory configuration
-// TODO: Move to environment variables or user settings
-const SUPERMEMORY_API_KEY = process.env.EXPO_PUBLIC_SUPERMEMORY_API_KEY || '';
+// SuperMemory configuration - temporarily disabled due to build issues
+// const SUPERMEMORY_API_KEY = process.env.EXPO_PUBLIC_SUPERMEMORY_API_KEY || '';
 
 // Initialize SuperMemory tool executor if API key is available
-let executeSupermemoryTool: ReturnType<typeof createToolCallExecutor> | null = null;
-if (SUPERMEMORY_API_KEY) {
-    try {
-        executeSupermemoryTool = createToolCallExecutor(SUPERMEMORY_API_KEY, {
-            projectId: 'zenflo'
-        });
-        console.log('✅ SuperMemory tools initialized');
-    } catch (error) {
-        console.error('❌ Failed to initialize SuperMemory tools:', error);
-    }
-}
+// let executeSupermemoryTool: ReturnType<typeof createToolCallExecutor> | null = null;
+// if (SUPERMEMORY_API_KEY) {
+//     try {
+//         executeSupermemoryTool = createToolCallExecutor(SUPERMEMORY_API_KEY, {
+//             projectId: 'zenflo'
+//         });
+//         console.log('✅ SuperMemory tools initialized');
+//     } catch (error) {
+//         console.error('❌ Failed to initialize SuperMemory tools:', error);
+//     }
+// }
 
 // Tool implementations factory - accepts router for navigation
 export const createZenTools = (router: Router) => ({
@@ -576,128 +575,26 @@ export const createZenTools = (router: Router) => ({
 
     /**
      * Search user's memories using SuperMemory
-     * Now available on mobile using native SDK
+     * Temporarily disabled due to build issues
      */
     search_memory: async (parameters: unknown) => {
-        const schema = z.object({
-            query: z.string().min(1, 'Query cannot be empty'),
-            projectId: z.string().optional()
+        console.log('[ZEN TOOLS] search_memory - SuperMemory temporarily disabled');
+        return JSON.stringify({
+            success: false,
+            message: "Memory features temporarily disabled."
         });
-        const parsed = schema.safeParse(parameters);
-
-        if (!parsed.success) {
-            console.error('[ZEN TOOLS] search_memory - Invalid parameters:', parsed.error);
-            return JSON.stringify({ success: false, error: 'Invalid parameters' });
-        }
-
-        const { query, projectId } = parsed.data;
-
-        // Check if SuperMemory SDK is initialized
-        if (!executeSupermemoryTool) {
-            console.log('[ZEN TOOLS] search_memory - SuperMemory not configured (missing API key)');
-            return JSON.stringify({
-                success: false,
-                message: "Memory features aren't configured yet."
-            });
-        }
-
-        try {
-            console.log(`[ZEN TOOLS] search_memory: "${query}"${projectId ? ` (project: ${projectId})` : ''}`);
-
-            // Use SuperMemory SDK to search
-            const result = await executeSupermemoryTool({
-                type: 'function' as const,
-                function: {
-                    name: 'searchMemories',
-                    arguments: JSON.stringify({
-                        query,
-                        limit: 5,
-                        includeFullDocs: false
-                    })
-                }
-            } as any);
-
-            if (result && typeof result === 'object' && Array.isArray(result)) {
-                const memories = result as Array<{ content?: string; text?: string }>;
-                if (memories.length > 0) {
-                    // Format concise response (top 3 results)
-                    const summary = memories.slice(0, 3).map(r => r.content || r.text || '').filter(Boolean).join(', ');
-                    console.log(`[ZEN TOOLS] search_memory - Found ${memories.length} memories`);
-                    return JSON.stringify({
-                        success: true,
-                        message: `I found ${memories.length} memories: ${summary}.`
-                    });
-                }
-            }
-
-            console.log('[ZEN TOOLS] search_memory - No memories found');
-            return JSON.stringify({
-                success: true,
-                message: "I don't have any memories about that yet."
-            });
-        } catch (error) {
-            console.error('[ZEN TOOLS] search_memory error:', error);
-            return JSON.stringify({
-                success: false,
-                message: "Memory search failed."
-            });
-        }
     },
 
     /**
      * Store information to SuperMemory
-     * Now available on mobile using native SDK
+     * Temporarily disabled due to build issues
      */
     remember_this: async (parameters: unknown) => {
-        const schema = z.object({
-            information: z.string().min(1, 'Information cannot be empty'),
-            projectId: z.string().optional()
+        console.log('[ZEN TOOLS] remember_this - SuperMemory temporarily disabled');
+        return JSON.stringify({
+            success: false,
+            message: "Memory features temporarily disabled."
         });
-        const parsed = schema.safeParse(parameters);
-
-        if (!parsed.success) {
-            console.error('[ZEN TOOLS] remember_this - Invalid parameters:', parsed.error);
-            return JSON.stringify({ success: false, error: 'Invalid parameters' });
-        }
-
-        const { information, projectId } = parsed.data;
-
-        // Check if SuperMemory SDK is initialized
-        if (!executeSupermemoryTool) {
-            console.log('[ZEN TOOLS] remember_this - SuperMemory not configured (missing API key)');
-            return JSON.stringify({
-                success: false,
-                message: "Memory features aren't configured yet."
-            });
-        }
-
-        try {
-            console.log(`[ZEN TOOLS] remember_this: "${information.substring(0, 50)}..."${projectId ? ` (project: ${projectId})` : ''}`);
-
-            // Use SuperMemory SDK to store memory
-            await executeSupermemoryTool({
-                type: 'function' as const,
-                function: {
-                    name: 'addMemory',
-                    arguments: JSON.stringify({
-                        content: information,
-                        projectId: projectId || 'zenflo'
-                    })
-                }
-            } as any);
-
-            console.log('[ZEN TOOLS] remember_this - Memory stored successfully');
-            return JSON.stringify({
-                success: true,
-                message: "Got it, I'll remember that."
-            });
-        } catch (error) {
-            console.error('[ZEN TOOLS] remember_this error:', error);
-            return JSON.stringify({
-                success: false,
-                message: "Failed to save memory."
-            });
-        }
     }
 });
 
