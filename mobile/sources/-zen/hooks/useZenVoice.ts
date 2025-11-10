@@ -295,10 +295,10 @@ export function useZenVoice(): UseZenVoiceReturn {
         const sessionConfig = {
             type: 'session.update',
             session: {
-                model: 'gpt-4o-realtime-preview-2024-12-17',
+                model: 'gpt-realtime-2025-08-28',
                 modalities: ['text', 'audio'],
                 instructions: ZEN_SYSTEM_INSTRUCTIONS,
-                voice: 'verse',
+                voice: 'marin',
                 input_audio_format: 'pcm16',
                 output_audio_format: 'pcm16',
                 input_audio_transcription: {
@@ -419,7 +419,7 @@ export function useZenVoice(): UseZenVoiceReturn {
 
             // Step 8: Send offer to OpenAI and get answer
             console.log('📤 Sending offer to OpenAI...');
-            const response = await fetch(`${OPENAI_REALTIME_API_URL}?model=gpt-4o-realtime-preview-2024-12-17`, {
+            const response = await fetch(`${OPENAI_REALTIME_API_URL}?model=gpt-realtime-2025-08-28`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
