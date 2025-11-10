@@ -2,6 +2,10 @@ import { z } from 'zod';
 import { getCurrentAuth } from '@/auth/AuthContext';
 import { storage } from '@/sync/storage';
 import { addTodo, updateTodoStatusAndPriority, TaskPriority, TaskStatus } from '../model/ops';
+import { machineSpawnNewSession } from '@/sync/ops';
+import { sync } from '@/sync/sync';
+import type { Router } from 'expo-router';
+import { createToolCallExecutor } from '@supermemory/tools/openai';
 
 /**
  * OpenAI Realtime API tool definitions for Zen voice assistant.
@@ -13,6 +17,11 @@ import { addTodo, updateTodoStatusAndPriority, TaskPriority, TaskStatus } from '
  * - list_tasks: Get current tasks, optionally filtered by priority
  * - create_task: Create new tasks with title and optional priority
  * - update_task: Update task status or priority
+ * - list_sessions: List active/recent Claude sessions
+ * - open_session: Navigate to a specific session
+ * - create_session: Create new Claude session
+ * - search_memory: Search user's memories using SuperMemory (mobile + desktop)
+ * - remember_this: Store information to SuperMemory (mobile + desktop)
  *
  * Integration:
  * - zenToolsSchema: Array of OpenAI function definitions to pass to the Realtime API
@@ -87,11 +96,125 @@ export const zenToolsSchema = [
             },
             required: ['taskId']
         }
+    },
+    {
+        type: 'function',
+        name: 'list_sessions',
+        description: 'List Claude Code sessions. Can filter by active sessions, today\'s sessions, or recent sessions (last 10).',
+        parameters: {
+            type: 'object',
+            properties: {
+                filter: {
+                    type: 'string',
+                    enum: ['active', 'today', 'recent'],
+                    description: 'Filter type: active (currently running), today (created/updated today), or recent (last 10 by update time). Defaults to active.'
+                }
+            },
+            required: []
+        }
+    },
+    {
+        type: 'function',
+        name: 'open_session',
+        description: 'Open and navigate to a specific Claude Code session by its ID.',
+        parameters: {
+            type: 'object',
+            properties: {
+                sessionId: {
+                    type: 'string',
+                    description: 'The ID of the session to open'
+                }
+            },
+            required: ['sessionId']
+        }
+    },
+    {
+        type: 'function',
+        name: 'create_session',
+        description: 'Create a new Claude Code session on a machine with optional initial prompt.',
+        parameters: {
+            type: 'object',
+            properties: {
+                prompt: {
+                    type: 'string',
+                    description: 'Optional first message to send to Claude'
+                },
+                machineId: {
+                    type: 'string',
+                    description: 'Optional machine ID (defaults to first active machine)'
+                },
+                path: {
+                    type: 'string',
+                    description: 'Optional working directory path (defaults to recent path for machine)'
+                },
+                agentType: {
+                    type: 'string',
+                    enum: ['claude', 'codex', 'qwen', 'gemini'],
+                    description: 'Optional agent type (defaults to claude)'
+                }
+            },
+            required: []
+        }
+    },
+    {
+        type: 'function',
+        name: 'search_memory',
+        description: 'Search the user\'s memories and patterns using SuperMemory. Returns concise summary of relevant findings (1-3 sentences max).',
+        parameters: {
+            type: 'object',
+            properties: {
+                query: {
+                    type: 'string',
+                    description: 'What to search for in the user\'s memories'
+                },
+                projectId: {
+                    type: 'string',
+                    description: 'Optional project ID to filter memories by specific project'
+                }
+            },
+            required: ['query']
+        }
+    },
+    {
+        type: 'function',
+        name: 'remember_this',
+        description: 'Store information to the user\'s SuperMemory for future reference.',
+        parameters: {
+            type: 'object',
+            properties: {
+                information: {
+                    type: 'string',
+                    description: 'What to remember'
+                },
+                projectId: {
+                    type: 'string',
+                    description: 'Optional project ID to associate this memory with'
+                }
+            },
+            required: ['information']
+        }
     }
 ];
 
-// Tool implementations
-export const zenTools = {
+// SuperMemory configuration
+// TODO: Move to environment variables or user settings
+const SUPERMEMORY_API_KEY = process.env.EXPO_PUBLIC_SUPERMEMORY_API_KEY || '';
+
+// Initialize SuperMemory tool executor if API key is available
+let executeSupermemoryTool: ReturnType<typeof createToolCallExecutor> | null = null;
+if (SUPERMEMORY_API_KEY) {
+    try {
+        executeSupermemoryTool = createToolCallExecutor(SUPERMEMORY_API_KEY, {
+            projectId: 'zenflo'
+        });
+        console.log('✅ SuperMemory tools initialized');
+    } catch (error) {
+        console.error('❌ Failed to initialize SuperMemory tools:', error);
+    }
+}
+
+// Tool implementations factory - accepts router for navigation
+export const createZenTools = (router: Router) => ({
     /**
      * List tasks, optionally filtered by priority
      */
@@ -255,5 +378,328 @@ export const zenTools = {
                 error: 'Failed to update task'
             });
         }
+    },
+
+    /**
+     * List sessions with optional filtering
+     */
+    list_sessions: async (parameters: unknown) => {
+        const schema = z.object({
+            filter: z.enum(['active', 'today', 'recent']).optional()
+        });
+        const parsed = schema.safeParse(parameters);
+
+        if (!parsed.success) {
+            console.error('❌ Invalid parameters:', parsed.error);
+            return JSON.stringify({ success: false, error: 'Invalid parameters' });
+        }
+
+        const { filter = 'active' } = parsed.data;
+        const allSessions = Object.values(storage.getState().sessions);
+
+        let sessions = allSessions;
+
+        // Apply filter
+        if (filter === 'active') {
+            sessions = allSessions.filter(s => s.active);
+        } else if (filter === 'today') {
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+            const todayMs = todayStart.getTime();
+            sessions = allSessions.filter(s => s.updatedAt >= todayMs);
+        } else if (filter === 'recent') {
+            sessions = allSessions
+                .sort((a, b) => b.updatedAt - a.updatedAt)
+                .slice(0, 10);
+        }
+
+        // Format for display
+        const formattedSessions = sessions.map(s => ({
+            sessionId: s.id,
+            title: s.metadata?.name || 'Untitled',
+            path: s.metadata?.path || null,
+            machineId: s.metadata?.machineId || null,
+            updatedAt: new Date(s.updatedAt).toISOString()
+        }));
+
+        console.log(`📋 list_sessions called (filter: ${filter}), found:`, formattedSessions.length, 'sessions');
+        return JSON.stringify({
+            success: true,
+            sessions: formattedSessions,
+            count: formattedSessions.length,
+            filter
+        });
+    },
+
+    /**
+     * Open a specific session
+     */
+    open_session: async (parameters: unknown) => {
+        const schema = z.object({
+            sessionId: z.string().min(1, 'Session ID cannot be empty')
+        });
+        const parsed = schema.safeParse(parameters);
+
+        if (!parsed.success) {
+            console.error('❌ Invalid parameters:', parsed.error);
+            return JSON.stringify({ success: false, error: 'Invalid parameters' });
+        }
+
+        const { sessionId } = parsed.data;
+
+        // Check if session exists
+        const session = storage.getState().sessions[sessionId];
+        if (!session) {
+            console.error('❌ Session not found:', sessionId);
+            return JSON.stringify({ success: false, error: 'Session not found' });
+        }
+
+        try {
+            // Navigate to session
+            router.navigate(`/session/${sessionId}` as any);
+
+            const title = session.metadata?.name || 'Untitled';
+            console.log(`✅ open_session called: opened session "${title}" (${sessionId})`);
+            return JSON.stringify({
+                success: true,
+                sessionId,
+                title
+            });
+        } catch (error) {
+            console.error('❌ Failed to open session:', error);
+            return JSON.stringify({
+                success: false,
+                error: 'Failed to open session'
+            });
+        }
+    },
+
+    /**
+     * Create a new session
+     */
+    create_session: async (parameters: unknown) => {
+        const schema = z.object({
+            prompt: z.string().optional(),
+            machineId: z.string().optional(),
+            path: z.string().optional(),
+            agentType: z.enum(['claude', 'codex', 'qwen', 'gemini']).optional()
+        });
+        const parsed = schema.safeParse(parameters);
+
+        if (!parsed.success) {
+            console.error('❌ Invalid parameters:', parsed.error);
+            return JSON.stringify({ success: false, error: 'Invalid parameters' });
+        }
+
+        const { prompt, machineId: providedMachineId, path: providedPath, agentType = 'claude' } = parsed.data;
+
+        try {
+            // Get machines
+            const allMachines = Object.values(storage.getState().machines);
+            const activeMachines = allMachines.filter(m => m.active);
+
+            if (activeMachines.length === 0) {
+                return JSON.stringify({
+                    success: false,
+                    error: 'No active machines available'
+                });
+            }
+
+            // Determine machine to use
+            const machineId = providedMachineId || activeMachines[0].id;
+            const machine = allMachines.find(m => m.id === machineId);
+
+            if (!machine) {
+                return JSON.stringify({
+                    success: false,
+                    error: 'Machine not found'
+                });
+            }
+
+            // Determine path - use provided path or machine's home directory
+            const path = providedPath || machine.metadata?.homeDir || '~';
+
+            // Spawn new session
+            console.log(`🚀 create_session: spawning on machine ${machineId} at ${path}`);
+            const result = await machineSpawnNewSession({
+                machineId,
+                directory: path,
+                approvedNewDirectoryCreation: false,
+                agent: agentType
+            });
+
+            if (result.type === 'error') {
+                console.error('❌ Failed to spawn session:', result.errorMessage);
+                return JSON.stringify({
+                    success: false,
+                    error: result.errorMessage || 'Failed to create session'
+                });
+            }
+
+            if (result.type === 'requestToApproveDirectoryCreation') {
+                console.error('❌ Directory creation approval required:', result.directory);
+                return JSON.stringify({
+                    success: false,
+                    error: 'Directory does not exist and requires approval to create'
+                });
+            }
+
+            const sessionId = result.sessionId;
+            console.log(`✅ Session created: ${sessionId}`);
+
+            // Send prompt if provided
+            if (prompt) {
+                console.log(`📤 Sending initial prompt to session ${sessionId}`);
+                await sync.sendMessage(sessionId, prompt);
+            }
+
+            // Navigate to the new session
+            router.navigate(`/session/${sessionId}` as any);
+
+            console.log(`✅ create_session: created and opened session ${sessionId} at ${path}`);
+            return JSON.stringify({
+                success: true,
+                sessionId,
+                path,
+                machineId,
+                promptSent: !!prompt
+            });
+
+        } catch (error) {
+            console.error('❌ Failed to create session:', error);
+            return JSON.stringify({
+                success: false,
+                error: 'Failed to create session'
+            });
+        }
+    },
+
+    /**
+     * Search user's memories using SuperMemory
+     * Now available on mobile using native SDK
+     */
+    search_memory: async (parameters: unknown) => {
+        const schema = z.object({
+            query: z.string().min(1, 'Query cannot be empty'),
+            projectId: z.string().optional()
+        });
+        const parsed = schema.safeParse(parameters);
+
+        if (!parsed.success) {
+            console.error('[ZEN TOOLS] search_memory - Invalid parameters:', parsed.error);
+            return JSON.stringify({ success: false, error: 'Invalid parameters' });
+        }
+
+        const { query, projectId } = parsed.data;
+
+        // Check if SuperMemory SDK is initialized
+        if (!executeSupermemoryTool) {
+            console.log('[ZEN TOOLS] search_memory - SuperMemory not configured (missing API key)');
+            return JSON.stringify({
+                success: false,
+                message: "Memory features aren't configured yet."
+            });
+        }
+
+        try {
+            console.log(`[ZEN TOOLS] search_memory: "${query}"${projectId ? ` (project: ${projectId})` : ''}`);
+
+            // Use SuperMemory SDK to search
+            const result = await executeSupermemoryTool({
+                type: 'function' as const,
+                function: {
+                    name: 'searchMemories',
+                    arguments: JSON.stringify({
+                        query,
+                        limit: 5,
+                        includeFullDocs: false
+                    })
+                }
+            } as any);
+
+            if (result && typeof result === 'object' && Array.isArray(result)) {
+                const memories = result as Array<{ content?: string; text?: string }>;
+                if (memories.length > 0) {
+                    // Format concise response (top 3 results)
+                    const summary = memories.slice(0, 3).map(r => r.content || r.text || '').filter(Boolean).join(', ');
+                    console.log(`[ZEN TOOLS] search_memory - Found ${memories.length} memories`);
+                    return JSON.stringify({
+                        success: true,
+                        message: `I found ${memories.length} memories: ${summary}.`
+                    });
+                }
+            }
+
+            console.log('[ZEN TOOLS] search_memory - No memories found');
+            return JSON.stringify({
+                success: true,
+                message: "I don't have any memories about that yet."
+            });
+        } catch (error) {
+            console.error('[ZEN TOOLS] search_memory error:', error);
+            return JSON.stringify({
+                success: false,
+                message: "Memory search failed."
+            });
+        }
+    },
+
+    /**
+     * Store information to SuperMemory
+     * Now available on mobile using native SDK
+     */
+    remember_this: async (parameters: unknown) => {
+        const schema = z.object({
+            information: z.string().min(1, 'Information cannot be empty'),
+            projectId: z.string().optional()
+        });
+        const parsed = schema.safeParse(parameters);
+
+        if (!parsed.success) {
+            console.error('[ZEN TOOLS] remember_this - Invalid parameters:', parsed.error);
+            return JSON.stringify({ success: false, error: 'Invalid parameters' });
+        }
+
+        const { information, projectId } = parsed.data;
+
+        // Check if SuperMemory SDK is initialized
+        if (!executeSupermemoryTool) {
+            console.log('[ZEN TOOLS] remember_this - SuperMemory not configured (missing API key)');
+            return JSON.stringify({
+                success: false,
+                message: "Memory features aren't configured yet."
+            });
+        }
+
+        try {
+            console.log(`[ZEN TOOLS] remember_this: "${information.substring(0, 50)}..."${projectId ? ` (project: ${projectId})` : ''}`);
+
+            // Use SuperMemory SDK to store memory
+            await executeSupermemoryTool({
+                type: 'function' as const,
+                function: {
+                    name: 'addMemory',
+                    arguments: JSON.stringify({
+                        content: information,
+                        projectId: projectId || 'zenflo'
+                    })
+                }
+            } as any);
+
+            console.log('[ZEN TOOLS] remember_this - Memory stored successfully');
+            return JSON.stringify({
+                success: true,
+                message: "Got it, I'll remember that."
+            });
+        } catch (error) {
+            console.error('[ZEN TOOLS] remember_this error:', error);
+            return JSON.stringify({
+                success: false,
+                message: "Failed to save memory."
+            });
+        }
     }
-};
+});
+
+// Legacy export for backward compatibility - note: requires router to be passed
+export const zenTools = createZenTools as any;
