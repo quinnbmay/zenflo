@@ -174,6 +174,7 @@ export const es: TranslationStructure = {
             pixelated: 'Pixelado',
             gradient: 'Gradiente',
             brutalist: 'Brutalista',
+            icon: 'Icono ZenFlo',
         },
         showFlavorIcons: 'Mostrar íconos de proveedor de IA',
         showFlavorIconsDescription: 'Mostrar íconos del proveedor de IA en los avatares de sesión',

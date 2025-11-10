@@ -305,21 +305,24 @@ class Sync {
             for (let i = recentMessages.length - 1; i >= 0; i--) {
                 const msg = recentMessages[i];
                 let messagePreview = '';
+                let roleName = '';
 
-                // Extract text from message content
-                if (msg.content && msg.content.length > 0) {
-                    const firstContent = msg.content[0];
-                    if (firstContent.type === 'text') {
-                        messagePreview = firstContent.text?.slice(0, 500) || '';
-                    } else if (firstContent.type === 'tool-use') {
-                        messagePreview = `[Used tool: ${firstContent.name}]`;
-                    } else if (firstContent.type === 'tool-result') {
-                        messagePreview = '[Tool result]';
-                    }
+                // Extract text from message based on kind
+                if (msg.kind === 'user-text') {
+                    messagePreview = msg.text?.slice(0, 500) || '';
+                    roleName = 'User';
+                } else if (msg.kind === 'agent-text') {
+                    messagePreview = msg.text?.slice(0, 500) || '';
+                    roleName = 'Assistant';
+                } else if (msg.kind === 'tool-call') {
+                    messagePreview = `[Used tool: ${msg.tool.name}]`;
+                    roleName = 'Assistant';
+                } else if (msg.kind === 'agent-event') {
+                    // Skip agent events
+                    continue;
                 }
 
-                if (messagePreview) {
-                    const roleName = msg.role === 'user' ? 'User' : msg.role === 'assistant' || msg.role === 'agent' ? 'Assistant' : msg.role;
+                if (messagePreview && roleName) {
                     const msgText = `${roleName}: ${messagePreview}${messagePreview.length >= 500 ? '...' : ''}`;
 
                     if (totalChars + msgText.length > maxChars) break;
@@ -1626,7 +1629,7 @@ class Sync {
                         console.log('🔄 Sync: Applying message:', JSON.stringify(lastMessage));
                         this.applyMessages(updateData.body.sid, [lastMessage]);
                         let hasMutableTool = false;
-                        if (lastMessage.role === 'agent' && lastMessage.content[0] && lastMessage.content[0].type === 'tool-result') {
+                        if (lastMessage.role === 'agent' && Array.isArray(lastMessage.content) && lastMessage.content[0] && lastMessage.content[0].type === 'tool-result') {
                             hasMutableTool = storage.getState().isMutableToolCall(updateData.body.sid, lastMessage.content[0].tool_use_id);
                         }
                         if (hasMutableTool) {
@@ -1634,7 +1637,7 @@ class Sync {
                         }
 
                         // Send notification for AI messages (enables Apple Watch replies)
-                        if (lastMessage.role === 'assistant' || lastMessage.role === 'agent') {
+                        if (lastMessage.role === 'agent') {
                             // Only notify if app is in background
                             const appState = AppState.currentState;
                             if (appState === 'background' || appState === 'inactive') {
@@ -1643,11 +1646,11 @@ class Sync {
                                 if (session) {
                                     // Extract message text (handle different content types)
                                     let messageText = '';
-                                    if (lastMessage.content[0]) {
+                                    if (Array.isArray(lastMessage.content) && lastMessage.content[0]) {
                                         const content = lastMessage.content[0];
                                         if (content.type === 'text') {
                                             messageText = content.text || '';
-                                        } else if (content.type === 'tool-use') {
+                                        } else if (content.type === 'tool-call') {
                                             messageText = `Using tool: ${content.name}`;
                                         } else if (content.type === 'tool-result') {
                                             messageText = 'Tool completed';

@@ -176,6 +176,7 @@ export const zhHans: TranslationStructure = {
             pixelated: '像素化',
             gradient: '渐变',
             brutalist: '粗糙风格',
+            icon: 'ZenFlo 图标',
         },
         showFlavorIcons: '显示 AI 提供商图标',
         showFlavorIconsDescription: '在会话头像上显示 AI 提供商图标',

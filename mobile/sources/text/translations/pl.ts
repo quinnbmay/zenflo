@@ -185,6 +185,7 @@ export const pl: TranslationStructure = {
             pixelated: 'Pikselowy',
             gradient: 'Gradientowy',
             brutalist: 'Brutalistyczny',
+            icon: 'Ikona ZenFlo',
         },
         showFlavorIcons: 'Pokaż ikony dostawcy AI',
         showFlavorIconsDescription: 'Wyświetlaj ikony dostawcy AI na awatarach sesji',

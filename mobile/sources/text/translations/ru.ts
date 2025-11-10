@@ -157,6 +157,7 @@ export const ru: TranslationStructure = {
             pixelated: 'Пиксельная',
             gradient: 'Градиентная',
             brutalist: 'Бруталистская',
+            icon: 'Иконка ZenFlo',
         },
         showFlavorIcons: 'Показывать иконки провайдеров ИИ',
         showFlavorIconsDescription: 'Отображать иконки провайдеров ИИ на аватарах сессий',

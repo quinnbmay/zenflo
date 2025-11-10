@@ -7,24 +7,33 @@ import { getCurrentRealtimeSessionId } from './RealtimeSession';
 import { getSessionName } from '@/utils/sessionUtils';
 
 /**
- * Helper function to extract readable text content from message content array
+ * Helper function to extract readable text content from Message union type
  */
-function extractTextContent(content: any[]): string {
-    if (!content || content.length === 0) return '';
-
-    const textParts: string[] = [];
-
-    for (const item of content) {
-        if (item.type === 'text' && item.text) {
-            textParts.push(item.text.slice(0, 500)); // Limit to 500 chars per item
-        } else if (item.type === 'tool-use') {
-            textParts.push(`[Used tool: ${item.name}]`);
-        } else if (item.type === 'tool-result') {
-            textParts.push('[Tool result]');
-        }
+function extractTextFromMessage(msg: import('@/sync/typesMessage').Message): string {
+    if (msg.kind === 'user-text') {
+        return msg.text.slice(0, 500);
+    } else if (msg.kind === 'agent-text') {
+        return msg.text.slice(0, 500);
+    } else if (msg.kind === 'tool-call') {
+        return `[Used tool: ${msg.tool.name}]`;
+    } else if (msg.kind === 'agent-event') {
+        return '[Agent event]';
     }
+    return '';
+}
 
-    return textParts.join(' ');
+/**
+ * Get role name from Message union type
+ */
+function getRoleFromMessage(msg: import('@/sync/typesMessage').Message): string {
+    if (msg.kind === 'user-text') {
+        return 'user';
+    } else if (msg.kind === 'agent-text' || msg.kind === 'tool-call') {
+        return 'assistant';
+    } else if (msg.kind === 'agent-event') {
+        return 'event';
+    }
+    return 'unknown';
 }
 
 /**
@@ -138,9 +147,9 @@ export const realtimeClientTools = {
         const recentMessages = sessionMessages?.messages?.slice(-10) || [];
 
         const messagePreview = recentMessages.map(msg => ({
-            role: msg.role,
-            preview: extractTextContent(msg.content).slice(0, 200),
-            timestamp: msg.timestamp
+            role: getRoleFromMessage(msg),
+            preview: extractTextFromMessage(msg).slice(0, 200),
+            timestamp: msg.createdAt
         }));
 
         const details = {
@@ -188,10 +197,10 @@ export const realtimeClientTools = {
         const requestedMessages = allMessages.slice(startIndex, endIndex);
 
         const messages = requestedMessages.map(msg => ({
-            role: msg.role,
-            content: extractTextContent(msg.content),
-            timestamp: msg.timestamp,
-            hasTools: msg.content.some((c: any) => c.type === 'tool-use' || c.type === 'tool-result')
+            role: getRoleFromMessage(msg),
+            content: extractTextFromMessage(msg),
+            timestamp: msg.createdAt,
+            hasTools: msg.kind === 'tool-call'
         }));
 
         console.log(`📜 getSessionMessages called for ${sessionId}: showing ${messages.length} messages (offset: ${offset})`);
@@ -225,8 +234,8 @@ export const realtimeClientTools = {
                     isThinking: session.thinking,
                     lastActive: new Date(session.activeAt).toISOString(),
                     messageCount,
-                    lastMessagePreview: lastMessage ? extractTextContent(lastMessage.content).slice(0, 150) : '',
-                    lastMessageRole: lastMessage?.role,
+                    lastMessagePreview: lastMessage ? extractTextFromMessage(lastMessage).slice(0, 150) : '',
+                    lastMessageRole: lastMessage ? getRoleFromMessage(lastMessage) : undefined,
                     hasPermissionRequests: !!(session.agentState?.requests && Object.keys(session.agentState.requests).length > 0)
                 };
             })
