@@ -144,7 +144,7 @@ User interface components.
 ./bin/zenflo.mjs daemon start
 
 # With custom server URL (for local development):
-HAPPY_SERVER_URL=http://localhost:3005 ./bin/zenflo.mjs daemon start
+ZENFLO_SERVER_URL=http://localhost:3005 ./bin/zenflo.mjs daemon start
 
 # Stop the daemon:
 ./bin/zenflo.mjs daemon stop
@@ -154,7 +154,7 @@ HAPPY_SERVER_URL=http://localhost:3005 ./bin/zenflo.mjs daemon start
 ```
 
 ## Daemon Logs
-- Daemon logs are stored in `~/.happy-dev/logs/` (or `$HAPPY_HOME_DIR/logs/`)
+- Daemon logs are stored in `~/.happy-dev/logs/` (or `$ZENFLO_HOME_DIR/logs/`)
 - Named with format: `YYYY-MM-DD-HH-MM-SS-daemon.log`
 
 # Session Forking `claude` and sdk behavior
