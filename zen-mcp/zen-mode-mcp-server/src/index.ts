@@ -1421,6 +1421,62 @@ const tools: Tool[] = [
       required: ['plan_id'],
     },
   },
+  {
+    name: 'list_todo_tasks',
+    description: 'List only TODO tasks, sorted by priority (URGENT → HIGH → MEDIUM → LOW). More focused than list_tasks.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        priority: {
+          type: 'string',
+          enum: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'],
+          description: 'Filter by specific priority (optional)',
+        },
+      },
+    },
+  },
+  {
+    name: 'list_in_progress_tasks',
+    description: 'List only IN_PROGRESS tasks, sorted by most recently updated. Should typically show only 1-2 tasks.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+    },
+  },
+  {
+    name: 'list_completed_tasks',
+    description: 'List only DONE tasks with pagination, sorted by completion date (most recent first). Use this to review recent work.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        limit: {
+          type: 'number',
+          description: 'Maximum number of tasks to return (default: 10, max: 50)',
+        },
+        offset: {
+          type: 'number',
+          description: 'Number of tasks to skip for pagination (default: 0)',
+        },
+      },
+    },
+  },
+  {
+    name: 'list_cancelled_tasks',
+    description: 'List only CANCELLED tasks with pagination, sorted by cancellation date (most recent first).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        limit: {
+          type: 'number',
+          description: 'Maximum number of tasks to return (default: 10, max: 50)',
+        },
+        offset: {
+          type: 'number',
+          description: 'Number of tasks to skip for pagination (default: 0)',
+        },
+      },
+    },
+  },
 ];
 
 // ============================================================================
@@ -1838,6 +1894,196 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                   createdAt: new Date(plan.createdAt).toISOString(),
                   updatedAt: new Date(plan.updatedAt).toISOString(),
                   completedAt: plan.completedAt ? new Date(plan.completedAt).toISOString() : undefined,
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      }
+
+      case 'list_todo_tasks': {
+        const todos = await apiClient.getTodos();
+        const filterPriority = args?.priority as TaskPriority | undefined;
+
+        // Filter for TODO tasks only
+        let tasks = Object.values(todos.todos).filter((t) => t.status === 'TODO');
+
+        if (filterPriority) {
+          tasks = tasks.filter((t) => t.priority === filterPriority);
+        }
+
+        // Sort by priority: URGENT → HIGH → MEDIUM → LOW
+        const priorityOrder: Record<TaskPriority, number> = {
+          URGENT: 0,
+          HIGH: 1,
+          MEDIUM: 2,
+          LOW: 3,
+        };
+
+        tasks.sort((a, b) => {
+          const aPriority = a.priority || 'MEDIUM';
+          const bPriority = b.priority || 'MEDIUM';
+          return priorityOrder[aPriority] - priorityOrder[bPriority];
+        });
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  total: tasks.length,
+                  tasks: tasks.map((t) => ({
+                    id: t.id,
+                    title: t.title,
+                    description: t.description,
+                    priority: t.priority || 'MEDIUM',
+                    createdAt: new Date(t.createdAt).toISOString(),
+                    updatedAt: new Date(t.updatedAt).toISOString(),
+                    linkedSessions: t.linkedSessions
+                      ? Object.keys(t.linkedSessions).length
+                      : 0,
+                  })),
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      }
+
+      case 'list_in_progress_tasks': {
+        const todos = await apiClient.getTodos();
+
+        // Filter for IN_PROGRESS tasks only
+        let tasks = Object.values(todos.todos).filter((t) => t.status === 'IN_PROGRESS');
+
+        // Sort by most recently updated
+        tasks.sort((a, b) => b.updatedAt - a.updatedAt);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  total: tasks.length,
+                  tasks: tasks.map((t) => ({
+                    id: t.id,
+                    title: t.title,
+                    description: t.description,
+                    priority: t.priority || 'MEDIUM',
+                    createdAt: new Date(t.createdAt).toISOString(),
+                    updatedAt: new Date(t.updatedAt).toISOString(),
+                    linkedSessions: t.linkedSessions
+                      ? Object.keys(t.linkedSessions).length
+                      : 0,
+                  })),
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      }
+
+      case 'list_completed_tasks': {
+        const todos = await apiClient.getTodos();
+        const limit = Math.min((args?.limit as number) || 10, 50);
+        const offset = (args?.offset as number) || 0;
+
+        // Filter for DONE tasks only
+        let tasks = Object.values(todos.todos).filter((t) => t.status === 'DONE');
+
+        // Sort by completion date (most recent first)
+        tasks.sort((a, b) => {
+          const aTime = a.completedAt || a.updatedAt;
+          const bTime = b.completedAt || b.updatedAt;
+          return bTime - aTime;
+        });
+
+        // Paginate
+        const total = tasks.length;
+        const paginated = tasks.slice(offset, offset + limit);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  total,
+                  limit,
+                  offset,
+                  hasMore: offset + limit < total,
+                  tasks: paginated.map((t) => ({
+                    id: t.id,
+                    title: t.title,
+                    description: t.description,
+                    priority: t.priority || 'MEDIUM',
+                    createdAt: new Date(t.createdAt).toISOString(),
+                    completedAt: t.completedAt
+                      ? new Date(t.completedAt).toISOString()
+                      : new Date(t.updatedAt).toISOString(),
+                    linkedSessions: t.linkedSessions
+                      ? Object.keys(t.linkedSessions).length
+                      : 0,
+                  })),
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      }
+
+      case 'list_cancelled_tasks': {
+        const todos = await apiClient.getTodos();
+        const limit = Math.min((args?.limit as number) || 10, 50);
+        const offset = (args?.offset as number) || 0;
+
+        // Filter for CANCELLED tasks only
+        let tasks = Object.values(todos.todos).filter((t) => t.status === 'CANCELLED');
+
+        // Sort by cancellation date (most recent first)
+        tasks.sort((a, b) => {
+          const aTime = a.cancelledAt || a.updatedAt;
+          const bTime = b.cancelledAt || b.updatedAt;
+          return bTime - aTime;
+        });
+
+        // Paginate
+        const total = tasks.length;
+        const paginated = tasks.slice(offset, offset + limit);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  total,
+                  limit,
+                  offset,
+                  hasMore: offset + limit < total,
+                  tasks: paginated.map((t) => ({
+                    id: t.id,
+                    title: t.title,
+                    description: t.description,
+                    priority: t.priority || 'MEDIUM',
+                    createdAt: new Date(t.createdAt).toISOString(),
+                    cancelledAt: t.cancelledAt
+                      ? new Date(t.cancelledAt).toISOString()
+                      : new Date(t.updatedAt).toISOString(),
+                    linkedSessions: t.linkedSessions
+                      ? Object.keys(t.linkedSessions).length
+                      : 0,
+                  })),
                 },
                 null,
                 2
