@@ -7,12 +7,12 @@ import { MessageMetaSchema, MessageMeta } from './typesMessageMeta';
 
 // Usage data type from Claude API
 const usageDataSchema = z.object({
-    input_tokens: z.number(),
-    cache_creation_input_tokens: z.number().optional(),
-    cache_read_input_tokens: z.number().optional(),
-    output_tokens: z.number(),
+    input_tokens: z.number().catch(0),
+    cache_creation_input_tokens: z.number().catch(0).optional(),
+    cache_read_input_tokens: z.number().catch(0).optional(),
+    output_tokens: z.number().catch(0),
     service_tier: z.string().optional(),
-});
+}).passthrough(); // Allow additional fields without failing
 
 export type UsageData = z.infer<typeof usageDataSchema>;
 
@@ -193,9 +193,10 @@ export type NormalizedMessage = ({
 export function normalizeRawMessage(id: string, localId: string | null, createdAt: number, raw: RawRecord): NormalizedMessage | null {
     let parsed = rawRecordSchema.safeParse(raw);
     if (!parsed.success) {
-        console.error('Invalid raw record:');
-        console.error(parsed.error.issues);
-        console.error(raw);
+        // Log validation errors only in development
+        if (import.meta.env.DEV) {
+            console.warn('Skipping message with validation errors:', parsed.error.issues[0]?.message);
+        }
         return null;
     }
     raw = parsed.data;
