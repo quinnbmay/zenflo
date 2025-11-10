@@ -11313,11 +11313,6 @@ react-native-web@^0.21.0:
     postcss-value-parser "^4.2.0"
     styleq "^0.1.3"
 
-react-native-webrtc-web-shim@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.npmjs.org/react-native-webrtc-web-shim/-/react-native-webrtc-web-shim-1.0.7.tgz"
-  integrity sha512-RyoNs3LHbm0O8+mIIb+MA6p3AVaczAZQmIDUeT766KL2svTbPGE3QDlAU4teRkZPSfb/WsZ1W6JFaLXoIKg18w==
-
 react-native-webview@13.15.0:
   version "13.15.0"
   resolved "https://registry.npmjs.org/react-native-webview/-/react-native-webview-13.15.0.tgz"
@@ -11919,7 +11914,7 @@ run-parallel@^1.1.9:
   dependencies:
     queue-microtask "^1.2.2"
 
-rxjs@*, rxjs@7.8.2, rxjs@^7.8.2:
+rxjs@7.8.2, rxjs@^7.5.2, rxjs@^7.8.2:
   version "7.8.2"
   resolved "https://registry.npmjs.org/rxjs/-/rxjs-7.8.2.tgz"
   integrity sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==

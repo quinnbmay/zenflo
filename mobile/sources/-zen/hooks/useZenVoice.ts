@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Platform } from 'react-native';
-import { RTCPeerConnection, mediaDevices, MediaStream } from 'react-native-webrtc-web-shim';
+import { RTCPeerConnection, mediaDevices, MediaStream } from '@livekit/react-native-webrtc';
 import { Audio } from 'expo-av';
 import InCallManager from 'react-native-incall-manager';
 import { useRouter } from 'expo-router';
