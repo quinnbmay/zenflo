@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "zen-mode": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/Users/quinnmay/developer/zenflo/zen-mcp/zen-mode-mcp-server/dist/index.js"],
+      "env": {
+        "ZENFLO_AUTH_TOKEN": "eyJhbGciOiJFZERTQSJ9.eyJzdWIiOiJjbWhmOG16azQwMGMwazMxMzBuaTR2ZG5rIiwiaWF0IjoxNzYyNTYxMjc0LCJuYmYiOjE3NjI1NjEyNzQsImlzcyI6ImhhbmR5IiwianRpIjoiNmY1NjA2NWItNDM0Zi00NDAyLWEyMjgtZmFkZmRiNTNlYzRlIn0.pG3XaDMldvoqYcBZYoDHIHi7dOYjL5sLPoGsDnqw5TAWcq0umEhLbvC2MzM1-Yj_WLq1xHqEIiJkvTMdxzXmDg",
+        "ZENFLO_SECRET_KEY": "CAFMM-EUGKP-WZ3B5-F7D5U-J6K7E-XSVBI-3MZVQ-3G2TN-XCQUM-MJ2K6-OQ",
+        "ZENFLO_USER_ID": "cmhf8mzk400c0k3130ni4vdnk"
+      }
+    },
+    "claude-code": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/Users/quinnmay/developer/mcp-servers/claude-code-mcp/dist/server.js"]
+    },
+    "supermemory": {
+      "type": "http",
+      "url": "https://server.smithery.ai/@quinnbmay/supermemory/mcp?api_key=c0696122-7da9-4c99-84e2-1798ce74a954&profile=given-narwhal-PvFXc4"
+    }
+  }
+}
