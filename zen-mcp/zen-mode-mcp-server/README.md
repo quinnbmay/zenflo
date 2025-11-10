@@ -1,7 +1,7 @@
 # Zen Mode MCP Server
 
 **Created:** 2025-11-07
-**Last Updated:** 2025-11-08T02:35:00Z
+**Last Updated:** 2025-11-09T22:30:00Z
 **Status:** ✅ Production Ready
 
 A Model Context Protocol (MCP) server for managing tasks in the Happy Zen Mode system with real-time notifications.
@@ -162,6 +162,81 @@ await mcp__zen-mode__list_tasks({
 });
 ```
 
+### Filtered Task Lists (NEW! 2025-11-09)
+
+**More efficient than `list_tasks` - returns smaller, focused responses:**
+
+#### List TODO Tasks Only
+
+```typescript
+// All TODO tasks, sorted by priority (URGENT → HIGH → MEDIUM → LOW)
+await mcp__zen-mode__list_todo_tasks();
+
+// Only HIGH priority TODO tasks
+await mcp__zen-mode__list_todo_tasks({ priority: 'HIGH' });
+```
+
+**Benefits:**
+- ✅ Smaller response (no completed tasks)
+- ✅ Priority-sorted automatically
+- ✅ Faster than filtering `list_tasks`
+
+#### List IN_PROGRESS Tasks Only
+
+```typescript
+// Currently active tasks, sorted by most recently updated
+await mcp__zen-mode__list_in_progress_tasks();
+```
+
+**Benefits:**
+- ✅ Should typically show only 1-2 tasks
+- ✅ Perfect for "what am I working on?"
+- ✅ Sorted by most recently updated first
+
+#### List COMPLETED Tasks (Paginated)
+
+```typescript
+// Recent completed tasks (default: 10 most recent)
+await mcp__zen-mode__list_completed_tasks();
+
+// First 5 completed tasks
+await mcp__zen-mode__list_completed_tasks({ limit: 5 });
+
+// Next page (skip first 10, get next 10)
+await mcp__zen-mode__list_completed_tasks({ limit: 10, offset: 10 });
+```
+
+**Response includes:**
+```json
+{
+  "total": 41,
+  "limit": 10,
+  "offset": 0,
+  "hasMore": true,
+  "tasks": [...]
+}
+```
+
+**Benefits:**
+- ✅ Paginated (prevent overwhelming output)
+- ✅ Sorted by completion date (most recent first)
+- ✅ Perfect for reviewing recent work
+- ✅ `hasMore` flag tells you if there are more pages
+
+#### List CANCELLED Tasks (Paginated)
+
+```typescript
+// Recent cancelled tasks
+await mcp__zen-mode__list_cancelled_tasks();
+
+// Custom page size
+await mcp__zen-mode__list_cancelled_tasks({ limit: 5, offset: 0 });
+```
+
+**Benefits:**
+- ✅ Same pagination as completed tasks
+- ✅ Sorted by cancellation date (most recent first)
+
 ### Create Task
 
 ```typescript
@@ -258,6 +333,10 @@ At the **START of EVERY session**, you MUST:
 
 **Zen Mode MCP Tools:**
 - `mcp__zen-mode__list_tasks` - List all tasks (synced to Happy app)
+- `mcp__zen-mode__list_todo_tasks` - List TODO tasks only (sorted by priority)
+- `mcp__zen-mode__list_in_progress_tasks` - List IN_PROGRESS tasks only
+- `mcp__zen-mode__list_completed_tasks` - List DONE tasks (paginated)
+- `mcp__zen-mode__list_cancelled_tasks` - List CANCELLED tasks (paginated)
 - `mcp__zen-mode__create_task` - Create task (syncs to Happy app)
 - `mcp__zen-mode__get_task` - Get specific task
 - `mcp__zen-mode__update_task` - Update status/priority
@@ -473,6 +552,8 @@ npx @modelcontextprotocol/inspector node dist/index.js
 ## Roadmap
 
 - [x] Add task description field (beyond title) - **Completed 2025-11-08**
+- [x] Add filtered task listing tools - **Completed 2025-11-09**
+- [x] Add pagination for completed/cancelled tasks - **Completed 2025-11-09**
 - [ ] Add task tags/labels
 - [ ] Add task due dates
 - [ ] Add subtasks support
