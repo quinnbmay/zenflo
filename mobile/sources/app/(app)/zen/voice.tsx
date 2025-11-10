@@ -5,7 +5,7 @@ import { useUnistyles } from 'react-native-unistyles';
 import { useZenVoice } from '@/-zen/hooks/useZenVoice';
 import { t } from '@/text';
 import { router } from 'expo-router';
-import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, {
     useAnimatedStyle,
@@ -127,10 +127,10 @@ export default function ZenVoiceScreen() {
                         justifyContent: 'center',
                     }}
                 >
-                    <Image
-                        source={require('@/assets/icons/chevron-left.svg')}
-                        style={{ width: 24, height: 24 }}
-                        tintColor={theme.colors.text}
+                    <Ionicons
+                        name="chevron-back"
+                        size={24}
+                        color={theme.colors.text}
                     />
                 </Pressable>
                 <Text style={{
