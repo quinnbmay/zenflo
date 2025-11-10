@@ -174,6 +174,7 @@ export const en = {
             pixelated: 'Pixelated',
             gradient: 'Gradient',
             brutalist: 'Brutalist',
+            icon: 'ZenFlo Icon',
         },
         showFlavorIcons: 'Show AI Provider Icons',
         showFlavorIconsDescription: 'Display AI provider icons on session avatars',
