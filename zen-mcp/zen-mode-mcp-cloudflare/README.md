@@ -1,11 +1,25 @@
+<div align="center">
+
+<img src="../../.github/zenflo-icon.png" alt="Zen Mode MCP Cloudflare" width="128" height="128" />
+
 # Zen Mode MCP - Cloudflare Worker
 
-**Created:** 2025-11-07
-**Author:** Quinn May
-**Backend:** Happy NAS (happy.combinedmemory.com)
-**Platform:** Cloudflare Workers
+**Edge-Deployed Task Management for Claude Code & ZenFlo**
 
-HTTP-based MCP server for Happy's Zen Mode task management system. Designed to replace iOS Task Manager with unified task system across Claude Code and Happy mobile app.
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://zenflo.app)
+[![MCP](https://img.shields.io/badge/MCP-HTTP%20Transport-blue)](https://modelcontextprotocol.io)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
+[![Cloudflare](https://img.shields.io/badge/Deployed%20on-Cloudflare%20Workers-orange)](https://workers.cloudflare.com)
+
+[Documentation](#) • [ZenFlo App](https://zenflo.app) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
+
+</div>
+
+---
+
+## 🌟 Overview
+
+HTTP-based MCP server for ZenFlo's Zen Mode task management system. Designed to replace iOS Task Manager with unified task system across Claude Code and ZenFlo mobile app.
 
 ## Why Cloudflare Workers?
 
@@ -15,10 +29,10 @@ HTTP-based MCP server for Happy's Zen Mode task management system. Designed to r
 - ✅ **No Config** - No environment variables needed
 - ✅ **Scalable** - Auto-scales to millions of requests
 
-## Quick Deploy
+## 🚀 Quick Deploy
 
 ```bash
-cd /Users/quinnmay/developer/happy/zen-mode-mcp-cloudflare
+cd /Users/quinnmay/developer/zenflo/zen-mcp/zen-mode-mcp-cloudflare
 
 # Install dependencies
 npm install
@@ -33,15 +47,15 @@ npm run deploy
 That's it! You'll get a URL like:
 `https://zen-mode-mcp.YOUR-SUBDOMAIN.workers.dev`
 
-## Features
+## ✨ Key Features
 
-- 🔐 JWT authentication via Happy backend
+- 🔐 JWT authentication via ZenFlo backend
 - 🔑 Base32 secret key support (Ed25519 signatures)
 - 📋 5 MCP tools: list_tasks, create_task, get_task, update_task, delete_task
 - 🎯 Task priorities: LOW, MEDIUM, HIGH, URGENT
 - ✅ Task status: TODO, IN_PROGRESS, DONE, CANCELLED
-- 📱 Syncs with Happy mobile app (/zen route)
-- 🔒 Encrypted storage in Happy NAS PostgreSQL
+- 📱 Syncs with ZenFlo mobile app (/zen route)
+- 🔒 Encrypted storage in ZenFlo NAS PostgreSQL
 - 🌍 CORS enabled
 
 ## API Endpoints
@@ -111,10 +125,10 @@ Update an existing task.
 Delete a task.
 - `task_id` (required): Task ID
 
-## Local Development
+## 🧪 Local Development
 
 ```bash
-# Run locally (connects to Happy backend)
+# Run locally (connects to ZenFlo backend)
 npm run dev
 
 # Test locally
@@ -165,18 +179,18 @@ This MCP server will easily fit within free tier limits.
 3. Click on `zen-mode-mcp`
 4. View metrics, logs, and analytics
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 Claude Code
     ↓ (HTTP MCP)
 Cloudflare Worker (this)
     ↓ (JWT Auth)
-Happy NAS Backend
+ZenFlo NAS Backend
     ↓ (Encrypted KV)
 PostgreSQL Database
     ↑↓ (Sync)
-Happy Mobile App (/zen)
+ZenFlo Mobile App (/zen)
 ```
 
 ## Troubleshooting
@@ -222,6 +236,26 @@ curl -X POST https://zen-mode-mcp.YOUR-SUBDOMAIN.workers.dev/mcp \
 
 ---
 
-**Generated with Claude Code via Happy**
-Co-Authored-By: Claude <noreply@anthropic.com>
-Co-Authored-By: Happy <yesreply@happy.engineering>
+## 📄 License
+
+MIT License - See [LICENSE](../../LICENSE) for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Created by:** Quinn May with Claude Code
+- **Date:** 2025-11-07
+- **ZenFlo Platform:** [https://zenflo.app](https://zenflo.app)
+- **MCP Protocol:** [https://modelcontextprotocol.io](https://modelcontextprotocol.io)
+- **Cloudflare Workers:** [https://workers.cloudflare.com](https://workers.cloudflare.com)
+
+---
+
+<div align="center">
+
+**Part of the ZenFlo Platform**
+
+[Website](https://zenflo.app) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.app)
+
+</div>

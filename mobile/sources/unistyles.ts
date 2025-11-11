@@ -65,18 +65,22 @@ StyleSheet.configure({
 })
 
 // Set initial root view background color based on theme
-const setRootBackgroundColor = () => {
+// This function should be called from a React component after the app is fully initialized
+export const setRootBackgroundColor = () => {
     if (themePreference === 'adaptive') {
         const systemTheme = Appearance.getColorScheme();
         const color = systemTheme === 'dark' ? appThemes.dark.colors.groupped.background : appThemes.light.colors.groupped.background;
         UnistylesRuntime.setRootViewBackgroundColor(color);
-        SystemUI.setBackgroundColorAsync(color);
+        // Safe to call SystemUI after app initialization
+        SystemUI.setBackgroundColorAsync(color).catch(e => {
+            console.warn('[unistyles] Failed to set system UI color:', e);
+        });
     } else {
         const color = themePreference === 'dark' ? appThemes.dark.colors.groupped.background : appThemes.light.colors.groupped.background;
         UnistylesRuntime.setRootViewBackgroundColor(color);
-        SystemUI.setBackgroundColorAsync(color);
+        // Safe to call SystemUI after app initialization
+        SystemUI.setBackgroundColorAsync(color).catch(e => {
+            console.warn('[unistyles] Failed to set system UI color:', e);
+        });
     }
 };
-
-// Set initial background color
-setRootBackgroundColor();

@@ -75,8 +75,16 @@ export async function claudeLocal(opts: {
 
     // Spawn the process
     try {
-        // Start the interactive process
-        process.stdin.pause();
+        // Check if we're in stream-json mode (extension mode)
+        const isStreamJsonMode = opts.claudeArgs?.includes('--input-format') &&
+                                 opts.claudeArgs?.includes('stream-json');
+
+        // Only pause stdin for interactive mode, not for stream-json mode
+        // In stream-json mode, the extension needs to communicate with Claude via stdin
+        if (!isStreamJsonMode) {
+            process.stdin.pause();
+        }
+
         await new Promise<void>((r, reject) => {
             const args: string[] = []
             if (startFrom) {
@@ -109,10 +117,18 @@ export async function claudeLocal(opts: {
 
             const child = spawn('node', [claudeCliPath, ...args], {
                 stdio: ['inherit', 'inherit', 'inherit', 'pipe'],
-                signal: opts.abort,
                 cwd: opts.path,
                 env,
             });
+
+            // Handle abort signal manually to allow graceful cleanup
+            const abortHandler = () => {
+                if (!child.killed) {
+                    logger.debug('[ClaudeLocal] Abort signal received, killing child process');
+                    child.kill('SIGTERM');
+                }
+            };
+            opts.abort.addEventListener('abort', abortHandler);
 
             // Listen to the custom fd (fd 3) line by line
             if (child.stdio[3]) {
@@ -209,7 +225,12 @@ export async function claudeLocal(opts: {
         });
     } finally {
         watcher.close();
-        process.stdin.resume();
+        // Only resume stdin if it was paused (i.e., not in stream-json mode)
+        const isStreamJsonMode = opts.claudeArgs?.includes('--input-format') &&
+                                 opts.claudeArgs?.includes('stream-json');
+        if (!isStreamJsonMode) {
+            process.stdin.resume();
+        }
         if (stopThinkingTimeout) {
             clearTimeout(stopThinkingTimeout);
             stopThinkingTimeout = null;

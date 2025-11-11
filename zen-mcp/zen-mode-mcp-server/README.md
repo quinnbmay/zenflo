@@ -1,16 +1,30 @@
+<div align="center">
+
+<img src="../../.github/zenflo-icon.png" alt="Zen Mode MCP" width="128" height="128" />
+
 # Zen Mode MCP Server
 
-**Created:** 2025-11-07
-**Last Updated:** 2025-11-09T22:30:00Z
-**Status:** ✅ Production Ready
+**Task Management for Claude Code & ZenFlo**
 
-A Model Context Protocol (MCP) server for managing tasks in the Happy Zen Mode system with real-time notifications.
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://zenflo.app)
+[![MCP](https://img.shields.io/badge/MCP-Compatible-blue)](https://modelcontextprotocol.io)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
+
+[Documentation](#) • [ZenFlo App](https://zenflo.app) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
+
+</div>
 
 ---
 
-## Features
+## 🌟 Overview
 
-- ✅ **Cross-device task management** - Syncs to Happy mobile app
+A Model Context Protocol (MCP) server for managing tasks in the ZenFlo Zen Mode system with real-time notifications.
+
+---
+
+### ✨ Key Features
+
+- ✅ **Cross-device task management** - Syncs to ZenFlo mobile app
 - ✅ **Encrypted storage** - NaCl secretbox encryption (XSalsa20-Poly1305)
 - ✅ **Real-time sync** - WebSocket updates across all devices
 - ✅ **Session linking** - Link Claude Code sessions to tasks
@@ -38,7 +52,7 @@ A Model Context Protocol (MCP) server for managing tasks in the Happy Zen Mode s
                │
                ▼
 ┌──────────────────────────────────────────────────────┐
-│  Happy Backend (happy.combinedmemory.com)            │
+│  ZenFlo Backend (zenflo.combinedmemory.com)          │
 │  - HTTP API: POST /v1/kv, GET /v1/kv                 │
 │  - WebSocket: Real-time kv-batch-update messages     │
 │  - Storage: Encrypted PostgreSQL                     │
@@ -47,7 +61,7 @@ A Model Context Protocol (MCP) server for managing tasks in the Happy Zen Mode s
                ├──────────────┐
                ▼              ▼
 ┌─────────────────────┐  ┌──────────────────────┐
-│  Happy Mobile App   │  │  Telegram Bot        │
+│  ZenFlo Mobile App  │  │  Telegram Bot        │
 │  /zen route         │  │  Push Notifications  │
 │  - Task UI          │  │  - Task created      │
 │  - Session linking  │  │  - Status changed    │
@@ -62,7 +76,7 @@ A Model Context Protocol (MCP) server for managing tasks in the Happy Zen Mode s
 ### 1. Install Dependencies
 
 ```bash
-cd /Users/quinnmay/developer/happy/zen-mode-mcp-server
+cd /Users/quinnmay/developer/zenflo/zen-mcp/zen-mode-mcp-server
 npm install
 ```
 
@@ -83,10 +97,10 @@ Edit `~/.claude/mcp_settings.json` or `~/.config/claude/mcp_settings.json`:
   "mcpServers": {
     "zen-mode": {
       "command": "node",
-      "args": ["/Users/quinnmay/developer/happy/zen-mode-mcp-server/dist/index.js"],
+      "args": ["/Users/quinnmay/developer/zenflo/zen-mcp/zen-mode-mcp-server/dist/index.js"],
       "env": {
-        "HAPPY_AUTH_TOKEN": "your-auth-token-here",
-        "HAPPY_USER_ID": "your-user-id-here"
+        "ZENFLO_AUTH_TOKEN": "your-auth-token-here",
+        "ZENFLO_USER_ID": "your-user-id-here"
       }
     }
   }
@@ -102,10 +116,10 @@ Create `.mcp.json` in your project directory:
   "mcpServers": {
     "zen-mode": {
       "command": "node",
-      "args": ["/Users/quinnmay/developer/happy/zen-mode-mcp-server/dist/index.js"],
+      "args": ["/Users/quinnmay/developer/zenflo/zen-mcp/zen-mode-mcp-server/dist/index.js"],
       "env": {
-        "HAPPY_AUTH_TOKEN": "your-auth-token-here",
-        "HAPPY_USER_ID": "your-user-id-here"
+        "ZENFLO_AUTH_TOKEN": "your-auth-token-here",
+        "ZENFLO_USER_ID": "your-user-id-here"
       }
     }
   }
@@ -114,18 +128,18 @@ Create `.mcp.json` in your project directory:
 
 ### 4. Get Authentication Credentials
 
-**From Happy Mobile App:**
+**From ZenFlo Mobile App:**
 
-1. Open Happy mobile app
+1. Open ZenFlo mobile app
 2. Navigate to Settings → Developer
 3. Copy your Auth Token and User ID
 4. Add to MCP configuration above
 
-**OR from Happy Backend:**
+**OR from ZenFlo Backend:**
 
 ```bash
 # Login and get token
-curl -X POST https://happy.combinedmemory.com/api/auth/login \
+curl -X POST https://zenflo.combinedmemory.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email": "your-email", "password": "your-password"}'
 
@@ -378,11 +392,11 @@ Claude Code
   ↓ (MCP call)
 Zen Mode MCP Server
   ↓ (HTTPS API)
-Happy Backend (happy.combinedmemory.com on NAS)
+ZenFlo Backend (zenflo.combinedmemory.com on NAS)
   ↓ (KV Storage)
 Encrypted Task Data
   ↓ (Real-time sync)
-Happy Mobile App (/zen route)
+ZenFlo Mobile App (/zen route)
 ```
 
 ### Storage Structure
@@ -415,7 +429,7 @@ Happy Mobile App (/zen route)
 
 ---
 
-## API Endpoints (Happy Backend)
+## API Endpoints (ZenFlo Backend)
 
 All endpoints require `Authorization: Bearer {token}` header.
 
@@ -504,21 +518,21 @@ npx @modelcontextprotocol/inspector node dist/index.js
 
 ### "Authentication required" Error
 
-**Problem:** `HAPPY_AUTH_TOKEN` or `HAPPY_USER_ID` not set.
+**Problem:** `ZENFLO_AUTH_TOKEN` or `ZENFLO_USER_ID` not set.
 
 **Solution:**
 1. Check MCP configuration has `env` section
 2. Verify credentials are correct
 3. Restart Claude Code after config changes
 
-### Tasks Not Syncing to Happy App
+### Tasks Not Syncing to ZenFlo App
 
 **Problem:** Encryption/decryption mismatch.
 
 **Solution:**
-1. Verify Happy backend encryption API is working
-2. Check logs in Happy mobile app's developer console
-3. Try creating task directly in Happy app to test sync
+1. Verify ZenFlo backend encryption API is working
+2. Check logs in ZenFlo mobile app's developer console
+3. Try creating task directly in ZenFlo app to test sync
 
 ### "Task not found" Error
 
@@ -527,7 +541,7 @@ npx @modelcontextprotocol/inspector node dist/index.js
 **Solution:**
 1. Wait a few seconds for sync
 2. Call `list_tasks` to verify task exists
-3. Check task wasn't deleted in Happy app
+3. Check task wasn't deleted in ZenFlo app
 
 ---
 
@@ -538,7 +552,7 @@ npx @modelcontextprotocol/inspector node dist/index.js
 | Task CRUD | ✅ | ✅ |
 | Priority levels | ✅ | ✅ |
 | Status tracking | ✅ (4 states) | ✅ (4 states) |
-| iPhone sync | ✅ (separate app) | ✅ (Happy app) |
+| iPhone sync | ✅ (separate app) | ✅ (ZenFlo app) |
 | Session linking | ❌ | ✅ |
 | AI integration | ❌ | ✅ (Clarify, Work on task) |
 | Task ordering | ❌ | ✅ |
@@ -566,15 +580,27 @@ npx @modelcontextprotocol/inspector node dist/index.js
 
 ---
 
-## License
+---
 
-MIT
+## 📄 License
+
+MIT License - See [LICENSE](../../LICENSE) for details.
 
 ---
 
-## Credits
+## 🙏 Acknowledgments
 
-**Created by:** Quinn May with Claude Code
-**Date:** 2025-11-07
-**Happy Project:** https://combinedmemory.com
-**MCP Protocol:** https://modelcontextprotocol.io
+- **Created by:** Quinn May with Claude Code
+- **Date:** 2025-11-07
+- **ZenFlo Platform:** [https://zenflo.app](https://zenflo.app)
+- **MCP Protocol:** [https://modelcontextprotocol.io](https://modelcontextprotocol.io)
+
+---
+
+<div align="center">
+
+**Part of the ZenFlo Platform**
+
+[Website](https://zenflo.app) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.app)
+
+</div>

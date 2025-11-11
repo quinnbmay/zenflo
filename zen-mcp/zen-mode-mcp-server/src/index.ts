@@ -8,7 +8,7 @@
  *
  * Created: 2025-11-07
  * Author: Quinn May with Claude Code
- * API: https://happy.combinedmemory.com (NAS hosted)
+ * API: https://zenflo.combinedmemory.com (NAS hosted)
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';

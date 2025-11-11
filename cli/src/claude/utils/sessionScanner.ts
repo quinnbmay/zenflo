@@ -86,7 +86,7 @@ export async function createSessionScanner(opts: {
             await sync.invalidateAndAwait();
             sync.stop();
         },
-        onNewSession: (sessionId: string) => {
+        onNewSession: async (sessionId: string) => {
             if (currentSessionId === sessionId) {
                 logger.debug(`[SESSION_SCANNER] New session: ${sessionId} is the same as the current session, skipping`);
                 return;
@@ -104,6 +104,23 @@ export async function createSessionScanner(opts: {
             }
             logger.debug(`[SESSION_SCANNER] New session: ${sessionId}`)
             currentSessionId = sessionId;
+
+            // Immediately read any existing messages from the new session file
+            // This ensures we don't miss messages written before we started watching
+            try {
+                const existingMessages = await readSessionLog(projectDir, sessionId);
+                logger.debug(`[SESSION_SCANNER] Found ${existingMessages.length} existing messages in new session ${sessionId}`);
+                for (const message of existingMessages) {
+                    const key = messageKey(message);
+                    if (!processedMessageKeys.has(key)) {
+                        processedMessageKeys.add(key);
+                        opts.onMessage(message);
+                    }
+                }
+            } catch (err) {
+                logger.debug(`[SESSION_SCANNER] Error reading existing messages: ${err}`);
+            }
+
             sync.invalidate();
         },
     }
@@ -150,7 +167,8 @@ async function readSessionLog(projectDir: string, sessionId: string): Promise<Ra
             let message = JSON.parse(l);
             let parsed = RawJSONLinesSchema.safeParse(message);
             if (!parsed.success) { // We can't deduplicate this message so we have to skip it
-                logger.debugLargeJson(`[SESSION_SCANNER] Failed to parse message`, message)
+                logger.debug(`[SESSION_SCANNER] Failed to parse message - Zod error:`, parsed.error.errors);
+                logger.debugLargeJson(`[SESSION_SCANNER] Failed message content:`, message)
                 continue;
             }
             messages.push(parsed.data);

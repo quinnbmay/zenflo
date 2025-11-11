@@ -195,9 +195,15 @@ export class ApiSessionClient extends EventEmitter {
         logger.debugLargeJson('[SOCKET] Sending message through socket:', content)
 
         const encrypted = encodeBase64(encrypt(this.encryptionKey, this.encryptionVariant, content));
+
+        // Generate localId from message UUID for deduplication
+        // This ensures multiple CLI processes don't create duplicate database records
+        const localId: string | null = typeof body.uuid === 'string' ? body.uuid : null;
+
         this.socket.emit('message', {
             sid: this.sessionId,
-            message: encrypted
+            message: encrypted,
+            localId: localId
         });
 
         // Track usage from assistant messages

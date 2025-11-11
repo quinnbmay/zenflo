@@ -9,7 +9,6 @@ import * as React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { ZenVoiceButton } from './ZenVoiceButton';
 
 export const ZenHeader = React.memo(() => {
     const isTablet = useIsTablet();
@@ -123,7 +122,7 @@ function HeaderTitle() {
 }
 
 function HeaderLeft() {
-    return <ZenVoiceButton />;
+    return null;
 }
 
 function HeaderRight() {

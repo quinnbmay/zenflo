@@ -25,6 +25,7 @@ import { StatusBarProvider } from '@/components/StatusBarProvider';
 // import * as SystemUI from 'expo-system-ui';
 import { monkeyPatchConsoleForRemoteLoggingForFasterAiAutoDebuggingOnlyInLocalBuilds } from '@/utils/remoteLogger';
 import { useUnistyles } from 'react-native-unistyles';
+import { setRootBackgroundColor } from '@/unistyles';
 import { AsyncLock } from '@/utils/lock';
 import { setupInteractiveNotifications } from '@/notifications/interactiveCategories';
 import { handleNotificationResponse } from '@/notifications/notificationResponseHandler';
@@ -162,6 +163,10 @@ export default function RootLayout() {
             try {
                 await loadFonts();
                 await sodium.ready;
+
+                // Set root background color after app is initialized
+                setRootBackgroundColor();
+
                 const credentials = await TokenStorage.getCredentials();
                 console.log('credentials', credentials);
                 if (credentials) {

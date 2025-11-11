@@ -35,7 +35,14 @@ export interface StartOptions {
 
 export async function runClaude(credentials: Credentials, options: StartOptions = {}): Promise<void> {
     const workingDirectory = process.cwd();
-    const sessionTag = randomUUID();
+
+    // For extension mode (stream-json), use deterministic session tag based on working directory
+    // This prevents multiple spawns from creating duplicate backend sessions
+    const isExtensionMode = options.claudeArgs?.includes('--input-format') &&
+                           options.claudeArgs?.includes('stream-json');
+    const sessionTag = isExtensionMode
+        ? `extension-${hashObject({ workingDirectory, machineId: (await readSettings())?.machineId })}`
+        : randomUUID();
 
     // Log environment info at startup
     logger.debugLargeJson('[START] ZenFlo process started', getEnvironmentInfo());
@@ -88,6 +95,7 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
         lifecycleStateSince: Date.now(),
         flavor: 'claude'
     };
+    
     const response = await api.getOrCreateSession({ tag: sessionTag, metadata, state });
     logger.debug(`Session created: ${response.id}`);
 

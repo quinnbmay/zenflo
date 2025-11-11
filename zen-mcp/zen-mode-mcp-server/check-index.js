@@ -29,7 +29,7 @@ function parseSecretKey(secretStr) {
 const masterSecret = parseSecretKey(secretKeyStr);
 
 async function run() {
-  const response = await axios.get('https://happy.combinedmemory.com/v1/kv/todo.index', {
+  const response = await axios.get('https://zenflo.combinedmemory.com/v1/kv/todo.index', {
     headers: { Authorization: 'Bearer ' + token }
   });
   

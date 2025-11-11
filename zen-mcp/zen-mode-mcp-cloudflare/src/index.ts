@@ -3,7 +3,7 @@
  *
  * Created: 2025-11-07
  * Author: Quinn May
- * Backend: Happy NAS (happy.combinedmemory.com)
+ * Backend: ZenFlo NAS (zenflo.combinedmemory.com)
  *
  * HTTP-based MCP server for Happy's Zen Mode task management.
  * Replaces iOS Task Manager with unified task system.
@@ -89,8 +89,8 @@ async function generateToken(secretStr: string): Promise<string> {
   // Sign the challenge
   const signature = await ed25519.signAsync(challenge, privateKey);
 
-  // Send auth request to Happy backend
-  const response = await fetch('https://happy.combinedmemory.com/v1/auth', {
+  // Send auth request to ZenFlo backend
+  const response = await fetch('https://zenflo.combinedmemory.com/v1/auth', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -118,7 +118,7 @@ class HappyApiClient {
       limit: '1000',
     });
 
-    const response = await fetch(`https://happy.combinedmemory.com/v1/kv?${queryParams.toString()}`, {
+    const response = await fetch(`https://zenflo.combinedmemory.com/v1/kv?${queryParams.toString()}`, {
       headers: {
         'Authorization': `Bearer ${this.token}`,
         'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ class HappyApiClient {
     const encoded = btoa(itemJson);
 
     // Save with proper key: todo.{uuid}
-    await fetch('https://happy.combinedmemory.com/v1/kv', {
+    await fetch('https://zenflo.combinedmemory.com/v1/kv', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.token}`,
@@ -219,11 +219,11 @@ class HappyApiClient {
       updatedItem.cancelledAt = now;
     }
 
-    // Base64 encode like Happy app
+    // Base64 encode like ZenFlo app
     const itemJson = JSON.stringify(updatedItem);
     const encoded = btoa(itemJson);
 
-    await fetch('https://happy.combinedmemory.com/v1/kv', {
+    await fetch('https://zenflo.combinedmemory.com/v1/kv', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.token}`,
@@ -240,7 +240,7 @@ class HappyApiClient {
 
   async deleteTodo(taskId: string): Promise<void> {
     // Delete item with proper key format
-    await fetch(`https://happy.combinedmemory.com/v1/kv/todo.${taskId}`, {
+    await fetch(`https://zenflo.combinedmemory.com/v1/kv/todo.${taskId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${this.token}`,

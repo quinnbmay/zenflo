@@ -59,10 +59,10 @@ ${chalk.bold('Examples:')}
   happy connect claude
   happy connect gemini
 
-${chalk.bold('Notes:')} 
+${chalk.bold('Notes:')}
   • You must be authenticated with Happy first (run 'happy auth login')
   • API keys are encrypted and stored securely in Happy cloud
-  • You can manage your stored keys at app.happy.engineering
+  • You can manage your stored keys at app.combinedmemory.com
 `);
 }
 

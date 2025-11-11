@@ -45,6 +45,24 @@
       "env": {
         "ELEVENLABS_API_KEY": "sk_f9bf84125ea4a0dcbbe4adcf9e655439a9c08ea8fef16ab6"
       }
+    },
+    "mobile-mcp": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/quinnmay/developer/mcp-servers/appium-mcp/dist/index.js"
+      ]
+    },
+    "claude-context": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/quinnmay/developer/mcp-servers/claude-context-mcp/packages/mcp/dist/index.js"
+      ],
+      "env": {
+        "EMBEDDING_PROVIDER": "OpenAI",
+        "MILVUS_ADDRESS": "localhost:19530"
+      }
     }
   }
 }

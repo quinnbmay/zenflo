@@ -1,20 +1,35 @@
+<div align="center">
+
+<img src="../../.github/zenflo-icon.png" alt="Zen Mode MCP HTTP" width="128" height="128" />
+
 # Zen Mode MCP HTTP Server
 
-**Created:** 2025-11-07
-**Author:** Quinn May
-**Backend:** Happy NAS (happy.combinedmemory.com)
+**HTTP-Based Task Management for Claude Code & ZenFlo**
 
-HTTP-based MCP server for Happy's Zen Mode task management system. Designed to replace iOS Task Manager and provide a unified task management experience across Claude Code and Happy mobile app.
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://zenflo.app)
+[![MCP](https://img.shields.io/badge/MCP-HTTP%20Transport-blue)](https://modelcontextprotocol.io)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
+[![Railway](https://img.shields.io/badge/Deployed%20on-Railway-blueviolet)](https://railway.app)
 
-## Features
+[Documentation](#) • [ZenFlo App](https://zenflo.app) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
 
-- ✅ JWT authentication via Happy backend
+</div>
+
+---
+
+## 🌟 Overview
+
+HTTP-based MCP server for ZenFlo's Zen Mode task management system. Designed to replace iOS Task Manager and provide a unified task management experience across Claude Code and ZenFlo mobile app.
+
+## ✨ Key Features
+
+- ✅ JWT authentication via ZenFlo backend
 - ✅ Base32 secret key support
 - ✅ 5 MCP tools: list_tasks, create_task, get_task, update_task, delete_task
 - ✅ Task priorities: LOW, MEDIUM, HIGH, URGENT
 - ✅ Task status: TODO, IN_PROGRESS, DONE, CANCELLED
-- ✅ Syncs with Happy mobile app (/zen route)
-- ✅ Encrypted storage in Happy NAS PostgreSQL
+- ✅ Syncs with ZenFlo mobile app (/zen route)
+- ✅ Encrypted storage in ZenFlo NAS PostgreSQL
 
 ## Deployment
 
@@ -159,11 +174,11 @@ Claude Code
     ↓ (HTTP MCP)
 Railway Server (this)
     ↓ (JWT Auth)
-Happy NAS Backend
+ZenFlo NAS Backend
     ↓ (Encrypted KV)
 PostgreSQL Database
     ↑↓ (Sync)
-Happy Mobile App (/zen)
+ZenFlo Mobile App (/zen)
 ```
 
 ## Local Development
@@ -187,18 +202,37 @@ npm start
 - **Framework:** Express.js
 - **Language:** TypeScript
 - **Auth:** Ed25519 signatures + JWT
-- **Backend:** Happy NAS (happy.combinedmemory.com)
+- **Backend:** ZenFlo NAS (zenflo.combinedmemory.com)
 - **Database:** PostgreSQL (encrypted KV store)
 - **Deployment:** Railway
 
 ## Links
 
-- Happy Mobile App: `/zen` route
-- Happy Backend: https://happy.combinedmemory.com
+- ZenFlo Mobile App: `/zen` route
+- ZenFlo Backend: https://zenflo.combinedmemory.com
 - MCP Protocol: https://modelcontextprotocol.io
 
 ---
 
-**Generated with Claude Code via Happy**
-Co-Authored-By: Claude <noreply@anthropic.com>
-Co-Authored-By: Happy <yesreply@happy.engineering>
+## 📄 License
+
+MIT License - See [LICENSE](../../LICENSE) for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Created by:** Quinn May with Claude Code
+- **Date:** 2025-11-07
+- **ZenFlo Platform:** [https://zenflo.app](https://zenflo.app)
+- **MCP Protocol:** [https://modelcontextprotocol.io](https://modelcontextprotocol.io)
+
+---
+
+<div align="center">
+
+**Part of the ZenFlo Platform**
+
+[Website](https://zenflo.app) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.app)
+
+</div>
