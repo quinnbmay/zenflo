@@ -5,6 +5,7 @@ import { storage } from '@/sync/storage';
 import { buildMessagePreview } from '@/sync/messagePreview';
 import { realtimeClientTools } from './realtimeClientTools';
 import { getElevenLabsCodeFromPreference } from '@/constants/Languages';
+import { getSessionName } from '@/utils/sessionUtils';
 import type { VoiceSession, VoiceSessionConfig } from './types';
 
 // Static reference to the conversation hook instance
@@ -38,7 +39,7 @@ class RealtimeVoiceSessionImpl implements VoiceSession {
 
             // Get session name and build thread context from recent messages
             const session = storage.getState().sessions[config.sessionId];
-            const sessionName = session?.metadata?.summary?.text || 'your project';
+            const sessionName = session ? getSessionName(session) : 'your project';
 
             // Build comprehensive thread context with recent conversation history
             let threadContextText = `Thread: "${sessionName}"\n\n`;

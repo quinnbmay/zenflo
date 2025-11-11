@@ -45,6 +45,12 @@ export const realtimeClientTools = {
      * Send a message to Claude Code
      */
     messageClaudeCode: async (parameters: unknown) => {
+        const timestamp = new Date().toISOString();
+        const callId = Math.random().toString(36).substring(7);
+
+        console.log(`🎤 [${timestamp}] [${callId}] messageClaudeCode CALLED`);
+        console.log(`🎤 [${callId}] Raw parameters:`, JSON.stringify(parameters));
+
         // Parse and validate the message parameter using Zod
         const messageSchema = z.object({
             message: z.string().min(1, 'Message cannot be empty')
@@ -52,21 +58,23 @@ export const realtimeClientTools = {
         const parsedMessage = messageSchema.safeParse(parameters);
 
         if (!parsedMessage.success) {
-            console.error('❌ Invalid message parameter:', parsedMessage.error);
+            console.error(`❌ [${callId}] Invalid message parameter:`, parsedMessage.error);
             return "error (invalid message parameter)";
         }
 
         const message = parsedMessage.data.message;
         const sessionId = getCurrentRealtimeSessionId();
-        
+
         if (!sessionId) {
-            console.error('❌ No active session');
+            console.error(`❌ [${callId}] No active session`);
             return "error (no active session)";
         }
-        
-        console.log('🔍 messageClaudeCode called with:', message);
-        console.log('📤 Sending message to session:', sessionId);
+
+        console.log(`🔍 [${callId}] messageClaudeCode called with:`, message);
+        console.log(`📤 [${callId}] Sending message to session:`, sessionId);
+        console.log(`📤 [${callId}] CALLING sync.sendMessage NOW`);
         sync.sendMessage(sessionId, message);
+        console.log(`✅ [${callId}] sync.sendMessage COMPLETED`);
         return "sent [DO NOT say anything else, simply say 'sent']";
     },
 

@@ -223,6 +223,10 @@ class Sync {
 
 
     async sendMessage(sessionId: string, text: string, displayText?: string) {
+        const timestamp = new Date().toISOString();
+        const sendId = Math.random().toString(36).substring(7);
+        console.log(`📨 [${timestamp}] [${sendId}] sync.sendMessage CALLED for session ${sessionId}`);
+        console.log(`📨 [${sendId}] Message text (first 100 chars):`, text.substring(0, 100));
 
         // Get encryption
         const encryption = this.encryption.getSessionEncryption(sessionId);
@@ -363,6 +367,7 @@ class Sync {
         }
 
         // Send message with optional permission mode and source identifier
+        console.log(`📨 [${sendId}] CALLING apiSocket.send NOW with localId: ${localId}`);
         apiSocket.send('message', {
             sid: sessionId,
             message: encryptedRawRecord,
@@ -370,6 +375,7 @@ class Sync {
             sentFrom,
             permissionMode: permissionMode || 'default'
         });
+        console.log(`✅ [${sendId}] apiSocket.send COMPLETED - message sent to backend`);
     }
 
     applySettings = (delta: Partial<Settings>) => {
@@ -2074,7 +2080,12 @@ class Sync {
     //
 
     private applyMessages = (sessionId: string, messages: NormalizedMessage[]) => {
+        const applyId = Math.random().toString(36).substring(7);
+        console.log(`📝 [${applyId}] applyMessages CALLED with ${messages.length} messages for session ${sessionId}`);
+
         const result = storage.getState().applyMessages(sessionId, messages);
+        console.log(`📝 [${applyId}] applyMessages result: ${result.changed.length} changed, hasReadyEvent: ${result.hasReadyEvent}`);
+
         let m: Message[] = [];
         for (let messageId of result.changed) {
             const message = storage.getState().sessionMessages[sessionId].messagesMap[messageId];
@@ -2083,9 +2094,11 @@ class Sync {
             }
         }
         if (m.length > 0) {
+            console.log(`📝 [${applyId}] Calling voiceHooks.onMessages with ${m.length} messages`);
             voiceHooks.onMessages(sessionId, m);
         }
         if (result.hasReadyEvent) {
+            console.log(`📝 [${applyId}] Calling voiceHooks.onReady`);
             voiceHooks.onReady(sessionId);
         }
     }
