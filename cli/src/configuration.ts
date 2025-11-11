@@ -51,8 +51,8 @@ class Configuration {
     this.daemonStateFile = join(this.happyHomeDir, 'daemon.state.json')
     this.daemonLockFile = join(this.happyHomeDir, 'daemon.state.json.lock')
 
-    this.isExperimentalEnabled = ['true', '1', 'yes'].includes(process.env.HAPPY_EXPERIMENTAL?.toLowerCase() || '');
-    this.disableCaffeinate = ['true', '1', 'yes'].includes(process.env.HAPPY_DISABLE_CAFFEINATE?.toLowerCase() || '');
+    this.isExperimentalEnabled = ['true', '1', 'yes'].includes(process.env.ZENFLO_EXPERIMENTAL?.toLowerCase() || '');
+    this.disableCaffeinate = ['true', '1', 'yes'].includes(process.env.ZENFLO_DISABLE_CAFFEINATE?.toLowerCase() || '');
 
     this.currentCliVersion = packageJson.version
 

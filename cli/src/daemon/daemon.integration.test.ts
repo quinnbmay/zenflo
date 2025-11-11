@@ -10,8 +10,8 @@
  * and the daemon will not work properly!
  * 
  * The integration test environment uses .env.integration-test which sets:
- * - HAPPY_HOME_DIR=~/.happy-dev-test (DIFFERENT from dev's ~/.happy-dev!)
- * - HAPPY_SERVER_URL=http://localhost:3005 (local dev server)
+ * - ZENFLO_HOME_DIR=~/.happy-dev-test (DIFFERENT from dev's ~/.happy-dev!)
+ * - ZENFLO_SERVER_URL=http://localhost:3005 (local dev server)
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -62,7 +62,7 @@ async function isServerHealthy(): Promise<boolean> {
     const testCredentials = existsSync(join(configuration.happyHomeDir, 'access.key'));
     if (!testCredentials) {
       console.log('[TEST] No test credentials found in', configuration.happyHomeDir);
-      console.log('[TEST] Run "happy auth login" with HAPPY_HOME_DIR=~/.happy-dev-test first');
+      console.log('[TEST] Run "zenflo auth login" with ZENFLO_HOME_DIR=~/.happy-dev-test first');
       return false;
     }
     
@@ -447,7 +447,7 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
 
       // The daemon should automatically detect the version mismatch and restart itself
       // We check once per minute, wait for a little longer than that
-      await new Promise(resolve => setTimeout(resolve, parseInt(process.env.HAPPY_DAEMON_HEARTBEAT_INTERVAL || '30000') + 10_000));
+      await new Promise(resolve => setTimeout(resolve, parseInt(process.env.ZENFLO_DAEMON_HEARTBEAT_INTERVAL || '30000') + 10_000));
 
       // Check that the daemon is running with the new version
       const finalState = await readDaemonState();

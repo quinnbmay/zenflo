@@ -5,7 +5,7 @@
  * On invocation it forwards the tool call to an existing Happy HTTP MCP server
  * using the StreamableHTTPClientTransport.
  *
- * Configure the target HTTP MCP URL via env var `HAPPY_HTTP_MCP_URL` or
+ * Configure the target HTTP MCP URL via env var `ZENFLO_HTTP_MCP_URL` or
  * via CLI flag `--url <http://127.0.0.1:PORT>`.
  *
  * Note: This process must not print to stdout as it would break MCP STDIO.
@@ -32,12 +32,12 @@ function parseArgs(argv: string[]): { url: string | null } {
 async function main() {
   // Resolve target HTTP MCP URL
   const { url: urlFromArgs } = parseArgs(process.argv.slice(2));
-  const baseUrl = urlFromArgs || process.env.HAPPY_HTTP_MCP_URL || '';
+  const baseUrl = urlFromArgs || process.env.ZENFLO_HTTP_MCP_URL || '';
 
   if (!baseUrl) {
     // Write to stderr; never stdout.
     process.stderr.write(
-      '[happy-mcp] Missing target URL. Set HAPPY_HTTP_MCP_URL or pass --url <http://127.0.0.1:PORT>\n'
+      '[zenflo-mcp] Missing target URL. Set ZENFLO_HTTP_MCP_URL or pass --url <http://127.0.0.1:PORT>\n'
     );
     process.exit(2);
   }
