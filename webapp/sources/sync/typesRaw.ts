@@ -193,10 +193,6 @@ export type NormalizedMessage = ({
 export function normalizeRawMessage(id: string, localId: string | null, createdAt: number, raw: RawRecord): NormalizedMessage | null {
     let parsed = rawRecordSchema.safeParse(raw);
     if (!parsed.success) {
-        // Log validation errors only in development
-        if (import.meta.env.DEV) {
-            console.warn('Skipping message with validation errors:', parsed.error.issues[0]?.message);
-        }
         return null;
     }
     raw = parsed.data;
