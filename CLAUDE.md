@@ -109,16 +109,42 @@ cd webapp/
 yarn build                 # Outputs to dist-web/
 ```
 
-## Deployment
+## Specialized Subagents
 
-**IMPORTANT:** Use deployment subagents for all deployments. These are specialized assistants that handle deployment workflows strictly and safely.
+**CRITICAL:** Use specialized subagents for specific workflows. These agents enforce best practices and prevent mistakes.
 
-### Deployment Subagents
+### Available Subagents
 
-**Available subagents** (in `.claude/agents/`):
-- `deploy-webapp` - Deploy webapp to NAS with Cloudflare Tunnel
-- `deploy-mobile` - Deploy mobile OTA updates (preview or production)
-- `deploy-backend` - Deploy backend to NAS with Docker rebuild
+Located in `.claude/agents/`:
+
+#### **Feature Development**
+- **Agent:** `feature-dev`
+- **Use For:** ANY new feature addition to ZenFlo
+- **Purpose:** Safely add experimental features using feature flag system
+- **Mandatory:** NEVER add features manually - ALWAYS use this agent
+- **What it handles:**
+  - Settings schema updates
+  - UI toggles in Settings → Features
+  - Translations for all languages (en, es, pl, ru)
+  - Feature code implementation
+  - Safety checks and testing
+  - Documentation updates
+
+**How to invoke:**
+```
+Use the feature-dev agent to add [feature description]
+```
+
+#### **Deployment**
+- **Agent:** `deploy-webapp` - Deploy webapp to NAS with Cloudflare Tunnel
+- **Agent:** `deploy-mobile` - Deploy mobile OTA updates (preview or production)
+- **Agent:** `deploy-backend` - Deploy backend to NAS with Docker rebuild
+
+**How to invoke:**
+```
+Use deploy-webapp to deploy the webapp
+Use deploy-mobile to deploy to production
+```
 
 **How to use subagents:**
 ```
@@ -541,14 +567,15 @@ sudo docker logs zenflo-server --tail 100
 3. **NEVER work around SSH access** - make changes directly on servers when needed
 4. **Webapp and backend BOTH deploy on NAS** (NOT Railway)
 5. **Always use Zen Mode MCP** for task management, never TodoWrite
-6. **Always run typecheck** before committing
-7. **Use 4 spaces** for indentation
-8. **Platform-specific code** uses `.web.tsx` suffix
-9. **All user-facing strings** must use `t()` translation function
-10. **Backend is deployed on NAS** - monorepo copy is reference only
-11. Only launch production on xcode when local and eas when i ask if i am remote
-12. Always use claude-context and claude code mcp when working on any task and before editing anything to see where we can make sense of everything. Store to memory important findings with timestamp
-13. claude-code-mcp has memory, meaning use multiple in parallel it help keep context low and continue working on main tasks
-14. Use **`search_code`**: Semantic search using natural language
+6. **🚨 MANDATORY: Use feature-dev agent for ALL new features** - Never add features manually, always invoke the feature-dev agent
+7. **Always run typecheck** before committing
+8. **Use 4 spaces** for indentation
+9. **Platform-specific code** uses `.web.tsx` suffix
+10. **All user-facing strings** must use `t()` translation function
+11. **Backend is deployed on NAS** - monorepo copy is reference only
+12. Only launch production on xcode when local and eas when i ask if i am remote
+13. Always use claude-context and claude code mcp when working on any task and before editing anything to see where we can make sense of everything. Store to memory important findings with timestamp
+14. claude-code-mcp has memory, meaning use multiple in parallel it help keep context low and continue working on main tasks
+15. Use **`search_code`**: Semantic search using natural language
     - Hybrid search by default (BM25 + vector)
     - Returns file paths, line ranges, scores, and content for searching codebase. DO NOT WASTE CREDITS READING OR SEARCHING WITH NATIVE TOOLS
