@@ -1,0 +1,44 @@
+# Railway ignore file for webapp deployment
+# Root directory is /webapp, so paths are relative to webapp/
+
+# Source files (not needed, we use pre-built dist-railway)
+sources/
+plugins/
+patches/
+
+# Development files
+.vscode/
+.idea/
+.DS_Store
+*.log
+
+# Node modules (not needed for pre-built deployment)
+node_modules/
+.pnp
+.pnp.js
+
+# Build artifacts (except dist-railway)
+dist/
+build/
+.expo/
+
+# Test files
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Config files not needed for production
+.eslintrc*
+.prettierrc*
+vitest.config.ts
+
+# Documentation (except critical deployment docs)
+docs/
+*.md
+!README.md
+
+# Git files
+.git/
+.gitignore
