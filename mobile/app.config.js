@@ -30,6 +30,34 @@ export default {
             },
             associatedDomains: ["applinks:app.combinedmemory.com"]
         },
+        android: {
+            package: bundleId,
+            adaptiveIcon: {
+                foregroundImage: "./sources/assets/images/icon-adaptive.png",
+                backgroundColor: "#ffffff"
+            },
+            permissions: [
+                "CAMERA",
+                "RECORD_AUDIO",
+                "READ_CALENDAR",
+                "WRITE_CALENDAR",
+                "ACCESS_FINE_LOCATION",
+                "ACCESS_COARSE_LOCATION"
+            ],
+            intentFilters: [
+                {
+                    action: "VIEW",
+                    autoVerify: true,
+                    data: [
+                        {
+                            scheme: "https",
+                            host: "app.combinedmemory.com"
+                        }
+                    ],
+                    category: ["BROWSABLE", "DEFAULT"]
+                }
+            ]
+        },
         web: {
             bundler: "metro",
             output: "single",

@@ -1,6 +1,6 @@
 import { Ionicons, Octicons } from '@expo/vector-icons';
 import * as React from 'react';
-import { View, Platform, useWindowDimensions, ViewStyle, Text, ActivityIndicator, TouchableWithoutFeedback, Image as RNImage } from 'react-native';
+import { View, Platform, useWindowDimensions, ViewStyle, Text, ActivityIndicator, TouchableWithoutFeedback, Image as RNImage, Pressable as RNPressable } from 'react-native';
 import { Image } from 'expo-image';
 import { Pressable } from 'react-native-gesture-handler';
 import { layout } from './layout';
@@ -959,7 +959,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                     : styles.sendButtonInactive
                             ]}
                         >
-                            <Pressable
+                            <RNPressable
                                 style={(p) => ({
                                     width: '100%',
                                     height: '100%',
@@ -1013,7 +1013,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         ]}
                                     />
                                 )}
-                            </Pressable>
+                            </RNPressable>
                         </View>
                     </View>
                 </View>

@@ -10,6 +10,11 @@
         "distribution": "internal",
         "channel": "production"
       },
+      "android": {
+        "autoIncrement": true,
+        "buildType": "apk",
+        "channel": "production"
+      },
       "env": {
         "APP_ENV": "production"
       }
