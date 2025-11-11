@@ -48,6 +48,15 @@ export const RawJSONLinesSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("system"),
     uuid: z.string() // Used in getMessageKey()
+  }).passthrough(),
+
+  // Queue operation - internal Claude Code message for managing task queue
+  // These are not sent to backend, just need to be parseable
+  z.object({
+    type: z.literal("queue-operation"),
+    operation: z.enum(["enqueue", "dequeue"]),
+    timestamp: z.string(),
+    sessionId: z.string()
   }).passthrough()
 ]);
 

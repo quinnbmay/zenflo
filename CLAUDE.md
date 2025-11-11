@@ -462,3 +462,4 @@ sudo docker logs zenflo-server --tail 100
 - Use **`search_code`**: Semantic search using natural language
    - Hybrid search by default (BM25 + vector)
    - Returns file paths, line ranges, scores, and content for searching codebase. DO NOT WASTE CREDITS READING OR SEARCHING WITH NATIVE TOOLS
+- stop using railway for web app , only use nas

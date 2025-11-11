@@ -142,6 +142,8 @@ function messageKey(message: RawJSONLines): string {
         return 'summary: ' + message.leafUuid + ': ' + message.summary;
     } else if (message.type === 'system') {
         return message.uuid;
+    } else if (message.type === 'queue-operation') {
+        return 'queue-operation: ' + message.timestamp + ': ' + message.operation;
     } else {
         throw Error() // Impossible
     }

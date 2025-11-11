@@ -10,9 +10,10 @@ export async function claudeLocalLauncher(session: Session): Promise<'switch' | 
     const scanner = await createSessionScanner({
         sessionId: session.sessionId,
         workingDirectory: session.path,
-        onMessage: (message) => { 
+        onMessage: (message) => {
             // Block SDK summary messages - we generate our own
-            if (message.type !== 'summary') {
+            // Block queue-operation messages - internal Claude Code bookkeeping
+            if (message.type !== 'summary' && message.type !== 'queue-operation') {
                 session.client.sendClaudeSessionMessage(message)
             }
         }

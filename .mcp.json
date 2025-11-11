@@ -52,17 +52,6 @@
       "args": [
         "/Users/quinnmay/developer/mcp-servers/appium-mcp/dist/index.js"
       ]
-    },
-    "claude-context": {
-      "type": "stdio",
-      "command": "node",
-      "args": [
-        "/Users/quinnmay/developer/mcp-servers/claude-context-mcp/packages/mcp/dist/index.js"
-      ],
-      "env": {
-        "EMBEDDING_PROVIDER": "OpenAI",
-        "MILVUS_ADDRESS": "localhost:19530"
-      }
     }
   }
 }
