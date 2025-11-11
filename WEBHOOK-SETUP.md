@@ -66,15 +66,16 @@ This will make the webhook accessible at: `https://webhook.combinedmemory.com/gi
 
 ### GitHub Repository Webhook Setup
 
-1. **Go to:** https://github.com/quinnbmay/zenflo/settings/hooks
-2. **Click:** "Add webhook"
-3. **Configure:**
-   - **Payload URL:** `https://webhook.combinedmemory.com/github-webhook`
-   - **Content type:** `application/json`
-   - **Secret:** `zenflo-7b8b9ff97a77e0e1a66016b40c1ade51`
-   - **Which events:** Select "Just the push event"
-   - **Active:** ✅ Checked
-4. **Click:** "Add webhook"
+✅ **COMPLETED AUTOMATICALLY VIA GITHUB CLI**
+
+**Webhook Details:**
+- **ID:** 580316577
+- **URL:** https://github.com/quinnbmay/zenflo/settings/hooks/580316577
+- **Payload URL:** `https://webhook.combinedmemory.com/github-webhook`
+- **Content type:** `application/json`
+- **Secret:** `zenflo-7b8b9ff97a77e0e1a66016b40c1ade51`
+- **Events:** push to any branch (filtered to main in webhook server)
+- **Status:** ✅ Active
 
 ## Testing
 
@@ -217,13 +218,13 @@ git pull origin main
 sudo docker compose up -d --build zenflo-server
 ```
 
-## Next Steps
+## Current Status
 
 1. ✅ Webhook server configured and running
 2. ✅ Deployment script created and tested
-3. ✅ Nginx reverse proxy configured
-4. ⏳ **TODO:** Add DNS route in Cloudflare dashboard (webhook.combinedmemory.com)
-5. ⏳ **TODO:** Configure GitHub webhook in repository settings
-6. ⏳ **TODO:** Test end-to-end deployment
+3. ✅ Nginx reverse proxy configured (port 8877)
+4. ✅ **DONE:** GitHub webhook created automatically (ID: 580316577)
+5. ⏳ **TODO:** Add Cloudflare DNS route (webhook.combinedmemory.com → http://localhost:8877)
+6. ⏳ **TODO:** Test end-to-end deployment after Cloudflare DNS is configured
 
-Once steps 4-6 are complete, pushing to `main` will automatically deploy the backend!
+**Almost done!** Only Cloudflare DNS configuration remains (must be done via dashboard - token-based tunnel).
