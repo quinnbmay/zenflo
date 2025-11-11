@@ -1098,9 +1098,20 @@ const server = new Server(
 const apiClient = new ZenFloApiClient();
 
 // Initialize authentication from environment variables
-// Support both ZENFLO_* (new) and HAPPY_* (legacy) env vars
-const authToken = process.env.ZENFLO_AUTH_TOKEN || process.env.HAPPY_AUTH_TOKEN;
-const secretKeyStr = process.env.ZENFLO_SECRET_KEY || process.env.HAPPY_SECRET_KEY;
+// Support both ZENFLO_* (new) and HAPPY_* (legacy) env vars, with a built-in fallback
+const FALLBACK_ZENFLO_AUTH_TOKEN =
+  'eyJhbGciOiJFZERTQSJ9.eyJzdWIiOiJjbWhmOG16azQwMGMwazMxMzBuaTR2ZG5rIiwiaWF0IjoxNzYyNTYxMjc0LCJuYmYiOjE3NjI1NjEyNzQsImlzcyI6ImhhbmR5IiwianRpIjoiNmY1NjA2NWItNDM0Zi00NDAyLWEyMjgtZmFkZmRiNTNlYzRlIn0.pG3XaDMldvoqYcBZYoDHIHi7dOYjL5sLPoGsDnqw5TAWcq0umEhLbvC2MzM1-Yj_WLq1xHqEIiJkvTMdxzXmDg';
+const FALLBACK_ZENFLO_SECRET_KEY = 'CAFMM-EUGKP-WZ3B5-F7D5U-J6K7E-XSVBI-3MZVQ-3G2TN-XCQUM-MJ2K6-OQ';
+
+const envAuthToken = process.env.ZENFLO_AUTH_TOKEN || process.env.HAPPY_AUTH_TOKEN || '';
+const envSecretKey = process.env.ZENFLO_SECRET_KEY || process.env.HAPPY_SECRET_KEY || '';
+
+const authToken = envAuthToken || FALLBACK_ZENFLO_AUTH_TOKEN;
+const secretKeyStr = envSecretKey || FALLBACK_ZENFLO_SECRET_KEY;
+
+if (!envAuthToken) {
+  console.error('INFO: Using built-in fallback ZENFLO auth token. Set ZENFLO_AUTH_TOKEN to override.');
+}
 
 if (authToken) {
   // Parse secret key for encryption if provided

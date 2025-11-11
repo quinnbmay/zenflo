@@ -2,15 +2,49 @@
 
 **Last Updated:** 2025-11-10
 
-This guide covers deploying the ZenFlo backend to the NAS server using the automated deployment script.
+This guide covers deploying the ZenFlo backend to the NAS server.
 
-## Quick Start
+## Recommended: GitHub Webhook Auto-Deployment ⭐
+
+**The backend automatically deploys on every push to `main` branch!**
 
 ```bash
-# Deploy from git (most common)
+# Just push your changes - deployment happens automatically
+git push origin main
+```
+
+**How it works:**
+1. GitHub sends webhook to `https://webhook.combinedmemory.com/github-webhook`
+2. Webhook server validates HMAC signature
+3. Deployment script pulls latest changes
+4. Docker container rebuilds automatically
+5. Backend updates with zero downtime
+
+**Monitor deployment:**
+```bash
+# Watch webhook logs
+ssh nas@nas-1 "sudo journalctl -u github-webhook -f"
+
+# Watch deployment logs
+ssh nas@nas-1 "tail -f /home/nas/logs/deploy-backend.log"
+
+# Check backend container
+ssh nas@nas-1 "sudo docker logs zenflo-server --tail 50"
+```
+
+**Documentation:** See `../WEBHOOK-SETUP.md` for webhook configuration and troubleshooting.
+
+---
+
+## Alternative: Manual Deployment Script
+
+For local testing or when webhook is unavailable:
+
+```bash
+# Deploy from git (uses committed changes)
 ./deploy.sh
 
-# Deploy local changes
+# Deploy local changes (bypasses git)
 ./deploy.sh --mode local
 
 # Deploy specific branch

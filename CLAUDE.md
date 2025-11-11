@@ -180,10 +180,32 @@ cd webapp/
 ### Backend
 **Location:** Backend source is reference only
 **Deployed On:** NAS at nas-1
-**URL:** https://zenflo.combinedmemory.com
+**URL:** https://happy.combinedmemory.com
 **Subagent:** `deploy-backend`
 
-**Automated deployment:**
+**GitHub Webhook Auto-Deployment (Recommended):**
+```bash
+# Just push to main - deployment happens automatically!
+git push origin main
+```
+
+The GitHub webhook will:
+1. Receive notification from GitHub
+2. Pull latest changes
+3. Install dependencies (if needed)
+4. Rebuild Docker container
+5. Verify deployment
+
+**Monitor deployment:**
+```bash
+# Watch webhook logs
+ssh nas@nas-1 "sudo journalctl -u github-webhook -f"
+
+# Watch deployment logs
+ssh nas@nas-1 "tail -f /home/nas/logs/deploy-backend.log"
+```
+
+**Manual deployment script (fallback):**
 ```bash
 cd backend/
 ./deploy.sh                     # Production (git mode)
@@ -192,19 +214,12 @@ cd backend/
 ./deploy.sh --branch develop    # Deploy specific branch
 ```
 
-**Manual deployment:**
+**SSH deployment (for debugging):**
 ```bash
-# SSH to NAS (you have FULL permission)
 ssh nas@nas-1
-
-# Navigate to deployment location
-cd 'developer/infrastructure/ZenFlo Server/zenflo-server'
-
-# Make changes, install packages, rebuild
-npm install <package>
+cd 'developer/infrastructure/Zenflo Server/zenflo/backend'
+git pull origin main
 sudo docker compose up -d --build zenflo-server
-
-# Check logs
 sudo docker logs zenflo-server --tail 50
 ```
 
@@ -212,8 +227,9 @@ sudo docker logs zenflo-server --tail 50
 - Container: `zenflo-server`
 - Port: 3000:3005
 - Services: PostgreSQL, Redis, MinIO
+- Webhook: `https://webhook.combinedmemory.com/github-webhook`
 
-**Documentation:** `backend/DEPLOYMENT.md`, `backend/DEPLOY_QUICKREF.md`
+**Documentation:** `backend/DEPLOYMENT.md`, `WEBHOOK-SETUP.md`
 
 ### Deployment Best Practices
 

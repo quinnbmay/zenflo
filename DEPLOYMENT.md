@@ -2,7 +2,69 @@
 
 **Last Updated:** 2025-11-10 PST
 
-This document describes the deployment workflows for ZenFlo's web and mobile applications.
+This document describes the deployment workflows for ZenFlo's web, mobile, and backend applications.
+
+---
+
+## Backend (happy.combinedmemory.com)
+
+### Infrastructure
+
+- **Hosting:** NAS via Docker container (`zenflo-server`)
+- **Runtime:** Node.js/TypeScript with Fastify
+- **Database:** PostgreSQL (Prisma ORM)
+- **Cache:** Redis
+- **Domain:** https://happy.combinedmemory.com
+
+### Automated Deployment (GitHub Webhook) ⭐ NEW
+
+**The backend now auto-deploys on every push to `main` branch!**
+
+Simply push your changes:
+```bash
+git push origin main
+```
+
+The GitHub webhook will automatically:
+1. Receive notification from GitHub
+2. Pull latest changes from git
+3. Install dependencies (if package.json changed)
+4. Rebuild Docker container
+5. Verify deployment
+
+**Monitoring:**
+```bash
+# Watch webhook logs
+ssh nas@nas-1 "sudo journalctl -u github-webhook -f"
+
+# Watch deployment logs
+ssh nas@nas-1 "tail -f /home/nas/logs/deploy-backend.log"
+
+# Check backend container
+ssh nas@nas-1 "sudo docker logs zenflo-server --tail 50"
+```
+
+**Documentation:** See `WEBHOOK-SETUP.md` for detailed webhook configuration and troubleshooting.
+
+### Manual Deployment (Fallback)
+
+If webhook is unavailable or you prefer manual deployment:
+
+```bash
+cd /Users/quinnmay/developer/zenflo/backend
+./deploy.sh
+```
+
+Or SSH directly to NAS:
+
+```bash
+ssh nas@nas-1
+cd 'developer/infrastructure/Zenflo Server/zenflo/backend'
+git pull origin main
+sudo docker compose up -d --build zenflo-server
+```
+
+**Documentation:** See `backend/DEPLOYMENT.md` for complete manual deployment guide.
 
 ---
 
