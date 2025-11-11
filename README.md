@@ -60,18 +60,38 @@ ZenFlo uses **Yarn Workspaces** for unified dependency management:
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Using the CLI (Recommended)
 
+The easiest way to use ZenFlo is via the npm package:
+
+```bash
+# Install globally
+npm install -g zenflo
+
+# Or run with npx (no installation)
+npx zenflo
+```
+
+**CLI Repository:** https://github.com/combinedmemory/zenflo
+**Current Version:** 0.11.6 (updated 2025-11-10)
+
+For publishing updates to the npm package, see [NPM_PUBLISHING.md](./NPM_PUBLISHING.md).
+
+---
+
+### Development Setup
+
+**Prerequisites:**
 - **Node.js** 20+ (LTS)
 - **Yarn** 1.22+
 - **Docker** (for backend development)
 - **Expo CLI** (for mobile development)
 - **PostgreSQL** 15+ (or use Docker)
 
-### Installation
+**Installation:**
 
 ```bash
-# Clone the repository
+# Clone this repository (mobile/web app)
 git clone https://github.com/quinnbmay/zenflo.git
 cd zenflo
 
@@ -210,6 +230,7 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 - [Web App Guide](./webapp/README.md)
 - [Backend API](./backend/README.md)
 - [Deployment Guide](./DEPLOYMENT.md)
+- [NPM Publishing Guide](./NPM_PUBLISHING.md) - How to update the `zenflo` npm package
 - [Architecture Overview](./docs/ARCHITECTURE.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 
