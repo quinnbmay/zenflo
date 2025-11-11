@@ -1,15 +1,7 @@
-import { Platform } from 'react-native';
+// This file is intentionally minimal - platform-specific implementations
+// are in libsodium.lib.web.ts (for web) and uses @more-tech/react-native-libsodium (for native)
+// Metro will automatically select .web.ts file for web builds due to platform resolution
 
-let sodium: any;
-
-if (Platform.OS === 'web') {
-    // Web platform - use libsodium-wrappers
-    sodium = require('libsodium-wrappers');
-    console.log('[libsodium.lib] Loading libsodium-wrappers for web');
-} else {
-    // Native platform - use react-native-libsodium
-    sodium = require('@more-tech/react-native-libsodium').default;
-    console.log('[libsodium.lib] Loading react-native-libsodium for native');
-}
+import sodium from '@more-tech/react-native-libsodium';
 
 export default sodium;

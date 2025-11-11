@@ -127,16 +127,34 @@ This sets the server URL to `http://localhost:3005` for development.
 
 ## 📦 Building & Deployment
 
-### Over-The-Air (OTA) Updates
+### Over-The-Air (OTA) Updates ⚡ NEW
+
+**Automated deployment script for fast, safe OTA updates!**
 
 For JavaScript/asset changes only (no native code):
 
 ```bash
-# Deploy to preview
-yarn ota
+# Deploy to preview (automated)
+./deploy-ota.sh preview
 
-# Deploy to production
-yarn ota:production
+# Deploy to production (automated)
+./deploy-ota.sh production "Fix description"
+```
+
+**Script Features:**
+- ✅ TypeScript validation
+- ✅ Git status checks
+- ✅ Native code detection
+- ✅ Changelog parsing
+- ✅ Confirmation prompts
+- ✅ Color-coded output
+
+See [OTA-QUICKSTART.md](./OTA-QUICKSTART.md) for quick reference or [DEPLOYMENT.md](./DEPLOYMENT.md) for full guide.
+
+**Manual deployment** (if needed):
+```bash
+yarn ota                    # Preview
+yarn ota:production        # Production
 ```
 
 OTA updates propagate to users within 5-10 minutes on next app open.
@@ -289,7 +307,8 @@ yarn typecheck && yarn test
 ## 📚 Documentation
 
 - [Development Guide](./CLAUDE.md) - Complete development documentation
-- [Deployment Guide](../DEPLOYMENT.md) - Deployment workflows
+- [Deployment Guide](./DEPLOYMENT.md) - Full deployment workflows (NEW!)
+- [OTA Quick Start](./OTA-QUICKSTART.md) - Fast OTA deployment reference (NEW!)
 - [Architecture](../docs/ARCHITECTURE.md) - Technical architecture
 - [Changelog](./CHANGELOG.md) - Version history
 

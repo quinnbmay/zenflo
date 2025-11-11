@@ -214,3 +214,253 @@ git push origin main
 ---
 
 **Remember:** Feature branches for development, `main` for production only!
+
+---
+
+# ZenFlo Mobile Deployment Guide (NEW)
+
+**Added:** 2025-11-10
+**Deployment Engineer:** Automated OTA deployment script
+
+---
+
+## 📱 Mobile Deployment Overview
+
+ZenFlo mobile uses a two-tier deployment system:
+
+1. **OTA Updates** - Fast JavaScript/TypeScript/asset updates (5-10 minutes)
+2. **Native Builds** - Full app builds with native code changes (via EAS Build)
+
+---
+
+## 🚀 OTA Updates (Recommended for Most Changes)
+
+### When to Use OTA
+
+Use OTA updates for:
+- Code changes in `sources/` directory
+- UI/UX updates
+- Bug fixes
+- Feature updates (that don't require native code)
+- Asset changes (images, fonts, etc.)
+
+### Quick Start - Automated Script
+
+```bash
+# Deploy to preview channel
+./deploy-ota.sh preview
+
+# Deploy to production channel
+./deploy-ota.sh production "Fix voice session crash"
+```
+
+### Automated Script Features
+
+The `deploy-ota.sh` script provides:
+
+- ✅ **TypeScript type checking** - Fails if errors exist
+- ✅ **Git status validation** - Must be clean before deploy
+- ✅ **Native code detection** - Warns if native changes detected
+- ✅ **Changelog parsing** - Automatically updates changelog.json
+- ✅ **Color-coded output** - Easy to read status messages
+- ✅ **Confirmation prompts** - Prevents accidental deployments
+- ✅ **Detailed summary** - Shows next steps after deployment
+
+**Exit Codes:**
+- `0` - Success
+- `1` - Invalid arguments or environment
+- `2` - TypeScript errors
+- `3` - Git repository not clean
+- `4` - Native code changes detected (warning only)
+- `5` - Deployment failed
+
+### Manual OTA Deployment
+
+If you need to deploy manually:
+
+**Preview:**
+```bash
+cd mobile/
+yarn ota
+```
+
+**Production:**
+```bash
+cd mobile/
+yarn ota:production
+```
+
+---
+
+## 🏗️ Native Builds (For Native Code Changes)
+
+### When to Use Native Builds
+
+Use native builds when you change:
+- Native dependencies (`package.json` with native modules)
+- Native configuration (`app.json`, `app.config.js`)
+- Build configuration (`eas.json`)
+- iOS project (`ios/` directory)
+- Android project (`android/` directory)
+- Permissions or capabilities
+
+### Triggering Native Builds
+
+**Automatic (Recommended):**
+1. Merge changes to `main` branch
+2. GitHub workflows automatically trigger EAS builds
+3. Monitor progress at https://expo.dev
+
+**Manual:**
+```bash
+cd mobile/
+
+# iOS only
+eas build --platform ios --profile production
+
+# Android only
+eas build --platform android --profile production
+
+# Both platforms
+eas build --platform all --profile production
+```
+
+---
+
+## 📋 Deployment Checklist
+
+### Before Deploying
+
+- [ ] All changes committed to git
+- [ ] `yarn typecheck` passes without errors
+- [ ] Tested locally with `yarn ios` or `yarn android`
+- [ ] Updated `CHANGELOG.md` with version notes
+- [ ] Determined if OTA or native build is needed
+
+### OTA Deployment Steps
+
+1. **Ensure repository is clean**
+   ```bash
+   git status  # Should show "working tree clean"
+   ```
+
+2. **Run the deployment script**
+   ```bash
+   ./deploy-ota.sh production "Your deployment message"
+   ```
+
+3. **Monitor deployment**
+   - Check https://expo.dev for deployment status
+   - Verify update appears in EAS dashboard
+
+4. **Verify update reaches users**
+   - Wait 5-10 minutes for propagation
+   - Test on physical device (force close and reopen app)
+
+---
+
+## 🐛 Troubleshooting
+
+### Script Reports Uncommitted Changes
+
+**Error:**
+```
+✗ Git repository has uncommitted changes
+```
+
+**Solution:**
+```bash
+# Commit your changes
+git add .
+git commit -m "Your commit message"
+
+# Or stash them
+git stash
+```
+
+### TypeScript Errors
+
+**Error:**
+```
+✗ TypeScript type check failed
+```
+
+**Solution:**
+```bash
+# View errors in detail
+yarn typecheck
+
+# Fix errors and try again
+```
+
+### Native Code Changes Detected
+
+**Warning:**
+```
+⚠ Native code changes detected
+```
+
+**Solution:**
+- If you intended to change native code, create a native build instead
+- If not, proceed with OTA (script will prompt for confirmation)
+
+### Deployment Fails
+
+**Error:**
+```
+✗ Production OTA deployment failed
+```
+
+**Common causes:**
+1. **Not logged into EAS CLI**
+   ```bash
+   eas login
+   ```
+
+2. **Network issues** - Retry deployment
+
+3. **Build errors** - Check logs at https://expo.dev
+
+---
+
+## 🎯 Best Practices
+
+1. **Always run typecheck** before deploying
+   ```bash
+   yarn typecheck
+   ```
+
+2. **Test locally first**
+   ```bash
+   yarn ios     # Test on iOS
+   yarn android # Test on Android
+   ```
+
+3. **Deploy preview first** before production
+   ```bash
+   ./deploy-ota.sh preview
+   # Test thoroughly
+   ./deploy-ota.sh production "Your message"
+   ```
+
+4. **Use descriptive deployment messages**
+   - ❌ Bad: "fix"
+   - ✅ Good: "Fix voice session crash on iOS"
+
+5. **Update changelog** before deploying
+   - Update `CHANGELOG.md` with version notes
+   - Script automatically parses it
+
+6. **Commit before deploying**
+   - Never deploy with uncommitted changes
+   - Ensures reproducibility
+
+---
+
+## 🔗 Quick Links
+
+- **EAS Dashboard:** https://expo.dev
+- **Project README:** `mobile/README.md`
+- **Project Guide:** `mobile/CLAUDE.md`
+- **Monorepo Guide:** `../MONOREPO.md`
+- **EAS Update Docs:** https://docs.expo.dev/eas-update/introduction/

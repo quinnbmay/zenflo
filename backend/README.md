@@ -75,6 +75,7 @@ backend/
 │   └── schema.prisma         # Database schema
 ├── Dockerfile                # Docker configuration
 ├── docker-compose.yml        # Docker Compose setup
+├── deploy.sh                 # Automated deployment script
 └── package.json              # Dependencies
 ```
 
@@ -120,6 +121,92 @@ yarn db
 yarn dev
 
 # Server runs on http://localhost:3005
+```
+
+---
+
+## 🚀 Deployment
+
+### Automated Deployment to NAS
+
+The backend is deployed to a NAS server at `nas-1`. Use the automated deployment script:
+
+```bash
+# Deploy from git (production)
+./deploy.sh
+
+# Deploy local changes (development)
+./deploy.sh --mode local
+
+# Deploy specific branch
+./deploy.sh --branch develop
+
+# Quick deploy without npm install
+./deploy.sh --mode local --skip-install
+```
+
+**Deployment Script Features:**
+- ✅ Automatic SSH connection to NAS
+- ✅ Git pull or local file sync
+- ✅ Smart npm install (only when package.json changes)
+- ✅ Docker container rebuild
+- ✅ Deployment verification
+- ✅ Live log output
+- ✅ Error handling and rollback support
+
+**Deployment Modes:**
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `git` (default) | Pull latest from git on NAS | Production deployments |
+| `local` | Sync local files to NAS | Testing uncommitted changes |
+
+**Common Deployment Commands:**
+
+```bash
+# Production deployment
+./deploy.sh
+
+# Fast local iteration (skip install + rebuild)
+./deploy.sh -m local -s -n
+
+# Deploy with extra logging
+./deploy.sh --logs 200
+
+# Show help
+./deploy.sh --help
+```
+
+**Backend Infrastructure:**
+- **Server:** NAS at `nas-1` (nas@nas-1)
+- **Location:** `developer/infrastructure/ZenFlo Server/zenflo-server`
+- **Container:** `zenflo-server`
+- **URL:** https://happy.combinedmemory.com
+
+For detailed deployment documentation, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+### Manual Deployment
+
+If you need to deploy manually:
+
+```bash
+# SSH to NAS
+ssh nas@nas-1
+
+# Navigate to backend
+cd 'developer/infrastructure/ZenFlo Server/zenflo-server'
+
+# Pull latest changes
+git pull origin main
+
+# Install dependencies (if needed)
+npm install
+
+# Rebuild container
+sudo docker compose up -d --build zenflo-server
+
+# Check logs
+sudo docker logs zenflo-server --tail 50
 ```
 
 ---
@@ -373,7 +460,7 @@ curl http://localhost:9090/metrics
 
 - [API Documentation](#-api-endpoints)
 - [Architecture](../docs/ARCHITECTURE.md)
-- [Deployment Guide](../DEPLOYMENT.md)
+- [Deployment Guide](./DEPLOYMENT.md)
 - [Security Model](#-security--privacy)
 - [Development Guide](./CLAUDE.md)
 
@@ -422,4 +509,3 @@ MIT License - See [LICENSE](../LICENSE) for details.
 [Website](https://zenflo.app) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.app)
 
 </div>
-Test timestamp: Mon Nov 10 19:39:26 EST 2025

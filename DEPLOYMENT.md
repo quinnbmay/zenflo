@@ -15,7 +15,39 @@ This document describes the deployment workflows for ZenFlo's web and mobile app
 - **CDN/Proxy:** Cloudflare Tunnel on port 8080
 - **Domain:** https://app.combinedmemory.com
 
-### Deployment Process
+### Automated Deployment (Recommended)
+
+**NEW:** Use the automated deployment script for one-command deployments:
+
+```bash
+cd /Users/quinnmay/developer/zenflo/webapp
+./deploy.sh
+```
+
+This script automatically handles:
+- Local build with expo export
+- Packaging and transfer to NAS
+- Container deployment
+- Permission fixes
+- Cloudflare cache purge
+- Full validation and error handling
+
+**Options:**
+```bash
+./deploy.sh                # Full deployment
+./deploy.sh --skip-build   # Use existing dist-railway/
+./deploy.sh --skip-cache   # Skip Cloudflare cache purge
+./deploy.sh --help         # Show usage information
+```
+
+**Documentation:**
+- **Full Guide:** `webapp/DEPLOY.md` - Comprehensive documentation
+- **Quick Reference:** `webapp/DEPLOY-QUICKREF.md` - One-page reference
+- **Summary:** `webapp/DEPLOYMENT-SUMMARY.md` - Overview and metrics
+
+### Manual Deployment Process
+
+If you need to deploy manually (or understand what the script does):
 
 #### 1. Build Locally
 
@@ -77,6 +109,7 @@ Visit https://app.combinedmemory.com and check console for errors.
 - ✅ **Always fix permissions** after `docker cp` (nginx needs 755 and nginx:nginx ownership)
 - ✅ **Always purge Cloudflare cache** after deployment
 - ✅ **Commit dist-railway/** folder to git for deployment tracking
+- ✅ **Use automated script** - Reduces errors and saves time
 - ❌ **NEVER use `import.meta.env.DEV`** in webapp source (causes module errors, use `__DEV__` instead)
 - ❌ **NEVER rebuild container from Dockerfile** (source on NAS is outdated)
 
@@ -235,6 +268,12 @@ Both webapp and mobile share these directories:
 3. Wrong file permissions in container → Run chmod/chown commands
 4. Old bundle hash being served → Check bundle hash in HTML vs container
 
+**Quick Fix:**
+```bash
+cd /Users/quinnmay/developer/zenflo/webapp
+./deploy.sh
+```
+
 ### Mobile App Not Updating
 
 **Symptom:** OTA update not applying
@@ -256,17 +295,29 @@ Both webapp and mobile share these directories:
 - Check EAS Build logs for native build issues
 - Verify app.config.js has correct bundle ID
 
+### Deployment Script Issues
+
+If the automated deployment script fails, see:
+- `webapp/DEPLOY.md` for detailed troubleshooting
+- Script exit codes (0-5) indicate specific failure types
+- Use `./deploy.sh --help` for usage information
+
 ---
 
 ## Quick Reference
 
-### Webapp Deployment
+### Webapp Deployment (Automated)
+```bash
+cd /Users/quinnmay/developer/zenflo/webapp && ./deploy.sh
+```
+
+### Webapp Deployment (Manual)
 ```bash
 cd webapp && npx expo export --platform web && mv dist dist-railway
 tar -czf /tmp/webapp-deploy.tar.gz dist-railway/
 scp /tmp/webapp-deploy.tar.gz nas@nas-1:/tmp/
 ssh nas@nas-1 "cd 'developer/infrastructure/Zenflo Server/zenflo/webapp' && rm -rf dist-railway && tar -xzf /tmp/webapp-deploy.tar.gz && sudo docker cp dist-railway/. zenflo-webapp:/usr/share/nginx/html/ && sudo docker exec zenflo-webapp chmod -R 755 /usr/share/nginx/html && sudo docker exec zenflo-webapp chown -R nginx:nginx /usr/share/nginx/html"
-# Then purge Cloudflare cache
+# Then purge Cloudflare cache (see script or manual process above)
 ```
 
 ### Mobile OTA
