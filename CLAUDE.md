@@ -111,29 +111,88 @@ yarn build                 # Outputs to dist-railway/
 
 ## Deployment
 
+**IMPORTANT:** Use deployment subagents for all deployments. These are specialized assistants that handle deployment workflows strictly and safely.
+
+### Deployment Subagents
+
+**Available subagents** (in `.claude/agents/`):
+- `deploy-webapp` - Deploy webapp to NAS with Cloudflare Tunnel
+- `deploy-mobile` - Deploy mobile OTA updates (preview or production)
+- `deploy-backend` - Deploy backend to NAS with Docker rebuild
+
+**How to use subagents:**
+```
+Ask Claude Code to invoke a subagent:
+"Use deploy-webapp to deploy the webapp"
+"Use deploy-mobile to deploy to production"
+"Use deploy-backend in local mode to test my changes"
+```
+
+Subagents will:
+- ✅ Execute deployment scripts strictly
+- ✅ Validate prerequisites
+- ✅ Report detailed results
+- ✅ Provide troubleshooting guidance
+- ❌ Never modify source code
+- ❌ Never skip validation steps
+
 ### Mobile App (iOS/Android)
 **Location:** `mobile/`
 **Platform:** EAS Build + OTA Updates
+**Subagent:** `deploy-mobile`
 
+**Automated deployment:**
+```bash
+cd mobile/
+./deploy-ota.sh production   # Deploy OTA to production
+./deploy-ota.sh preview      # Deploy OTA to preview
+```
+
+**Manual commands:**
 - **OTA Updates:** `yarn ota:production` (JS/TS/assets only, ~5-10 min propagation)
 - **Native Builds:** Merge to `main` → GitHub workflows trigger EAS builds
 - **Manual Builds:** `eas build --platform ios --profile production`
 - **Submission:** `eas submit --platform ios`
 
+**Documentation:** `mobile/OTA-QUICKSTART.md`, `mobile/DEPLOYMENT.md`
+
 ### Webapp
 **Location:** `webapp/`
-**Platform:** Railway
+**Platform:** NAS with Cloudflare Tunnel
 **URL:** https://app.combinedmemory.com
+**Subagent:** `deploy-webapp`
 
-- **Deployment:** Push to `main` → Railway auto-deploys (2-3 min)
-- **Build:** Uses pre-committed `dist-railway/` folder
-- **Critical:** NEVER rebuild on Railway, always build locally and commit
+**Automated deployment:**
+```bash
+cd webapp/
+./deploy.sh                  # Full deployment
+./deploy.sh --skip-build     # Redeploy existing build
+./deploy.sh --skip-cache     # Deploy without cache purge
+```
+
+**Infrastructure:**
+- Container: `zenflo-webapp` (nginx:alpine)
+- Port: 8080:80
+- Served via Cloudflare Tunnel
+
+**Documentation:** `webapp/DEPLOY.md`, `webapp/DEPLOY-QUICKREF.md`
 
 ### Backend
 **Location:** Backend source is reference only
 **Deployed On:** NAS at nas-1
-**URL:** https://happy.combinedmemory.com
+**URL:** https://zenflo.combinedmemory.com
+**Subagent:** `deploy-backend`
 
+**Automated deployment:**
+```bash
+cd backend/
+./deploy.sh                     # Production (git mode)
+./deploy.sh --mode local        # Development (local changes)
+./deploy.sh --skip-install      # Skip npm install
+./deploy.sh --branch develop    # Deploy specific branch
+```
+
+**Manual deployment:**
 ```bash
 # SSH to NAS (you have FULL permission)
 ssh nas@nas-1
@@ -148,6 +207,21 @@ sudo docker compose up -d --build zenflo-server
 # Check logs
 sudo docker logs zenflo-server --tail 50
 ```
+
+**Infrastructure:**
+- Container: `zenflo-server`
+- Port: 3000:3005
+- Services: PostgreSQL, Redis, MinIO
+
+**Documentation:** `backend/DEPLOYMENT.md`, `backend/DEPLOY_QUICKREF.md`
+
+### Deployment Best Practices
+
+1. **Always use subagents** for deployments - they enforce best practices
+2. **Always run typecheck** before deploying (scripts do this automatically)
+3. **Test in development** before deploying to production
+4. **Check documentation** if deployment fails (`**/DEPLOY*.md` files)
+5. **Never skip validation** steps in deployment scripts
 
 ## Architecture Highlights
 
