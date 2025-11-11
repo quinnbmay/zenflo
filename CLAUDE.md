@@ -506,10 +506,11 @@ cd mobile/android
 ./gradlew clean
 ```
 
-### Railway Deployment Not Working
-- Verify `dist-web/` folder is committed
-- Check Railway logs for errors
-- Ensure build ran locally before pushing
+### Webapp Deployment Issues
+- Verify build ran successfully: `cd webapp && yarn build`
+- Check deployment logs: `ssh nas@nas-1 "sudo docker logs zenflo-webapp --tail 100"`
+- Verify Cloudflare Tunnel is running: `ssh nas@nas-1 "sudo docker ps | grep cloudflared"`
+- Test locally before deploying: Check `webapp/DEPLOY.md` for troubleshooting
 
 ### Backend Changes Not Reflecting
 ```bash
@@ -538,18 +539,16 @@ sudo docker logs zenflo-server --tail 100
 1. **It's 2025, not 2024**
 2. **You have FULL permission to SSH into servers** - ALWAYS do this when modifying backend code
 3. **NEVER work around SSH access** - make changes directly on servers when needed
-4. **Websites NEVER deploy on Railway** (only the webapp does)
+4. **Webapp and backend BOTH deploy on NAS** (NOT Railway)
 5. **Always use Zen Mode MCP** for task management, never TodoWrite
 6. **Always run typecheck** before committing
 7. **Use 4 spaces** for indentation
 8. **Platform-specific code** uses `.web.tsx` suffix
 9. **All user-facing strings** must use `t()` translation function
 10. **Backend is deployed on NAS** - monorepo copy is reference only
-- only launch production on xcode when local and eas when i ask if i am remote
-- always use claude-context and claude code mcp when working on any task and before editing anything to see where we can make sense of everything. Store to memory important findings with timestamp
-- claude-code-mcp has memory, meaning use multiple in pararell it help keep context low and continue working on main
- tasks
-- Use **`search_code`**: Semantic search using natural language
-   - Hybrid search by default (BM25 + vector)
-   - Returns file paths, line ranges, scores, and content for searching codebase. DO NOT WASTE CREDITS READING OR SEARCHING WITH NATIVE TOOLS
-- stop using railway for web app , only use nas
+11. Only launch production on xcode when local and eas when i ask if i am remote
+12. Always use claude-context and claude code mcp when working on any task and before editing anything to see where we can make sense of everything. Store to memory important findings with timestamp
+13. claude-code-mcp has memory, meaning use multiple in parallel it help keep context low and continue working on main tasks
+14. Use **`search_code`**: Semantic search using natural language
+    - Hybrid search by default (BM25 + vector)
+    - Returns file paths, line ranges, scores, and content for searching codebase. DO NOT WASTE CREDITS READING OR SEARCHING WITH NATIVE TOOLS
