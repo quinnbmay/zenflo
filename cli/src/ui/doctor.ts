@@ -31,7 +31,7 @@ export function getEnvironmentInfo(): Record<string, any> {
         DEBUG: process.env.DEBUG,
         workingDirectory: process.cwd(),
         processArgv: process.argv,
-        happyDir: configuration?.happyHomeDir,
+        happyDir: configuration?.zenfloHomeDir,
         serverUrl: configuration?.serverUrl,
         logsDir: configuration?.logsDir,
         processPid: process.pid,
@@ -103,7 +103,7 @@ export async function runDoctorCommand(filter?: 'all' | 'daemon'): Promise<void>
 
         // Configuration
         console.log(chalk.bold('⚙️  Configuration'));
-        console.log(`Happy Home: ${chalk.blue(configuration.happyHomeDir)}`);
+        console.log(`Happy Home: ${chalk.blue(configuration.zenfloHomeDir)}`);
         console.log(`Server URL: ${chalk.blue(configuration.serverUrl)}`);
         console.log(`Logs Dir: ${chalk.blue(configuration.logsDir)}`);
 

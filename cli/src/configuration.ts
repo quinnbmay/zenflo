@@ -16,7 +16,7 @@ class Configuration {
   public readonly isDaemonProcess: boolean
 
   // Directories and paths (from persistence)
-  public readonly happyHomeDir: string
+  public readonly zenfloHomeDir: string
   public readonly logsDir: string
   public readonly settingsFile: string
   public readonly privateKeyFile: string
@@ -40,24 +40,24 @@ class Configuration {
     if (process.env.ZENFLO_HOME_DIR) {
       // Expand ~ to home directory if present
       const expandedPath = process.env.ZENFLO_HOME_DIR.replace(/^~/, homedir())
-      this.happyHomeDir = expandedPath
+      this.zenfloHomeDir = expandedPath
     } else {
-      this.happyHomeDir = join(homedir(), '.happy')
+      this.zenfloHomeDir = join(homedir(), '.zenflo')
     }
 
-    this.logsDir = join(this.happyHomeDir, 'logs')
-    this.settingsFile = join(this.happyHomeDir, 'settings.json')
-    this.privateKeyFile = join(this.happyHomeDir, 'access.key')
-    this.daemonStateFile = join(this.happyHomeDir, 'daemon.state.json')
-    this.daemonLockFile = join(this.happyHomeDir, 'daemon.state.json.lock')
+    this.logsDir = join(this.zenfloHomeDir, 'logs')
+    this.settingsFile = join(this.zenfloHomeDir, 'settings.json')
+    this.privateKeyFile = join(this.zenfloHomeDir, 'access.key')
+    this.daemonStateFile = join(this.zenfloHomeDir, 'daemon.state.json')
+    this.daemonLockFile = join(this.zenfloHomeDir, 'daemon.state.json.lock')
 
     this.isExperimentalEnabled = ['true', '1', 'yes'].includes(process.env.ZENFLO_EXPERIMENTAL?.toLowerCase() || '');
     this.disableCaffeinate = ['true', '1', 'yes'].includes(process.env.ZENFLO_DISABLE_CAFFEINATE?.toLowerCase() || '');
 
     this.currentCliVersion = packageJson.version
 
-    if (!existsSync(this.happyHomeDir)) {
-      mkdirSync(this.happyHomeDir, { recursive: true })
+    if (!existsSync(this.zenfloHomeDir)) {
+      mkdirSync(this.zenfloHomeDir, { recursive: true })
     }
     // Ensure directories exist
     if (!existsSync(this.logsDir)) {

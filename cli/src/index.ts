@@ -264,7 +264,7 @@ ${chalk.bold('To clean up runaway processes:')} Use ${chalk.cyan('happy doctor c
         showVersion = true
         // Also pass through to claude (will show after our version)
         unknownArgs.push(arg)
-      } else if (arg === '--happy-starting-mode') {
+      } else if (arg === '--zenflo-starting-mode') {
         options.startingMode = z.enum(['local', 'remote']).parse(args[++i])
       } else if (arg === '--yolo') {
         // Shortcut for --dangerously-skip-permissions

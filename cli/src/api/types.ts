@@ -172,10 +172,10 @@ export type Session = {
 export const MachineMetadataSchema = z.object({
   host: z.string(),
   platform: z.string(),
-  happyCliVersion: z.string(),
+  zenfloCliVersion: z.string(),
   homeDir: z.string(),
-  happyHomeDir: z.string(),
-  happyLibDir: z.string()
+  zenfloHomeDir: z.string(),
+  zenfloLibDir: z.string()
 })
 
 export type MachineMetadata = z.infer<typeof MachineMetadataSchema>
@@ -301,9 +301,9 @@ export type Metadata = {
   tools?: string[],
   slashCommands?: string[],
   homeDir: string,
-  happyHomeDir: string,
-  happyLibDir: string,
-  happyToolsDir: string,
+  zenfloHomeDir: string,
+  zenfloLibDir: string,
+  zenfloToolsDir: string,
   startedFromDaemon?: boolean,
   hostPid?: number,
   startedBy?: 'daemon' | 'terminal',

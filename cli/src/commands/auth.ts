@@ -116,7 +116,7 @@ async function handleAuthLogin(args: string[]): Promise<void> {
 
 async function handleAuthLogout(): Promise<void> {
   // "auth logout will essentially clear the private key that originally came from the phone"
-  const happyDir = configuration.happyHomeDir;
+  const happyDir = configuration.zenfloHomeDir;
 
   // Check if authenticated
   const credentials = await readCredentials();
@@ -228,7 +228,7 @@ async function handleAuthStatus(): Promise<void> {
   }
 
   // Data location
-  console.log(chalk.gray(`\n  Data directory: ${configuration.happyHomeDir}`));
+  console.log(chalk.gray(`\n  Data directory: ${configuration.zenfloHomeDir}`));
 
   // Daemon status
   try {

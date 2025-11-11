@@ -52,8 +52,8 @@ export async function readSettings(): Promise<Settings> {
 }
 
 export async function writeSettings(settings: Settings): Promise<void> {
-  if (!existsSync(configuration.happyHomeDir)) {
-    await mkdir(configuration.happyHomeDir, { recursive: true })
+  if (!existsSync(configuration.zenfloHomeDir)) {
+    await mkdir(configuration.zenfloHomeDir, { recursive: true })
   }
 
   await writeFile(configuration.settingsFile, JSON.stringify(settings, null, 2))
@@ -114,8 +114,8 @@ export async function updateSettings(
     const updated = await updater(current);
 
     // Ensure directory exists
-    if (!existsSync(configuration.happyHomeDir)) {
-      await mkdir(configuration.happyHomeDir, { recursive: true });
+    if (!existsSync(configuration.zenfloHomeDir)) {
+      await mkdir(configuration.zenfloHomeDir, { recursive: true });
     }
 
     // Write atomically using rename
@@ -184,8 +184,8 @@ export async function readCredentials(): Promise<Credentials | null> {
 }
 
 export async function writeCredentialsLegacy(credentials: { secret: Uint8Array, token: string }): Promise<void> {
-  if (!existsSync(configuration.happyHomeDir)) {
-    await mkdir(configuration.happyHomeDir, { recursive: true })
+  if (!existsSync(configuration.zenfloHomeDir)) {
+    await mkdir(configuration.zenfloHomeDir, { recursive: true })
   }
   await writeFile(configuration.privateKeyFile, JSON.stringify({
     secret: encodeBase64(credentials.secret),
@@ -194,8 +194,8 @@ export async function writeCredentialsLegacy(credentials: { secret: Uint8Array, 
 }
 
 export async function writeCredentialsDataKey(credentials: { publicKey: Uint8Array, machineKey: Uint8Array, token: string }): Promise<void> {
-  if (!existsSync(configuration.happyHomeDir)) {
-    await mkdir(configuration.happyHomeDir, { recursive: true })
+  if (!existsSync(configuration.zenfloHomeDir)) {
+    await mkdir(configuration.zenfloHomeDir, { recursive: true })
   }
   await writeFile(configuration.privateKeyFile, JSON.stringify({
     encryption: { publicKey: encodeBase64(credentials.publicKey), machineKey: encodeBase64(credentials.machineKey) },

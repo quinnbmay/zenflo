@@ -59,9 +59,9 @@ async function isServerHealthy(): Promise<boolean> {
     }
     
     // Check if we have test credentials
-    const testCredentials = existsSync(join(configuration.happyHomeDir, 'access.key'));
+    const testCredentials = existsSync(join(configuration.zenfloHomeDir, 'access.key'));
     if (!testCredentials) {
-      console.log('[TEST] No test credentials found in', configuration.happyHomeDir);
+      console.log('[TEST] No test credentials found in', configuration.zenfloHomeDir);
       console.log('[TEST] Run "zenflo auth login" with ZENFLO_HOME_DIR=~/.happy-dev-test first');
       return false;
     }
@@ -117,9 +117,9 @@ describe.skipIf(!await isServerHealthy())('Daemon Integration Tests', { timeout:
       path: '/test/path',
       host: 'test-host',
       homeDir: '/test/home',
-      happyHomeDir: '/test/happy-home',
-      happyLibDir: '/test/happy-lib',
-      happyToolsDir: '/test/happy-tools',
+      zenfloHomeDir: '/test/happy-home',
+      zenfloLibDir: '/test/happy-lib',
+      zenfloToolsDir: '/test/happy-tools',
       hostPid: 99999,
       startedBy: 'terminal',
       machineId: 'test-machine-123'
