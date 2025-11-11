@@ -20,24 +20,38 @@
 
 ### Railway Auto-Deploy
 - **URL:** https://app.combinedmemory.com
-- **Process:** Push to `main` → Railway auto-deploys (2-3 min)
+- **Process:** Push webapp changes to `main` → Railway auto-deploys (2-3 min)
 - **Build:** Uses pre-built `dist-railway` folder
-- ❌ **DO NOT** rebuild - Railway uses committed build artifacts
+- **Smart Deploys:** Only triggers when webapp files change (not on backend/mobile/cli changes)
+- ❌ **DO NOT** rebuild on Railway - uses committed build artifacts
 
 ### Deployment Process
 1. Make changes locally
-2. Run `yarn build` if needed
+2. Run `yarn build` to build to `dist-railway/`
 3. Run `yarn typecheck` to verify
-4. Commit: `git add . && git commit -m "description"`
+4. Commit: `git add webapp/ && git commit -m "webapp: description"`
 5. Push: `git push origin main`
-6. Railway auto-deploys
+6. Railway detects webapp changes and auto-deploys
 7. Verify at https://app.combinedmemory.com
 
 ### Critical Rules
-- Everything deploys on Railway
+- Webapp deploys on Railway (backend on NAS)
+- **Railway watch paths** configured to only deploy on webapp changes
 - **NEVER** manually trigger rebuilds on Railway
 - Pre-built `dist-railway` folder is source of truth
 - If build needed, do it locally and commit
+- See `/RAILWAY.md` for detailed configuration
+
+### What Triggers Railway Deployment
+✅ **Triggers deployment:**
+- Changes to `webapp/dist-railway/` (pre-built files)
+- Changes to `webapp/Dockerfile.railway`
+- Changes to `webapp/package.json`
+
+❌ **Does NOT trigger deployment:**
+- Changes to `backend/`, `mobile/`, `cli/`, `zen-mcp/`
+- Documentation changes (`.md` files)
+- Changes to other workspaces
 
 ---
 

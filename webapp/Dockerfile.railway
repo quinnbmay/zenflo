@@ -1,7 +1,8 @@
 FROM nginx:alpine
 
-# Copy the built static files
-COPY dist-railway /usr/share/nginx/html
+# Copy the built static files from webapp directory
+# Build context is monorepo root, so we need to reference webapp/
+COPY webapp/dist-railway /usr/share/nginx/html
 
 # Create custom nginx configuration
 RUN echo 'server { \
