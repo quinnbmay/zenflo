@@ -55,13 +55,13 @@ ssh nas@nas-1 "sudo docker exec zenflo-webapp ls -la /usr/share/nginx/html"
 - [ ] No console errors
 - [ ] Authentication works
 - [ ] Voice AI works
-- [ ] Commit dist-railway changes
+- [ ] Commit dist-web changes
 
 ## Emergency Rollback
 
 ```bash
 # If needed, redeploy previous build
-git checkout HEAD~1 -- webapp/dist-railway
+git checkout HEAD~1 -- webapp/dist-web
 ./deploy.sh --skip-build
 ```
 

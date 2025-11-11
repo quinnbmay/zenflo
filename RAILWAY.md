@@ -18,7 +18,7 @@ Main Railway configuration that controls deployment behavior:
     "dockerfilePath": "webapp/Dockerfile.railway",
     "dockerContext": ".",
     "watchPaths": [
-      "webapp/dist-railway/**",
+      "webapp/dist-web/**",
       "webapp/Dockerfile.railway",
       "webapp/package.json"
     ]
@@ -30,7 +30,7 @@ Main Railway configuration that controls deployment behavior:
 - `dockerfilePath`: Points to webapp's Dockerfile
 - `dockerContext`: Uses monorepo root (`.`) as build context
 - `watchPaths`: **CRITICAL** - Only triggers builds when these files change:
-  - `webapp/dist-railway/**` - Pre-built deployment artifacts
+  - `webapp/dist-web/**` - Pre-built deployment artifacts
   - `webapp/Dockerfile.railway` - Docker configuration
   - `webapp/package.json` - Dependency changes
 
@@ -45,7 +45,7 @@ Tells Railway which files to exclude from the build:
 ### `webapp/Dockerfile.railway`
 Production Dockerfile that:
 - Uses nginx:alpine base image
-- Copies pre-built `webapp/dist-railway/` folder
+- Copies pre-built `webapp/dist-web/` folder
 - Configures nginx for SPA routing
 - Exposes port 80
 
@@ -57,18 +57,18 @@ Production Dockerfile that:
    ```bash
    cd webapp
    # Edit source files
-   yarn build  # Build to dist-railway/
+   yarn build  # Build to dist-web/
    ```
 
 2. **Commit and push**:
    ```bash
-   git add webapp/dist-railway webapp/package.json
+   git add webapp/dist-web webapp/package.json
    git commit -m "webapp: Update feature X"
    git push origin main
    ```
 
 3. **Railway detects changes** in watch paths:
-   - Sees changes in `webapp/dist-railway/`
+   - Sees changes in `webapp/dist-web/`
    - Triggers automatic deployment
    - Builds using `webapp/Dockerfile.railway`
    - Deploys to https://app.combinedmemory.com
@@ -93,9 +93,9 @@ Production Dockerfile that:
 ## Important Notes
 
 ### Pre-Built Deployment
-The webapp uses **pre-built artifacts** from `webapp/dist-railway/`:
+The webapp uses **pre-built artifacts** from `webapp/dist-web/`:
 - ✅ Build locally with `yarn build`
-- ✅ Commit `dist-railway/` folder
+- ✅ Commit `dist-web/` folder
 - ✅ Railway serves pre-built files
 - ❌ Do NOT rebuild on Railway (faster deploys)
 
@@ -129,7 +129,7 @@ Example for future backend service:
 ### Test Watch Paths
 ```bash
 # These should trigger Railway deploy:
-touch webapp/dist-railway/index.html
+touch webapp/dist-web/index.html
 git add webapp/ && git commit -m "test" && git push
 
 # These should NOT trigger Railway deploy:
@@ -176,7 +176,7 @@ git add mobile/ && git commit -m "test" && git push
 1. Verify `dockerContext: "."` in `railway.json`
 2. Ensure Dockerfile uses paths relative to monorepo root:
    ```dockerfile
-   COPY webapp/dist-railway /usr/share/nginx/html
+   COPY webapp/dist-web /usr/share/nginx/html
    ```
 
 ### Unexpected files in build
@@ -226,7 +226,7 @@ Railway automatically monitors:
 ## Best Practices
 
 1. **Always build locally**: Don't rely on Railway to build
-2. **Commit dist-railway**: Version control deployment artifacts
+2. **Commit dist-web**: Version control deployment artifacts
 3. **Test locally first**: Verify build before pushing
 4. **Use watch paths**: Avoid unnecessary deploys
 5. **Monitor logs**: Check Railway dashboard after deploys

@@ -106,7 +106,7 @@ eas build --platform android --profile production
 
 # Webapp - Build for production
 cd webapp/
-yarn build                 # Outputs to dist-railway/
+yarn build                 # Outputs to dist-web/
 ```
 
 ## Deployment
@@ -491,7 +491,7 @@ cd mobile/android
 ```
 
 ### Railway Deployment Not Working
-- Verify `dist-railway/` folder is committed
+- Verify `dist-web/` folder is committed
 - Check Railway logs for errors
 - Ensure build ran locally before pushing
 

@@ -34,7 +34,7 @@ Before running the deployment script, ensure you have:
 
 ```bash
 ./deploy.sh                 # Full deployment (build + deploy + cache purge)
-./deploy.sh --skip-build   # Use existing dist-railway/ folder
+./deploy.sh --skip-build   # Use existing dist-web/ folder
 ./deploy.sh --skip-cache   # Skip Cloudflare cache purge
 ./deploy.sh --help         # Show help message
 ```
@@ -42,7 +42,7 @@ Before running the deployment script, ensure you have:
 ### Option Details
 
 #### `--skip-build`
-Skips the local build step and uses the existing `dist-railway/` directory.
+Skips the local build step and uses the existing `dist-web/` directory.
 
 **Use when:**
 - You've already built locally and just want to redeploy
@@ -50,7 +50,7 @@ Skips the local build step and uses the existing `dist-railway/` directory.
 - You need to quickly redeploy the exact same build
 
 **Requirements:**
-- `dist-railway/` directory must exist
+- `dist-web/` directory must exist
 - Directory must contain a valid build
 
 #### `--skip-cache`
@@ -77,17 +77,17 @@ Skips the Cloudflare cache purge step.
 - Verifies NAS connectivity
 
 ### Step 2: Local Build
-- Removes old `dist` and `dist-railway` directories
+- Removes old `dist` and `dist-web` directories
 - Runs `npx expo export --platform web`
-- Renames output from `dist` to `dist-railway`
+- Renames output from `dist` to `dist-web`
 
-**Build artifacts:** `dist-railway/` contains:
+**Build artifacts:** `dist-web/` contains:
 - `index.html` - Entry point
 - `_expo/` - Bundled JavaScript and assets
 - Static assets (images, fonts, etc.)
 
 ### Step 3: Package & Transfer
-- Creates tar.gz archive of `dist-railway/`
+- Creates tar.gz archive of `dist-web/`
 - Transfers archive to `/tmp/` on NAS via SCP
 - Logs archive size for reference
 
@@ -139,7 +139,7 @@ NAS_PATH="developer/infrastructure/Zenflo Server/zenflo/webapp"
 # Local Paths
 WEBAPP_DIR="/Users/quinnmay/developer/zenflo/webapp"
 ARCHIVE_PATH="/tmp/webapp-deploy.tar.gz"
-DIST_DIR="dist-railway"
+DIST_DIR="dist-web"
 ```
 
 **To modify:** Edit these values at the top of the script.
@@ -285,9 +285,9 @@ ssh nas@nas-1 "sudo docker exec zenflo-webapp nginx -t"
 1. ✅ Verify site loads correctly
 2. ✅ Check browser console for errors
 3. ✅ Test critical user flows
-4. ✅ Commit `dist-railway/` changes to git:
+4. ✅ Commit `dist-web/` changes to git:
    ```bash
-   git add webapp/dist-railway
+   git add webapp/dist-web
    git commit -m "webapp: Deploy <description>"
    git push origin main
    ```
@@ -340,11 +340,11 @@ vim sources/app/...
 ```bash
 cd webapp
 npx expo export --platform web
-mv dist dist-railway
-tar -czf /tmp/webapp-deploy.tar.gz dist-railway/
+mv dist dist-web
+tar -czf /tmp/webapp-deploy.tar.gz dist-web/
 scp /tmp/webapp-deploy.tar.gz nas@nas-1:/tmp/
-ssh nas@nas-1 "cd 'developer/infrastructure/Zenflo Server/zenflo/webapp' && rm -rf dist-railway && tar -xzf /tmp/webapp-deploy.tar.gz"
-ssh nas@nas-1 "sudo docker cp 'developer/infrastructure/Zenflo Server/zenflo/webapp/dist-railway/.' zenflo-webapp:/usr/share/nginx/html/"
+ssh nas@nas-1 "cd 'developer/infrastructure/Zenflo Server/zenflo/webapp' && rm -rf dist-web && tar -xzf /tmp/webapp-deploy.tar.gz"
+ssh nas@nas-1 "sudo docker cp 'developer/infrastructure/Zenflo Server/zenflo/webapp/dist-web/.' zenflo-webapp:/usr/share/nginx/html/"
 ssh nas@nas-1 "sudo docker exec zenflo-webapp chmod -R 755 /usr/share/nginx/html"
 ssh nas@nas-1 "sudo docker exec zenflo-webapp chown -R nginx:nginx /usr/share/nginx/html"
 curl -X POST "https://api.cloudflare.com/client/v4/zones/.../purge_cache" ...

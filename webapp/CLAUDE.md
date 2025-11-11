@@ -21,13 +21,13 @@
 ### Railway Auto-Deploy
 - **URL:** https://app.combinedmemory.com
 - **Process:** Push webapp changes to `main` → Railway auto-deploys (2-3 min)
-- **Build:** Uses pre-built `dist-railway` folder
+- **Build:** Uses pre-built `dist-web` folder
 - **Smart Deploys:** Only triggers when webapp files change (not on backend/mobile/cli changes)
 - ❌ **DO NOT** rebuild on Railway - uses committed build artifacts
 
 ### Deployment Process
 1. Make changes locally
-2. Run `yarn build` to build to `dist-railway/`
+2. Run `yarn build` to build to `dist-web/`
 3. Run `yarn typecheck` to verify
 4. Commit: `git add webapp/ && git commit -m "webapp: description"`
 5. Push: `git push origin main`
@@ -38,13 +38,13 @@
 - Webapp deploys on Railway (backend on NAS)
 - **Railway watch paths** configured to only deploy on webapp changes
 - **NEVER** manually trigger rebuilds on Railway
-- Pre-built `dist-railway` folder is source of truth
+- Pre-built `dist-web` folder is source of truth
 - If build needed, do it locally and commit
 - See `/RAILWAY.md` for detailed configuration
 
 ### What Triggers Railway Deployment
 ✅ **Triggers deployment:**
-- Changes to `webapp/dist-railway/` (pre-built files)
+- Changes to `webapp/dist-web/` (pre-built files)
 - Changes to `webapp/Dockerfile.railway`
 - Changes to `webapp/package.json`
 

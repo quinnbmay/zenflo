@@ -56,7 +56,7 @@ open https://railway.app/project/e186e870-3aa3-4414-9cca-17ac72e48856
 **What happens:**
 1. GitHub receives push to `main`
 2. Railway detects the commit
-3. Deploys from pre-built `dist-railway` folder
+3. Deploys from pre-built `dist-web` folder
 4. Updates https://app.combinedmemory.com
 5. Takes ~2-3 minutes
 
@@ -118,7 +118,7 @@ git push origin main  # ⚠️ Goes live
 - [ ] All changes committed
 - [ ] Feature branch tested locally
 - [ ] `yarn typecheck` passes
-- [ ] Checked pre-built `dist-railway` is up-to-date (if modified)
+- [ ] Checked pre-built `dist-web` is up-to-date (if modified)
 - [ ] Database migrations prepared (if any)
 - [ ] Reviewed: `git log --oneline -5`
 - [ ] Ready for immediate production deployment
@@ -136,7 +136,7 @@ git push origin main  # ⚠️ Goes live
 ### Services
 Railway watches the GitHub repo and auto-deploys on `main` commits.
 
-**Important:** Railway uses **pre-built** `dist-railway` folder.
+**Important:** Railway uses **pre-built** `dist-web` folder.
 - Don't rebuild unless absolutely necessary
 - Build process is optimized for Railway
 
@@ -207,7 +207,7 @@ git push origin main
 
 ### "Railway deployment failed?"
 1. Check Railway logs in console
-2. Verify `dist-railway` folder is correct
+2. Verify `dist-web` folder is correct
 3. Rollback to previous deployment
 4. Fix issue and redeploy
 

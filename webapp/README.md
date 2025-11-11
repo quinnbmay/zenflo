@@ -62,7 +62,7 @@ webapp/
 │   ├── realtime/         # Voice AI (web-specific)
 │   ├── text/             # i18n translations
 │   └── utils/            # Utility functions
-├── dist-railway/         # Production build (committed)
+├── dist-web/             # Production build (committed)
 ├── app.config.js         # Expo configuration
 └── package.json          # Dependencies
 ```
@@ -104,7 +104,7 @@ yarn dev
 # Build for production
 yarn build
 
-# The output goes to dist-railway/ (committed to git)
+# The output goes to dist-web/ (committed to git)
 ```
 
 ### Deployment to Railway
@@ -112,7 +112,7 @@ yarn build
 **Automatic Deployment:**
 1. Push to `main` branch
 2. Railway detects changes
-3. Auto-deploys from `dist-railway/` folder
+3. Auto-deploys from `dist-web/` folder
 4. Live in ~2-3 minutes
 
 ```bash
@@ -124,7 +124,7 @@ git push origin main  # Triggers Railway auto-deploy
 
 **Important Notes:**
 - ❌ **DO NOT** rebuild on Railway
-- ✅ Railway uses pre-built `dist-railway/` folder
+- ✅ Railway uses pre-built `dist-web/` folder
 - ✅ Always build locally and commit
 - ✅ Push to trigger deployment
 
@@ -267,7 +267,7 @@ yarn typecheck && yarn test
 
 **Build errors:**
 ```bash
-rm -rf dist-railway && yarn build
+rm -rf dist-web && yarn build
 ```
 
 **Cache issues:**
@@ -292,7 +292,7 @@ Routes are lazy-loaded automatically via Expo Router.
 
 Check bundle size:
 ```bash
-yarn build && ls -lh dist-railway/_expo/static/js/web/
+yarn build && ls -lh dist-web/_expo/static/js/web/
 ```
 
 ### Best Practices
@@ -321,7 +321,7 @@ yarn build && ls -lh dist-railway/_expo/static/js/web/
 3. Make your changes
 4. Run `yarn typecheck`
 5. Build: `yarn build`
-6. Commit both source and dist-railway
+6. Commit both source and dist-web
 7. Submit a pull request
 
 ### Code Style

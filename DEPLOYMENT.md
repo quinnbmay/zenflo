@@ -35,7 +35,7 @@ This script automatically handles:
 **Options:**
 ```bash
 ./deploy.sh                # Full deployment
-./deploy.sh --skip-build   # Use existing dist-railway/
+./deploy.sh --skip-build   # Use existing dist-web/
 ./deploy.sh --skip-cache   # Skip Cloudflare cache purge
 ./deploy.sh --help         # Show usage information
 ```
@@ -58,14 +58,14 @@ cd /Users/quinnmay/developer/zenflo/webapp
 npx expo export --platform web
 
 # Rename output directory
-mv dist dist-railway
+mv dist dist-web
 ```
 
 #### 2. Package and Transfer
 
 ```bash
 # Create archive
-tar -czf /tmp/webapp-deploy.tar.gz dist-railway/
+tar -czf /tmp/webapp-deploy.tar.gz dist-web/
 
 # Copy to NAS
 scp /tmp/webapp-deploy.tar.gz nas@nas-1:/tmp/
@@ -76,12 +76,12 @@ scp /tmp/webapp-deploy.tar.gz nas@nas-1:/tmp/
 ```bash
 # Extract files
 ssh nas@nas-1 "cd 'developer/infrastructure/Zenflo Server/zenflo/webapp' && \
-  rm -rf dist-railway && \
+  rm -rf dist-web && \
   tar -xzf /tmp/webapp-deploy.tar.gz"
 
 # Copy into running container
 ssh nas@nas-1 "sudo docker cp \
-  'developer/infrastructure/Zenflo Server/zenflo/webapp/dist-railway/.' \
+  'developer/infrastructure/Zenflo Server/zenflo/webapp/dist-web/.' \
   zenflo-webapp:/usr/share/nginx/html/"
 
 # Fix permissions (CRITICAL!)
@@ -108,7 +108,7 @@ Visit https://app.combinedmemory.com and check console for errors.
 - ✅ **Always build locally** - Never rebuild on NAS (lockfile issues)
 - ✅ **Always fix permissions** after `docker cp` (nginx needs 755 and nginx:nginx ownership)
 - ✅ **Always purge Cloudflare cache** after deployment
-- ✅ **Commit dist-railway/** folder to git for deployment tracking
+- ✅ **Commit dist-web/** folder to git for deployment tracking
 - ✅ **Use automated script** - Reduces errors and saves time
 - ❌ **NEVER use `import.meta.env.DEV`** in webapp source (causes module errors, use `__DEV__` instead)
 - ❌ **NEVER rebuild container from Dockerfile** (source on NAS is outdated)
@@ -313,10 +313,10 @@ cd /Users/quinnmay/developer/zenflo/webapp && ./deploy.sh
 
 ### Webapp Deployment (Manual)
 ```bash
-cd webapp && npx expo export --platform web && mv dist dist-railway
-tar -czf /tmp/webapp-deploy.tar.gz dist-railway/
+cd webapp && npx expo export --platform web && mv dist dist-web
+tar -czf /tmp/webapp-deploy.tar.gz dist-web/
 scp /tmp/webapp-deploy.tar.gz nas@nas-1:/tmp/
-ssh nas@nas-1 "cd 'developer/infrastructure/Zenflo Server/zenflo/webapp' && rm -rf dist-railway && tar -xzf /tmp/webapp-deploy.tar.gz && sudo docker cp dist-railway/. zenflo-webapp:/usr/share/nginx/html/ && sudo docker exec zenflo-webapp chmod -R 755 /usr/share/nginx/html && sudo docker exec zenflo-webapp chown -R nginx:nginx /usr/share/nginx/html"
+ssh nas@nas-1 "cd 'developer/infrastructure/Zenflo Server/zenflo/webapp' && rm -rf dist-web && tar -xzf /tmp/webapp-deploy.tar.gz && sudo docker cp dist-web/. zenflo-webapp:/usr/share/nginx/html/ && sudo docker exec zenflo-webapp chmod -R 755 /usr/share/nginx/html && sudo docker exec zenflo-webapp chown -R nginx:nginx /usr/share/nginx/html"
 # Then purge Cloudflare cache (see script or manual process above)
 ```
 

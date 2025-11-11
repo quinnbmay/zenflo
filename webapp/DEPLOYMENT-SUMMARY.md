@@ -27,7 +27,7 @@ Automated the ZenFlo webapp deployment workflow from manual multi-step process t
 **Command Line Options:**
 ```bash
 ./deploy.sh                # Full deployment
-./deploy.sh --skip-build   # Use existing dist-railway/
+./deploy.sh --skip-build   # Use existing dist-web/
 ./deploy.sh --skip-cache   # Skip Cloudflare cache purge
 ./deploy.sh --help         # Show usage information
 ```
@@ -70,10 +70,10 @@ Required 10+ separate commands:
 ```bash
 cd webapp
 npx expo export --platform web
-mv dist dist-railway
-tar -czf /tmp/webapp-deploy.tar.gz dist-railway/
+mv dist dist-web
+tar -czf /tmp/webapp-deploy.tar.gz dist-web/
 scp /tmp/webapp-deploy.tar.gz nas@nas-1:/tmp/
-ssh nas@nas-1 "cd '...' && rm -rf dist-railway && tar -xzf /tmp/webapp-deploy.tar.gz"
+ssh nas@nas-1 "cd '...' && rm -rf dist-web && tar -xzf /tmp/webapp-deploy.tar.gz"
 ssh nas@nas-1 "sudo docker cp '...' zenflo-webapp:/usr/share/nginx/html/"
 ssh nas@nas-1 "sudo docker exec zenflo-webapp chmod -R 755 /usr/share/nginx/html"
 ssh nas@nas-1 "sudo docker exec zenflo-webapp chown -R nginx:nginx /usr/share/nginx/html"
@@ -115,7 +115,7 @@ Single command:
 ### 2. Local Build
 - ✅ Remove old build directories
 - ✅ Run expo export for web platform
-- ✅ Rename dist to dist-railway
+- ✅ Rename dist to dist-web
 - ✅ Validate build output
 
 ### 3. Package & Transfer
@@ -164,7 +164,7 @@ NAS_PATH="developer/infrastructure/Zenflo Server/zenflo/webapp"
 # Local
 WEBAPP_DIR="/Users/quinnmay/developer/zenflo/webapp"
 ARCHIVE_PATH="/tmp/webapp-deploy.tar.gz"
-DIST_DIR="dist-railway"
+DIST_DIR="dist-web"
 ```
 
 ## Error Handling
@@ -247,8 +247,8 @@ Next Steps:
   2. Check browser console for any errors
   3. Test critical user flows
 
-Reminder: Commit the updated dist-railway directory:
-  git add webapp/dist-railway
+Reminder: Commit the updated dist-web directory:
+  git add webapp/dist-web
   git commit -m "webapp: Deploy <description>"
 
 Total deployment time: 127s
