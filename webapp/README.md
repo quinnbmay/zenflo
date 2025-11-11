@@ -9,7 +9,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.1-61DAFB)](https://reactjs.org/)
 [![Expo](https://img.shields.io/badge/Expo-54-000020)](https://expo.dev/)
-[![Railway](https://img.shields.io/badge/Deploy-Railway-blueviolet)](https://railway.app/)
+[![Deploy](https://img.shields.io/badge/Deploy-NAS-success)](https://app.combinedmemory.com)
 
 [Launch App](https://app.combinedmemory.com) • [Documentation](./CLAUDE.md) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
 
@@ -107,26 +107,43 @@ yarn build
 # The output goes to dist-web/ (committed to git)
 ```
 
-### Deployment to Railway
+### Deployment to NAS
 
-**Automatic Deployment:**
-1. Push to `main` branch
-2. Railway detects changes
-3. Auto-deploys from `dist-web/` folder
-4. Live in ~2-3 minutes
+**Automated Deployment Script:**
 
 ```bash
-# Deploy workflow
-git add .
-git commit -m "feat: your changes"
-git push origin main  # Triggers Railway auto-deploy
+# Navigate to webapp directory
+cd /Users/quinnmay/developer/zenflo/webapp
+
+# Deploy to production (NAS with Cloudflare Tunnel)
+./deploy.sh
 ```
 
-**Important Notes:**
-- ❌ **DO NOT** rebuild on Railway
-- ✅ Railway uses pre-built `dist-web/` folder
-- ✅ Always build locally and commit
-- ✅ Push to trigger deployment
+**What the script does:**
+1. Builds webapp locally with Expo
+2. Packages build as tar.gz
+3. Transfers to NAS via SCP
+4. Extracts to Docker container (`zenflo-webapp`)
+5. Fixes permissions
+6. Purges Cloudflare cache
+
+**Script Options:**
+```bash
+./deploy.sh                 # Full deployment
+./deploy.sh --skip-build    # Use existing build
+./deploy.sh --skip-cache    # Skip Cloudflare cache purge
+./deploy.sh --help          # Show help
+```
+
+**Infrastructure:**
+- Platform: NAS (nas-1) via Docker
+- Container: `zenflo-webapp` (nginx:alpine)
+- Access: Cloudflare Tunnel
+- URL: https://app.combinedmemory.com
+
+**Documentation:**
+- Complete guide: `DEPLOY.md`
+- Quick reference: `DEPLOY-QUICKREF.md`
 
 ---
 
@@ -308,7 +325,8 @@ yarn build && ls -lh dist-web/_expo/static/js/web/
 ## 📚 Documentation
 
 - [Web-Specific Guide](./CLAUDE.md) - Web development documentation
-- [Deployment Guide](../DEPLOYMENT.md) - Railway deployment
+- [Deployment Guide](./DEPLOY.md) - NAS deployment with automated script
+- [Quick Deploy Reference](./DEPLOY-QUICKREF.md) - Quick commands
 - [Architecture](../docs/ARCHITECTURE.md) - Technical architecture
 - [Shared CLAUDE.md](../mobile/CLAUDE.md) - Shared mobile/web docs
 
@@ -345,7 +363,7 @@ MIT License - See [LICENSE](../LICENSE) for details.
 - Built with [Expo for Web](https://docs.expo.dev/guides/web/)
 - Voice by [ElevenLabs](https://elevenlabs.io/)
 - AI by [Anthropic Claude](https://www.anthropic.com/)
-- Hosted on [Railway](https://railway.app/)
+- Deployed on NAS with [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)
 
 ---
 
