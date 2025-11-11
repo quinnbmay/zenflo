@@ -1,228 +1,290 @@
-# ZenFlo CLI Codebase Overview
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-ZenFlo CLI is a command-line tool that wraps Claude Code to enable remote control and session sharing. It's part of a three-component system:
+**ZenFlo CLI** is a TypeScript command-line wrapper for Claude Code that enables remote session control via mobile/web apps. It's published to npm as `zenflo` and is part of the larger ZenFlo monorepo system (`@zenflo/cli` workspace).
 
-1. **zenflo-cli** (this project) - CLI wrapper for Claude Code
-2. **zenflo-mobile** - React Native mobile client
-3. **zenflo-backend** - Node.js server with Prisma (hosted at https://zenflo.combinedmemory.com/)
+**System Components:**
+1. **CLI** (this project) - Wraps Claude Code, manages sessions, daemon
+2. **Mobile/Web** - React Native + Next.js clients (`../mobile`, `../webapp`)
+3. **Backend** - Fastify API server on NAS (`https://zenflo.combinedmemory.com`)
 
-## Code Style Preferences
+## Common Commands
 
-### TypeScript Conventions
-- **Strict typing**: No untyped code ("I despise untyped code")
-- **Clean function signatures**: Explicit parameter and return types
-- **As little as possible classes**
-- **Comprehensive JSDoc comments**: Each file includes header comments explaining responsibilities.
-- **Import style**: Uses `@/` alias for src imports, e.g., `import { logger } from '@/ui/logger'`
-- **File extensions**: Uses `.ts` for TypeScript files
-- **Export style**: Named exports preferred, with occasional default exports for main functions
+```bash
+# Development
+yarn dev                        # Run from source (tsx)
+yarn dev:local-server           # Run with local backend
+yarn dev:integration-test-env   # Run with test environment
 
-### DO NOT
+# Building
+yarn build                      # TypeScript compile + pkgroll bundling
+yarn typecheck                  # Type check without emit
 
-- Create stupid small functions / getters / setters
-- Excessive use of `if` statements - especially if you can avoid control flow changes with a better design
-- **NEVER import modules mid-code** - ALL imports must be at the top of the file
+# Testing
+yarn test                       # Build + run integration tests (Vitest)
 
-### Error Handling
-- Graceful error handling with proper error messages
-- Use of `try-catch` blocks with specific error logging
-- Abort controllers for cancellable operations
-- Careful handling of process lifecycle and cleanup
+# Running
+yarn start                      # Build + run from bin/zenflo.mjs
+./bin/zenflo.mjs                # Direct binary execution
 
-### Testing
-- Unit tests using Vitest
-- No mocking - tests make real API calls
-- Test files colocated with source files (`.test.ts`)
-- Descriptive test names and proper async handling
+# Publishing
+yarn release                    # Release-it workflow (version, changelog, publish)
+yarn prepublishOnly             # Auto-runs: build + test
+```
 
-### Logging
-- All debugging through file logs to avoid disturbing Claude sessions
-- Console output only for user-facing messages
-- Special handling for large JSON objects with truncation
+### Testing Single Test
 
-## Architecture & Key Components
+```bash
+# Run specific test file
+yarn build && tsx --env-file .env.integration-test node_modules/.bin/vitest run src/daemon/daemon.integration.test.ts
+```
 
-### 1. API Module (`/src/api/`)
-Handles server communication and encryption.
+### Daemon Management
 
-- **`api.ts`**: Main API client class for session management
-- **`apiSession.ts`**: WebSocket-based real-time session client with RPC support
-- **`auth.ts`**: Authentication flow using TweetNaCl for cryptographic signatures
-- **`encryption.ts`**: End-to-end encryption utilities using TweetNaCl
-- **`types.ts`**: Zod schemas for type-safe API communication
+```bash
+# Development daemon
+ZENFLO_SERVER_URL=http://localhost:3005 ./bin/zenflo.mjs daemon start
 
-**Key Features:**
-- End-to-end encryption for all communications
-- Socket.IO for real-time messaging
-- Optimistic concurrency control for state updates
-- RPC handler registration for remote procedure calls
+# Production daemon
+./bin/zenflo.mjs daemon start
+./bin/zenflo.mjs daemon stop
+./bin/zenflo.mjs daemon status
+./bin/zenflo.mjs daemon list        # List active sessions
+```
 
-### 2. Claude Integration (`/src/claude/`)
-Core Claude Code integration layer.
+### Environment Variables
 
-- **`loop.ts`**: Main control loop managing interactive/remote modes
-- **`types.ts`**: Claude message type definitions with parsers
+```bash
+# Core configuration
+ZENFLO_SERVER_URL=https://zenflo.combinedmemory.com    # Backend API
+ZENFLO_WEBAPP_URL=https://app.combinedmemory.com       # Web interface
+ZENFLO_HOME_DIR=~/.happy                               # Data directory
+ZENFLO_EXPERIMENTAL=false                              # Experimental features
+ZENFLO_DISABLE_CAFFEINATE=false                        # Disable macOS sleep prevention
 
-- **`claudeSdk.ts`**: Direct SDK integration using `@anthropic-ai/claude-code`
-- **`interactive.ts`**: **LIKELY WILL BE DEPRECATED in favor of running through SDK** PTY-based interactive Claude sessions
-- **`watcher.ts`**: File system watcher for Claude session files (for interactive mode snooping)
+# MCP/Codex
+ZENFLO_HTTP_MCP_URL=http://127.0.0.1:PORT              # MCP bridge target
 
-- **`mcp/startPermissionServer.ts`**: MCP (Model Context Protocol) permission server
+# Daemon (internal)
+ZENFLO_DAEMON_HTTP_TIMEOUT=60000                       # Daemon HTTP timeout
+ZENFLO_DAEMON_HEARTBEAT_INTERVAL=30000                 # Heartbeat interval
 
-**Key Features:**
-- Dual mode operation: interactive (terminal) and remote (mobile control)
-- Session persistence and resumption
-- Real-time message streaming
-- Permission intercepting via MCP [Permission checking not implemented yet]
+# Debugging
+DEBUG=zenflo:*                                         # Debug logging
+DANGEROUSLY_LOG_TO_SERVER_FOR_AI_AUTO_DEBUGGING=true  # Server logging
+```
 
-### 3. UI Module (`/src/ui/`)
-User interface components.
+## Architecture
 
-- **`logger.ts`**: Centralized logging system with file output
-- **`qrcode.ts`**: QR code generation for mobile authentication
-- **`start.ts`**: Main application startup and orchestration
+### Entry Point Flow
 
-**Key Features:**
-- Clean console UI with chalk styling
-- QR code display for easy mobile connection
-- Graceful mode switching between interactive and remote
+`src/index.ts` → Parses subcommands → Routes to handlers:
+- **`auth`** → `commands/auth.ts` - Authentication management
+- **`connect`** → `commands/connect.ts` - AI vendor API keys storage
+- **`codex`** → `codex/runCodex.ts` - OpenAI Codex mode
+- **`notify`** → Push notifications via backend
+- **`daemon`** → `daemon/run.ts` + `daemon/controlClient.ts` - Background service
+- **`doctor`** → `ui/doctor.ts` - System diagnostics
+- **Default** → `claude/runClaude.ts` - Main Claude Code wrapper
 
-### 4. Core Files
+### Key Modules
 
-- **`index.ts`**: CLI entry point with argument parsing
-- **`persistence.ts`**: Local storage for settings and keys
-- **`utils/time.ts`**: Exponential backoff utilities
+**`/src/api/`** - Server Communication
+- `api.ts` - REST API client for session management
+- `apiSession.ts` - WebSocket client with RPC support (Socket.io)
+- `auth.ts` - Challenge-response authentication using TweetNaCl signatures
+- `encryption.ts` - End-to-end encryption (TweetNaCl secretbox)
+- `types.ts` - Zod schemas for runtime validation
+
+**`/src/claude/`** - Claude Code Integration
+- `runClaude.ts` - Main orchestration (auth → daemon → session)
+- `loop.ts` - Control loop managing interactive/remote modes
+- `claudeSdk.ts` - `@anthropic-ai/claude-code` SDK integration
+- `interactive.ts` - PTY-based interactive sessions (DEPRECATED - SDK preferred)
+- `watcher.ts` - File system watcher for session files
+- `mcp/startPermissionServer.ts` - MCP permission interceptor (IN PROGRESS)
+
+**`/src/daemon/`** - Background Service
+- `run.ts` - Main daemon process (HTTP server + session manager)
+- `controlClient.ts` - HTTP client for daemon control
+- `doctor.ts` - Process cleanup utilities
+- `install.ts` / `uninstall.ts` - System service installation (WIP)
+
+**`/src/codex/`** - OpenAI Codex Integration
+- `runCodex.ts` - Codex session orchestration
+- `zenfloMcpStdioBridge.ts` - STDIO MCP bridge for change_title tool
+
+**`/src/ui/`** - User Interface
+- `start.ts` - Main UI orchestration
+- `logger.ts` - File-based logging system (avoids Claude UI interference)
+- `qrcode.ts` - QR code generation for mobile auth
+- `auth.ts` - Interactive authentication flow
+- `doctor.ts` - System diagnostics output
+
+**`/src/utils/`** - Utilities
+- `spawnZenfloCLI.ts` - Spawn CLI process (handles binary vs source)
+- `caffeinate.ts` - macOS sleep prevention
+- `time.ts` - Exponential backoff utilities
+- `inbox.ts` - Inbox message API
+
+### Critical Files
+
+- `configuration.ts` - Global configuration singleton with env vars
+- `persistence.ts` - Local storage (settings, keys, daemon state)
+- `projectPath.ts` - Detect project root from cwd
 
 ## Data Flow
 
-1. **Authentication**: 
-   - Generate/load secret key → Create signature challenge → Get auth token
+### Authentication Flow
+1. Generate/load TweetNaCl keypair from `~/.happy/access.key`
+2. Request challenge from backend
+3. Sign challenge with secret key
+4. Receive auth token + session credentials
 
-2. **Session Creation**:
-   - Create encrypted session with server → Establish WebSocket connection
+### Claude Session Flow
 
-3. **Message Flow**:
-   - Interactive mode: User input → PTY → Claude → File watcher → Server
-   - Remote mode: Mobile app → Server → Claude SDK → Server → Mobile app
+**Interactive Mode** (deprecated):
+```
+User → PTY → Claude Code → File watcher → Encrypt → Backend → Mobile
+```
 
-4. **Permission Handling**:
-   - Claude requests permission → MCP server intercepts → Sends to mobile → Mobile responds → MCP approves/denies
+**Remote Mode** (preferred):
+```
+Mobile → Backend → Decrypt → Claude SDK → Backend → Encrypt → Mobile
+```
 
-## Key Design Decisions
+### Daemon Architecture
+- **HTTP server** on random port (stored in `daemon.state.json`)
+- **RPC endpoints**: `/spawn`, `/stop-session`, `/list-sessions`, `/shutdown`
+- **Heartbeat system**: Auto-restart on version mismatch
+- **Session tracking**: Maps sessionId → child process
 
-1. **File-based logging**: Prevents interference with Claude's terminal UI
-2. **Dual Claude integration**: Process spawning for interactive, SDK for remote
-3. **End-to-end encryption**: All data encrypted before leaving the device
-4. **Session persistence**: Allows resuming sessions across restarts
-5. **Optimistic concurrency**: Handles distributed state updates gracefully
+### Session Resumption (Claude --resume)
 
-## Security Considerations
+**Critical Behavior:**
+- Creates NEW session file with NEW session ID
+- Copies complete history from original session
+- **Rewrites ALL session IDs** in history to new session ID
+- Original session file remains unchanged
+- Must handle session ID changes in responses
 
-- Private keys stored in `~/.handy/access.key` with restricted permissions
-- All communications encrypted using TweetNaCl
-- Challenge-response authentication prevents replay attacks
-- Session isolation through unique session IDs
+## Code Style & Conventions
 
-## Dependencies
+### TypeScript
+- **Strict mode** - No untyped code allowed
+- **Functional** - Minimize classes, prefer functions
+- **Explicit types** - All parameters and returns typed
+- **Import paths** - Use `@/` alias for src imports
+- **Exports** - Named exports preferred
 
-- Core: Node.js, TypeScript
-- Claude: `@anthropic-ai/claude-code` SDK
-- Networking: Socket.IO client, Axios
-- Crypto: TweetNaCl
-- Terminal: node-pty, chalk, qrcode-terminal
-- Validation: Zod
-- Testing: Vitest 
+### DO NOT
+- Create trivial getter/setter functions
+- Excessive `if` statements (prefer better design)
+- **Import modules mid-code** - ALL imports at top
+- Mock in tests - use real API calls
 
+### Logging
+- **File logs only** - Avoid console.log (disturbs Claude UI)
+- Debug via `logger.debug()` (writes to `~/.happy/logs/`)
+- User messages via `chalk` + `console.log`
 
-# Running the Daemon
+### Error Handling
+- Try-catch with specific error messages
+- AbortControllers for cancellable operations
+- Process lifecycle cleanup handlers
 
-## Starting the Daemon
+### Testing
+- Colocated `.test.ts` files
+- Integration tests with real backend
+- Descriptive test names, proper async handling
+
+## Important Notes
+
+### Why Build Before Dev/Test?
+Daemon commands execute the binary (`bin/zenflo.mjs`), not source. Build ensures daemon and dev code stay synchronized.
+
+### Environment Files
+- `.env.integration-test` - Test environment with local server
+- `.env.dev-local-server` - Development with local backend
+- `.env.dev` - Development configuration
+
+### Storage Paths
+- `~/.happy/` - Default home directory (still uses "happy" for backwards compatibility)
+- `~/.happy/access.key` - TweetNaCl secret key (chmod 600)
+- `~/.happy/settings.json` - Local settings
+- `~/.happy/daemon.state.json` - Daemon PID and port
+- `~/.happy/logs/` - Log files
+
+### Encryption
+- **TweetNaCl** secretbox for symmetric encryption
+- **Keypair** for authentication (signatures)
+- **Zero-knowledge** - Server cannot decrypt user data
+
+### Permission System (WIP)
+MCP server intercepts Claude's tool calls → sends to mobile → awaits approval → returns to Claude. Not yet fully implemented.
+
+## Publishing Workflow
+
+**Package:** [`zenflo`](https://www.npmjs.com/package/zenflo) (unscoped)
+**Current:** v0.11.6
+
 ```bash
-# From the zenflo-cli directory:
-./bin/zenflo.mjs daemon start
+# Version bump
+npm version patch|minor|major
 
-# With custom server URL (for local development):
-ZENFLO_SERVER_URL=http://localhost:3005 ./bin/zenflo.mjs daemon start
+# Build + test + publish
+yarn release
 
-# Stop the daemon:
-./bin/zenflo.mjs daemon stop
+# Manual publish
+yarn build
+yarn test
+npm publish
+git push origin main --tags
+```
 
-# Check daemon status:
+## Troubleshooting
+
+### Daemon Issues
+```bash
+# Kill runaway processes
+./bin/zenflo.mjs doctor clean
+
+# View logs
+tail -f ~/.happy/logs/*.log
+
+# Check status
 ./bin/zenflo.mjs daemon status
 ```
 
-## Daemon Logs
-- Daemon logs are stored in `~/.happy-dev/logs/` (or `$ZENFLO_HOME_DIR/logs/`)
-- Named with format: `YYYY-MM-DD-HH-MM-SS-daemon.log`
+### Type Errors
+Always run `yarn typecheck` before committing. TypeScript is configured in strict mode - all code must be fully typed.
 
-# Session Forking `claude` and sdk behavior
-
-## Commands Run
-
-### Initial Session
+### Test Failures
+Integration tests require local backend running:
 ```bash
-claude --print --output-format stream-json --verbose 'list files in this directory'
-```
-- Original Session ID: `aada10c6-9299-4c45-abc4-91db9c0f935d`
-- Created file: `~/.claude/projects/.../aada10c6-9299-4c45-abc4-91db9c0f935d.jsonl`
+# In backend directory
+ZENFLO_HOME_DIR=~/.happy-dev-test yarn dev
 
-### Resume with --resume flag
-```bash
-claude --print --output-format stream-json --verbose --resume aada10c6-9299-4c45-abc4-91db9c0f935d 'what file did we just see?'
-```
-- New Session ID: `1433467f-ff14-4292-b5b2-2aac77a808f0`
-- Created file: `~/.claude/projects/.../1433467f-ff14-4292-b5b2-2aac77a808f0.jsonl`
-
-## Key Findings for --resume
-
-### 1. Session File Behavior
-- Creates a NEW session file with NEW session ID
-- Original session file remains unchanged
-- Two separate files exist after resumption
-
-### 2. History Preservation
-- The new session file contains the COMPLETE history from the original session
-- History is prefixed at the beginning of the new file
-- Includes a summary line at the very top
-
-### 3. Session ID Rewriting
-- **CRITICAL FINDING**: All historical messages have their sessionId field UPDATED to the new session ID
-- Original messages from session `aada10c6-9299-4c45-abc4-91db9c0f935d` now show `sessionId: "1433467f-ff14-4292-b5b2-2aac77a808f0"`
-- This creates a unified session history under the new ID
-
-### 4. Message Structure in New File
-```
-Line 1: Summary of previous conversation
-Lines 2-6: Complete history from original session (with updated session IDs)
-Lines 7-8: New messages from current interaction
+# Then run tests
+yarn test
 ```
 
-### 5. Context Preservation
-- Claude successfully maintains full context
-- Can answer questions about previous interactions
-- Behaves as if it's a continuous conversation
+## Dependencies
 
-## Technical Details
+**Core:**
+- `@anthropic-ai/claude-code` - Official Claude Code SDK
+- `@modelcontextprotocol/sdk` - MCP protocol implementation
+- `tweetnacl` - Cryptography (auth + encryption)
+- `socket.io-client` - Real-time communication
+- `zod` - Runtime type validation
 
-### Original Session File Structure
-- Contains only messages from the original session
-- All messages have original session ID
-- Remains untouched after resume
+**Build/Dev:**
+- `pkgroll` - Fast bundler for libraries
+- `tsx` - TypeScript execution
+- `vitest` - Test runner
+- `release-it` - Release automation
 
-### New Session File Structure After Resume
-```json
-{"type":"summary","summary":"Listing directory files in current location","leafUuid":"..."}
-{"parentUuid":null,"sessionId":"1433467f-ff14-4292-b5b2-2aac77a808f0","message":{"role":"user","content":[{"type":"text","text":"list files in this directory"}]},...}
-// ... all historical messages with NEW session ID ...
-{"parentUuid":"...","sessionId":"1433467f-ff14-4292-b5b2-2aac77a808f0","message":{"role":"user","content":"what file did we just see?"},...}
-```
-
-## Implications for zenflo-cli
-
-When using --resume:
-1. Must handle new session ID in responses
-2. Original session remains as historical record
-3. All context preserved but under new session identity
-4. Session ID in stream-json output will be the new one, not the resumed one
+**Node.js:** >=20.0.0 required (for MCP SDK dependency)
