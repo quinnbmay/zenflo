@@ -1,7 +1,7 @@
 # GitHub Webhook Auto-Deployment Setup
 
 **Created:** 2025-11-10 PST
-**Status:** ✅ Backend configured, Cloudflare DNS setup required
+**Status:** ✅ COMPLETE - Auto-deployment working!
 
 ## Overview
 
@@ -223,8 +223,13 @@ sudo docker compose up -d --build zenflo-server
 1. ✅ Webhook server configured and running
 2. ✅ Deployment script created and tested
 3. ✅ Nginx reverse proxy configured (port 8877)
-4. ✅ **DONE:** GitHub webhook created automatically (ID: 580316577)
-5. ⏳ **TODO:** Add Cloudflare DNS route (webhook.combinedmemory.com → http://localhost:8877)
-6. ⏳ **TODO:** Test end-to-end deployment after Cloudflare DNS is configured
+4. ✅ GitHub webhook created automatically (ID: 580316577)
+5. ✅ Cloudflare DNS route configured (webhook.combinedmemory.com → http://localhost:8877)
+6. ✅ End-to-end auto-deployment tested and working!
 
-**Almost done!** Only Cloudflare DNS configuration remains (must be done via dashboard - token-based tunnel).
+**Setup Complete!** Backend automatically deploys on every push to main branch.
+
+### Key Issues Resolved
+- Fixed HMAC signature validation (nginx was adding backslash prefix to header)
+- Corrected repository path (changed from `Zenflo Server/zenflo-server` to `Zenflo Server/zenflo`)
+- Updated deployment script to navigate to `backend/` subdirectory before running docker compose
