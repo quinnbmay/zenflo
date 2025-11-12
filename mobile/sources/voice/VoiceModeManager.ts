@@ -281,7 +281,6 @@ class VoiceModeManager {
 
     /**
      * Check if a message should be read aloud
-     * In conversation mode, only read meaningful updates - skip tool calls, thinking, etc.
      */
     shouldReadMessage(text: string, options: TTSOptions): boolean {
         // Skip if empty
@@ -294,22 +293,8 @@ class VoiceModeManager {
             return false;
         }
 
-        // Skip tool calls (both formats)
+        // Skip tool calls
         if (text.startsWith('[Used tool:') || text.startsWith('A: [Used tool:')) {
-            return false;
-        }
-
-        // Skip thinking/reasoning messages
-        if (text.toLowerCase().includes('thinking') ||
-            text.toLowerCase().includes('reasoning') ||
-            text.startsWith('Let me') ||
-            text.startsWith('I\'ll') ||
-            text.startsWith('I will')) {
-            return false;
-        }
-
-        // Skip messages that are just about using tools
-        if (text.match(/using\s+(the\s+)?\w+\s+tool/i)) {
             return false;
         }
 
