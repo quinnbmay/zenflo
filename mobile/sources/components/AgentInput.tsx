@@ -952,7 +952,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                         </View>
 
                         {/* TTS Microphone button */}
-                        <TTSMicrophoneButton />
+                        <TTSMicrophoneButton onTranscribedText={props.onChangeText} />
 
                         {/* Send/Voice button */}
                         <View
@@ -1069,12 +1069,16 @@ function GitStatusButton({ sessionId, onPress }: { sessionId?: string, onPress?:
 }
 
 // TTS Microphone Button Component
-function TTSMicrophoneButton() {
+function TTSMicrophoneButton({ onTranscribedText }: { onTranscribedText?: (text: string) => void }) {
     const styles = stylesheet;
     const { theme } = useUnistyles();
     const ttsAutoPlay = useLocalSetting('ttsAutoPlay');
     const experiments = useSetting('experiments');
     const [isSpeaking, setIsSpeaking] = React.useState(false);
+    const [isRecording, setIsRecording] = React.useState(false);
+    const [isTranscribing, setIsTranscribing] = React.useState(false);
+    const longPressTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+    const recordingRef = React.useRef<any>(null);
 
     // Subscribe to voice mode manager state changes
     React.useEffect(() => {
@@ -1092,16 +1096,172 @@ function TTSMicrophoneButton() {
         return () => clearInterval(interval);
     }, []);
 
-    const handlePress = React.useCallback(() => {
-        hapticsLight();
-        if (isSpeaking) {
-            voiceModeManager.stop();
-        } else {
-            // Toggle auto-play setting
-            const newValue = !ttsAutoPlay;
-            storage.getState().applyLocalSettings({ ttsAutoPlay: newValue });
+    // Start recording (long press detected)
+    const startRecording = React.useCallback(async () => {
+        try {
+            console.log('[STT] Starting recording...');
+
+            // Request permissions
+            const { Audio } = require('expo-av');
+            const { status } = await Audio.requestPermissionsAsync();
+
+            if (status !== 'granted') {
+                console.error('[STT] Microphone permission denied');
+                return;
+            }
+
+            // Configure audio mode
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: true,
+                playsInSilentModeIOS: true,
+                staysActiveInBackground: false,
+                shouldDuckAndroid: true,
+            });
+
+            // Start recording
+            const recording = new Audio.Recording();
+            await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+            await recording.startAsync();
+
+            recordingRef.current = recording;
+            setIsRecording(true);
+
+            console.log('[STT] Recording started');
+        } catch (error) {
+            console.error('[STT] Failed to start recording:', error);
         }
-    }, [isSpeaking, ttsAutoPlay]);
+    }, []);
+
+    // Stop recording and transcribe
+    const stopRecording = React.useCallback(async () => {
+        if (!recordingRef.current) return;
+
+        try {
+            console.log('[STT] Stopping recording...');
+
+            await recordingRef.current.stopAndUnloadAsync();
+            const uri = recordingRef.current.getURI();
+            recordingRef.current = null;
+            setIsRecording(false);
+            setIsTranscribing(true);
+
+            if (!uri) {
+                console.error('[STT] No recording URI');
+                setIsTranscribing(false);
+                return;
+            }
+
+            // Transcribe with ElevenLabs STT
+            try {
+                console.log('[STT] Transcribing audio...');
+
+                // Get ElevenLabs API key from environment
+                const apiKey = process.env.EXPO_PUBLIC_ELEVENLABS_API_KEY;
+                if (!apiKey) {
+                    console.error('[STT] ElevenLabs API key not configured');
+                    setIsTranscribing(false);
+                    return;
+                }
+
+                // Read audio file from URI
+                const { FileSystem } = require('expo-file-system');
+                const audioBase64 = await FileSystem.readAsStringAsync(uri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
+
+                // Convert base64 to blob
+                const response = await fetch(`data:audio/m4a;base64,${audioBase64}`);
+                const blob = await response.blob();
+
+                // Create FormData for multipart/form-data request
+                const formData = new FormData();
+                formData.append('audio', blob, 'recording.m4a');
+                formData.append('model_id', 'eleven_multilingual_v2');
+
+                // Call ElevenLabs STT API
+                const sttResponse = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
+                    method: 'POST',
+                    headers: {
+                        'xi-api-key': apiKey,
+                    },
+                    body: formData,
+                });
+
+                if (!sttResponse.ok) {
+                    const errorText = await sttResponse.text();
+                    throw new Error(`ElevenLabs STT API error: ${sttResponse.status} - ${errorText}`);
+                }
+
+                const result = await sttResponse.json();
+                const transcribedText = result.text?.trim();
+
+                if (transcribedText && onTranscribedText) {
+                    console.log('[STT] Transcribed:', transcribedText);
+                    // Insert transcribed text into input field
+                    onTranscribedText(transcribedText);
+                } else {
+                    console.warn('[STT] No text transcribed');
+                }
+
+                setIsTranscribing(false);
+            } catch (error) {
+                console.error('[STT] Transcription failed:', error);
+                setIsTranscribing(false);
+            }
+        } catch (error) {
+            console.error('[STT] Failed to stop recording:', error);
+            setIsRecording(false);
+            setIsTranscribing(false);
+        }
+    }, [onTranscribedText]);
+
+    // Handle press in (start long press timer)
+    const handlePressIn = React.useCallback(() => {
+        longPressTimerRef.current = setTimeout(() => {
+            hapticsLight();
+            startRecording();
+        }, 500) as any; // 500ms threshold for long press
+    }, [startRecording]);
+
+    // Handle press out (cancel timer or stop recording)
+    const handlePressOut = React.useCallback(() => {
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
+
+        if (isRecording) {
+            hapticsLight();
+            stopRecording();
+        }
+    }, [isRecording, stopRecording]);
+
+    // Handle tap (toggle TTS auto-play)
+    const handlePress = React.useCallback(() => {
+        // Only handle tap if not recording
+        if (!isRecording && !longPressTimerRef.current) {
+            hapticsLight();
+            if (isSpeaking) {
+                voiceModeManager.stop();
+            } else {
+                // Toggle auto-play setting
+                const newValue = !ttsAutoPlay;
+                storage.getState().applyLocalSettings({ ttsAutoPlay: newValue });
+            }
+        }
+    }, [isSpeaking, ttsAutoPlay, isRecording]);
+
+    // Cleanup on unmount
+    React.useEffect(() => {
+        return () => {
+            if (longPressTimerRef.current) {
+                clearTimeout(longPressTimerRef.current);
+            }
+            if (recordingRef.current) {
+                recordingRef.current.stopAndUnloadAsync();
+            }
+        };
+    }, []);
 
     // Only show button if experimental features are enabled
     if (!experiments || !voiceModeManager) {
@@ -1112,7 +1272,8 @@ function TTSMicrophoneButton() {
         <View
             style={[
                 styles.sendButton,
-                styles.sendButtonActive
+                styles.sendButtonActive,
+                isRecording && { backgroundColor: '#FF3B30' } // Red when recording
             ]}
         >
             <RNPressable
@@ -1125,12 +1286,25 @@ function TTSMicrophoneButton() {
                 })}
                 hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
                 onPress={handlePress}
+                onPressIn={handlePressIn}
+                onPressOut={handlePressOut}
             >
-                <Ionicons
-                    name={isSpeaking ? "stop-circle" : ttsAutoPlay ? "mic" : "mic-off"}
-                    size={20}
-                    color={theme.colors.button.primary.tint}
-                />
+                {isTranscribing ? (
+                    <ActivityIndicator
+                        size="small"
+                        color={theme.colors.button.primary.tint}
+                    />
+                ) : (
+                    <Ionicons
+                        name={
+                            isRecording ? "stop-circle" :
+                            isSpeaking ? "stop-circle" :
+                            ttsAutoPlay ? "mic" : "mic-off"
+                        }
+                        size={20}
+                        color={theme.colors.button.primary.tint}
+                    />
+                )}
             </RNPressable>
         </View>
     );
