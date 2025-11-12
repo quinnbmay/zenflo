@@ -86,6 +86,9 @@ function UserTextBlock(props: {
   );
 }
 
+// Track last auto-played message per session to avoid replaying on mount
+const lastAutoPlayedMessage = new Map<string, string>();
+
 function AgentTextBlock(props: {
   message: AgentTextMessage;
   sessionId: string;
@@ -106,6 +109,16 @@ function AgentTextBlock(props: {
     console.log('[MessageView] ttsAutoPlay:', ttsAutoPlay);
 
     if (ttsAutoPlay) {
+      // Check if we've already auto-played this message
+      const lastPlayedId = lastAutoPlayedMessage.get(props.sessionId);
+      console.log('[MessageView] Last auto-played message for session:', lastPlayedId);
+
+      // Only auto-play if this is a NEW message (not previously auto-played)
+      if (lastPlayedId === props.message.id) {
+        console.log('[MessageView] Skipping auto-play - already played this message');
+        return;
+      }
+
       const shouldRead = voiceModeManager.shouldReadMessage(props.message.text, {
         speed: ttsSpeed,
         skipCodeBlocks: ttsSkipCodeBlocks,
@@ -115,7 +128,11 @@ function AgentTextBlock(props: {
       console.log('[MessageView] shouldRead:', shouldRead);
 
       if (shouldRead) {
-        console.log('[MessageView] Calling voiceModeManager.speak()');
+        console.log('[MessageView] Calling voiceModeManager.speak() for NEW message');
+
+        // Mark this as the last auto-played message for this session
+        lastAutoPlayedMessage.set(props.sessionId, props.message.id);
+
         voiceModeManager.speak(props.message.text, props.message.id, {
           speed: ttsSpeed,
           skipCodeBlocks: ttsSkipCodeBlocks,
@@ -124,7 +141,7 @@ function AgentTextBlock(props: {
         });
       }
     }
-  }, [props.message.id, props.message.text, ttsAutoPlay, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength, ttsVoiceId]);
+  }, [props.message.id, props.message.text, props.sessionId, ttsAutoPlay, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength, ttsVoiceId]);
 
   return (
     <View style={styles.agentMessageContainer}>
