@@ -101,6 +101,9 @@ function AgentTextBlock(props: {
 
   // Auto-play on mount if enabled
   React.useEffect(() => {
+    console.log('[MessageView] TTS effect triggered for message:', props.message.id);
+    console.log('[MessageView] ttsAutoPlay:', ttsAutoPlay);
+
     if (ttsAutoPlay) {
       const shouldRead = voiceModeManager.shouldReadMessage(props.message.text, {
         speed: ttsSpeed,
@@ -108,7 +111,10 @@ function AgentTextBlock(props: {
         maxLength: ttsMaxLength,
       });
 
+      console.log('[MessageView] shouldRead:', shouldRead);
+
       if (shouldRead) {
+        console.log('[MessageView] Calling voiceModeManager.speak()');
         voiceModeManager.speak(props.message.text, props.message.id, {
           speed: ttsSpeed,
           skipCodeBlocks: ttsSkipCodeBlocks,
@@ -116,7 +122,7 @@ function AgentTextBlock(props: {
         });
       }
     }
-  }, [props.message.id]);
+  }, [props.message.id, props.message.text, ttsAutoPlay, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength]);
 
   return (
     <View style={styles.agentMessageContainer}>
