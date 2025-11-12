@@ -534,7 +534,7 @@ export const zhHans: TranslationStructure = {
 
     settingsVoice: {
         // Voice settings screen
-        languageTitle: '语言',
+        languageTitle: 'Max 语音助手',
         languageDescription: '选择您希望语音助手交互使用的语言。此设置将在您的所有设备间同步。',
         preferredLanguage: '首选语言',
         preferredLanguageSubtitle: '语音助手响应使用的语言',
@@ -543,7 +543,33 @@ export const zhHans: TranslationStructure = {
             title: '语言',
             footer: ({ count }: { count: number }) => `${count} 种可用语言`,
             autoDetect: '自动检测',
-        }
+        },
+
+        // Text-to-Speech settings
+        ttsTitle: '文本转语音',
+        ttsDescription: '使用 ElevenLabs 高质量语音的文本转语音设置',
+        autoPlay: '自动播放',
+        autoPlaySubtitle: '自动朗读 Claude 的消息',
+        skipCodeBlocks: '跳过代码块',
+        skipCodeBlocksSubtitle: '不朗读代码块和技术内容',
+        playbackSpeed: '播放速度',
+        voice: '语音',
+        voiceSubtitle: '选择您喜欢的 TTS 语音',
+        changeVoice: '更改',
+        voiceSelection: {
+            loading: '正在加载语音...',
+            loadError: '加载语音失败。请重试。',
+            searchPlaceholder: '搜索语音...',
+            noResults: '未找到匹配的语音',
+            categoryDescription: '用于专业旁白的高质量语音',
+            category: {
+                premade: '预制语音',
+                cloned: '克隆语音',
+                professional: '专业语音',
+                generated: '生成语音',
+                other: '其他语音',
+            },
+        },
     },
 
     settingsAccount: {

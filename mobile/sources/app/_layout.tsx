@@ -30,6 +30,8 @@ import { AsyncLock } from '@/utils/lock';
 import { setupInteractiveNotifications } from '@/notifications/interactiveCategories';
 import { handleNotificationResponse } from '@/notifications/notificationResponseHandler';
 import * as Notifications from 'expo-notifications';
+import { voiceModeManager } from '@/voice/VoiceModeManager';
+import Constants from 'expo-constants';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -175,6 +177,18 @@ export default function RootLayout() {
 
                 // Setup interactive notifications for Apple Watch
                 await setupInteractiveNotifications();
+
+                // Initialize ElevenLabs API key for TTS
+                // Try config first, then fall back to hardcoded key (for OTA updates)
+                const elevenlabsKey = Constants.expoConfig?.extra?.app?.elevenlabsApiKey
+                    || 'sk_f9bf84125ea4a0dcbbe4adcf9e655439a9c08ea8fef16ab6';
+
+                if (elevenlabsKey) {
+                    voiceModeManager.setApiKey(elevenlabsKey);
+                    console.log('[App] ✅ ElevenLabs TTS initialized');
+                } else {
+                    console.error('[App] ❌ ElevenLabs API key not found in config');
+                }
 
                 setInitState({ credentials });
             } catch (error) {

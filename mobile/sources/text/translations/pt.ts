@@ -532,7 +532,7 @@ export const pt: TranslationStructure = {
 
     settingsVoice: {
         // Voice settings screen
-        languageTitle: 'Idioma',
+        languageTitle: 'Assistente de Voz Max',
         languageDescription: 'Escolha seu idioma preferido para interações com o assistente de voz. Esta configuração sincroniza em todos os seus dispositivos.',
         preferredLanguage: 'Idioma preferido',
         preferredLanguageSubtitle: 'Idioma usado para respostas do assistente de voz',
@@ -541,7 +541,33 @@ export const pt: TranslationStructure = {
             title: 'Idiomas',
             footer: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'idioma', plural: 'idiomas' })} disponíveis`,
             autoDetect: 'Detectar automaticamente',
-        }
+        },
+
+        // Text-to-Speech settings
+        ttsTitle: 'Texto para Fala',
+        ttsDescription: 'Configurações de texto para fala usando vozes de alta qualidade da ElevenLabs',
+        autoPlay: 'Reprodução Automática',
+        autoPlaySubtitle: 'Ler automaticamente as mensagens do Claude em voz alta',
+        skipCodeBlocks: 'Pular Blocos de Código',
+        skipCodeBlocksSubtitle: 'Não ler blocos de código e conteúdo técnico',
+        playbackSpeed: 'Velocidade de Reprodução',
+        voice: 'Voz',
+        voiceSubtitle: 'Escolha sua voz preferida para TTS',
+        changeVoice: 'Alterar',
+        voiceSelection: {
+            loading: 'Carregando vozes...',
+            loadError: 'Falha ao carregar vozes. Por favor, tente novamente.',
+            searchPlaceholder: 'Buscar vozes...',
+            noResults: 'Nenhuma voz encontrada',
+            categoryDescription: 'Vozes de alta qualidade para narração profissional',
+            category: {
+                premade: 'Vozes Pré-definidas',
+                cloned: 'Vozes Clonadas',
+                professional: 'Vozes Profissionais',
+                generated: 'Vozes Geradas',
+                other: 'Outras Vozes',
+            },
+        },
     },
 
     settingsAccount: {

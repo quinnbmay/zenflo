@@ -21,6 +21,14 @@ class RealtimeVoiceSessionImpl implements VoiceSession {
         }
 
         try {
+            // Stop TTS before starting Max to avoid conflicts
+            const { voiceModeManager } = await import('../voice/VoiceModeManager');
+            const isTTSSpeaking = await voiceModeManager.isSpeaking();
+            if (isTTSSpeaking) {
+                console.log('[RealtimeVoice] 🛑 Stopping TTS before starting Max');
+                await voiceModeManager.stop();
+            }
+
             storage.getState().setRealtimeStatus('connecting');
 
             // Request microphone permission first

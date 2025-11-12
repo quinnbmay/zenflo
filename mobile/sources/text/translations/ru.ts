@@ -542,7 +542,7 @@ export const ru: TranslationStructure = {
 
     settingsVoice: {
         // Voice settings screen
-        languageTitle: 'Язык',
+        languageTitle: 'Голосовой Ассистент Max',
         languageDescription: 'Выберите предпочтительный язык для взаимодействия с голосовым помощником. Эта настройка синхронизируется на всех ваших устройствах.',
         preferredLanguage: 'Предпочтительный язык',
         preferredLanguageSubtitle: 'Язык, используемый для ответов голосового помощника',
@@ -551,7 +551,33 @@ export const ru: TranslationStructure = {
             title: 'Языки',
             footer: ({ count }: { count: number }) => `Доступно ${count} ${plural({ count, one: 'язык', few: 'языка', many: 'языков' })}`,
             autoDetect: 'Автоопределение',
-        }
+        },
+
+        // Text-to-Speech settings
+        ttsTitle: 'Преобразование Текста в Речь',
+        ttsDescription: 'Настройки преобразования текста в речь с использованием высококачественных голосов ElevenLabs',
+        autoPlay: 'Автоматическое Воспроизведение',
+        autoPlaySubtitle: 'Автоматически читать сообщения Claude вслух',
+        skipCodeBlocks: 'Пропускать Блоки Кода',
+        skipCodeBlocksSubtitle: 'Не читать блоки кода и технический контент',
+        playbackSpeed: 'Скорость Воспроизведения',
+        voice: 'Голос',
+        voiceSubtitle: 'Выберите предпочитаемый голос для TTS',
+        changeVoice: 'Изменить',
+        voiceSelection: {
+            loading: 'Загрузка голосов...',
+            loadError: 'Не удалось загрузить голоса. Пожалуйста, попробуйте снова.',
+            searchPlaceholder: 'Поиск голосов...',
+            noResults: 'Голоса не найдены',
+            categoryDescription: 'Высококачественные голоса для профессиональной озвучки',
+            category: {
+                premade: 'Готовые Голоса',
+                cloned: 'Клонированные Голоса',
+                professional: 'Профессиональные Голоса',
+                generated: 'Сгенерированные Голоса',
+                other: 'Другие Голоса',
+            },
+        },
     },
 
     settingsAccount: {

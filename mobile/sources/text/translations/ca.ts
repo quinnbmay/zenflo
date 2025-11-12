@@ -532,7 +532,7 @@ export const ca: TranslationStructure = {
 
     settingsVoice: {
         // Voice settings screen
-        languageTitle: 'Idioma',
+        languageTitle: 'Assistent de Veu Max',
         languageDescription: 'Tria el teu idioma preferit per a les interaccions amb l\'assistent de veu. Aquesta configuració es sincronitza a tots els teus dispositius.',
         preferredLanguage: 'Idioma preferit',
         preferredLanguageSubtitle: 'Idioma utilitzat per a les respostes de l\'assistent de veu',
@@ -541,7 +541,33 @@ export const ca: TranslationStructure = {
             title: 'Idiomes',
             footer: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'idioma', plural: 'idiomes' })} disponibles`,
             autoDetect: 'Detecta automàticament',
-        }
+        },
+
+        // Text-to-Speech settings
+        ttsTitle: 'Text a Veu',
+        ttsDescription: 'Configuració de text a veu utilitzant veus d\'alta qualitat d\'ElevenLabs',
+        autoPlay: 'Reproducció Automàtica',
+        autoPlaySubtitle: 'Llegeix automàticament els missatges de Claude en veu alta',
+        skipCodeBlocks: 'Omet Blocs de Codi',
+        skipCodeBlocksSubtitle: 'No llegeixis blocs de codi i contingut tècnic',
+        playbackSpeed: 'Velocitat de Reproducció',
+        voice: 'Veu',
+        voiceSubtitle: 'Tria la teva veu preferida per a TTS',
+        changeVoice: 'Canviar',
+        voiceSelection: {
+            loading: 'Carregant veus...',
+            loadError: 'Error en carregar les veus. Si us plau, torna-ho a provar.',
+            searchPlaceholder: 'Cercar veus...',
+            noResults: 'No s\'han trobat veus',
+            categoryDescription: 'Veus d\'alta qualitat per a narració professional',
+            category: {
+                premade: 'Veus Predefinides',
+                cloned: 'Veus Clonades',
+                professional: 'Veus Professionals',
+                generated: 'Veus Generades',
+                other: 'Altres Veus',
+            },
+        },
     },
 
     settingsAccount: {

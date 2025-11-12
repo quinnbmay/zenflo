@@ -153,7 +153,9 @@ export default {
                 postHogKey: process.env.EXPO_PUBLIC_POSTHOG_API_KEY,
                 revenueCatAppleKey: process.env.EXPO_PUBLIC_REVENUE_CAT_APPLE,
                 revenueCatGoogleKey: process.env.EXPO_PUBLIC_REVENUE_CAT_GOOGLE,
-                revenueCatStripeKey: process.env.EXPO_PUBLIC_REVENUE_CAT_STRIPE
+                revenueCatStripeKey: process.env.EXPO_PUBLIC_REVENUE_CAT_STRIPE,
+                elevenlabsApiKey: process.env.EXPO_PUBLIC_ELEVENLABS_API_KEY,
+                supermemoryApiKey: process.env.EXPO_PUBLIC_SUPERMEMORY_API_KEY
             }
         },
         owner: "combinedmemory"

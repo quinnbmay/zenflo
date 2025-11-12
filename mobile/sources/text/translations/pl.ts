@@ -542,7 +542,7 @@ export const pl: TranslationStructure = {
 
     settingsVoice: {
         // Voice settings screen
-        languageTitle: 'Język',
+        languageTitle: 'Asystent Głosowy Max',
         languageDescription: 'Wybierz preferowany język dla interakcji z asystentem głosowym. To ustawienie synchronizuje się na wszystkich Twoich urządzeniach.',
         preferredLanguage: 'Preferowany język',
         preferredLanguageSubtitle: 'Język używany do odpowiedzi asystenta głosowego',
@@ -551,7 +551,33 @@ export const pl: TranslationStructure = {
             title: 'Języki',
             footer: ({ count }: { count: number }) => `Dostępnych ${count} ${plural({ count, one: 'język', few: 'języki', many: 'języków' })}`,
             autoDetect: 'Automatyczne wykrywanie',
-        }
+        },
+
+        // Text-to-Speech settings
+        ttsTitle: 'Tekst na Mowę',
+        ttsDescription: 'Ustawienia zamiany tekstu na mowę wykorzystujące wysokiej jakości głosy ElevenLabs',
+        autoPlay: 'Automatyczne Odtwarzanie',
+        autoPlaySubtitle: 'Automatyczne czytanie wiadomości Claude na głos',
+        skipCodeBlocks: 'Pomijaj Bloki Kodu',
+        skipCodeBlocksSubtitle: 'Nie czytaj bloków kodu i treści technicznych',
+        playbackSpeed: 'Prędkość Odtwarzania',
+        voice: 'Głos',
+        voiceSubtitle: 'Wybierz preferowany głos TTS',
+        changeVoice: 'Zmień',
+        voiceSelection: {
+            loading: 'Ładowanie głosów...',
+            loadError: 'Nie udało się załadować głosów. Spróbuj ponownie.',
+            searchPlaceholder: 'Szukaj głosów...',
+            noResults: 'Nie znaleziono głosów',
+            categoryDescription: 'Wysokiej jakości głosy do profesjonalnej narracji',
+            category: {
+                premade: 'Gotowe Głosy',
+                cloned: 'Sklonowane Głosy',
+                professional: 'Głosy Profesjonalne',
+                generated: 'Głosy Wygenerowane',
+                other: 'Inne Głosy',
+            },
+        },
     },
 
     settingsAccount: {
