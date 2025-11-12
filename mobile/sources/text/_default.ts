@@ -532,7 +532,7 @@ export const en = {
 
     settingsVoice: {
         // Voice settings screen
-        languageTitle: 'Language',
+        languageTitle: 'Max Voice Assistant',
         languageDescription: 'Choose your preferred language for voice assistant interactions. This setting syncs across all your devices.',
         preferredLanguage: 'Preferred Language',
         preferredLanguageSubtitle: 'Language used for voice assistant responses',
@@ -541,7 +541,16 @@ export const en = {
             title: 'Languages',
             footer: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'language', plural: 'languages' })} available`,
             autoDetect: 'Auto-detect',
-        }
+        },
+
+        // Text-to-Speech settings
+        ttsTitle: 'Text-to-Speech',
+        ttsDescription: 'Hear Claude\'s responses read aloud using your device\'s native voice. Free and works offline.',
+        autoPlay: 'Auto-Play Responses',
+        autoPlaySubtitle: 'Automatically read Claude\'s messages aloud',
+        skipCodeBlocks: 'Skip Code Blocks',
+        skipCodeBlocksSubtitle: 'Don\'t read code blocks and technical content',
+        playbackSpeed: 'Playback Speed',
     },
 
     settingsAccount: {

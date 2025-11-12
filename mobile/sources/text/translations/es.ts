@@ -532,7 +532,7 @@ export const es: TranslationStructure = {
 
     settingsVoice: {
         // Voice settings screen
-        languageTitle: 'Idioma',
+        languageTitle: 'Asistente de Voz Max',
         languageDescription: 'Elige tu idioma preferido para las interacciones con el asistente de voz. Esta configuración se sincroniza en todos tus dispositivos.',
         preferredLanguage: 'Idioma preferido',
         preferredLanguageSubtitle: 'Idioma usado para respuestas del asistente de voz',
@@ -541,7 +541,16 @@ export const es: TranslationStructure = {
             title: 'Idiomas',
             footer: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'idioma', plural: 'idiomas' })} disponibles`,
             autoDetect: 'Detectar automáticamente',
-        }
+        },
+
+        // Text-to-Speech settings
+        ttsTitle: 'Texto a Voz',
+        ttsDescription: 'Escucha las respuestas de Claude en voz alta usando la voz nativa de tu dispositivo. Gratis y funciona sin conexión.',
+        autoPlay: 'Reproducción Automática',
+        autoPlaySubtitle: 'Leer automáticamente los mensajes de Claude en voz alta',
+        skipCodeBlocks: 'Omitir Bloques de Código',
+        skipCodeBlocksSubtitle: 'No leer bloques de código y contenido técnico',
+        playbackSpeed: 'Velocidad de Reproducción',
     },
 
     settingsAccount: {

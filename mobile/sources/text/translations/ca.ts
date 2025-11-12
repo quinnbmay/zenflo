@@ -532,7 +532,7 @@ export const ca: TranslationStructure = {
 
     settingsVoice: {
         // Voice settings screen
-        languageTitle: 'Idioma',
+        languageTitle: 'Assistent de Veu Max',
         languageDescription: 'Tria el teu idioma preferit per a les interaccions amb l\'assistent de veu. Aquesta configuració es sincronitza a tots els teus dispositius.',
         preferredLanguage: 'Idioma preferit',
         preferredLanguageSubtitle: 'Idioma utilitzat per a les respostes de l\'assistent de veu',
@@ -541,7 +541,16 @@ export const ca: TranslationStructure = {
             title: 'Idiomes',
             footer: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'idioma', plural: 'idiomes' })} disponibles`,
             autoDetect: 'Detecta automàticament',
-        }
+        },
+
+        // Text-to-Speech settings
+        ttsTitle: 'Text a Veu',
+        ttsDescription: 'Escolta les respostes de Claude llegides en veu alta utilitzant la veu nativa del teu dispositiu. Gratu\u00eft i funciona fora de línia.',
+        autoPlay: 'Reproducció Automàtica',
+        autoPlaySubtitle: 'Llegeix automàticament els missatges de Claude en veu alta',
+        skipCodeBlocks: 'Omet Blocs de Codi',
+        skipCodeBlocksSubtitle: 'No llegeixis blocs de codi i contingut tècnic',
+        playbackSpeed: 'Velocitat de Reproducció',
     },
 
     settingsAccount: {

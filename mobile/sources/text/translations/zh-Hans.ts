@@ -534,7 +534,7 @@ export const zhHans: TranslationStructure = {
 
     settingsVoice: {
         // Voice settings screen
-        languageTitle: '语言',
+        languageTitle: 'Max 语音助手',
         languageDescription: '选择您希望语音助手交互使用的语言。此设置将在您的所有设备间同步。',
         preferredLanguage: '首选语言',
         preferredLanguageSubtitle: '语音助手响应使用的语言',
@@ -543,7 +543,16 @@ export const zhHans: TranslationStructure = {
             title: '语言',
             footer: ({ count }: { count: number }) => `${count} 种可用语言`,
             autoDetect: '自动检测',
-        }
+        },
+
+        // Text-to-Speech settings
+        ttsTitle: '文本转语音',
+        ttsDescription: '使用设备原生语音收听 Claude 的响应。免费且离线可用。',
+        autoPlay: '自动播放',
+        autoPlaySubtitle: '自动朗读 Claude 的消息',
+        skipCodeBlocks: '跳过代码块',
+        skipCodeBlocksSubtitle: '不朗读代码块和技术内容',
+        playbackSpeed: '播放速度',
     },
 
     settingsAccount: {

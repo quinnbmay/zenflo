@@ -542,7 +542,7 @@ export const ru: TranslationStructure = {
 
     settingsVoice: {
         // Voice settings screen
-        languageTitle: 'Язык',
+        languageTitle: 'Голосовой Ассистент Max',
         languageDescription: 'Выберите предпочтительный язык для взаимодействия с голосовым помощником. Эта настройка синхронизируется на всех ваших устройствах.',
         preferredLanguage: 'Предпочтительный язык',
         preferredLanguageSubtitle: 'Язык, используемый для ответов голосового помощника',
@@ -551,7 +551,16 @@ export const ru: TranslationStructure = {
             title: 'Языки',
             footer: ({ count }: { count: number }) => `Доступно ${count} ${plural({ count, one: 'язык', few: 'языка', many: 'языков' })}`,
             autoDetect: 'Автоопределение',
-        }
+        },
+
+        // Text-to-Speech settings
+        ttsTitle: 'Преобразование Текста в Речь',
+        ttsDescription: 'Прослушивайте ответы Claude, зачитываемые вслух с использованием встроенного голоса устройства. Бесплатно и работает без интернета.',
+        autoPlay: 'Автоматическое Воспроизведение',
+        autoPlaySubtitle: 'Автоматически читать сообщения Claude вслух',
+        skipCodeBlocks: 'Пропускать Блоки Кода',
+        skipCodeBlocksSubtitle: 'Не читать блоки кода и технический контент',
+        playbackSpeed: 'Скорость Воспроизведения',
     },
 
     settingsAccount: {

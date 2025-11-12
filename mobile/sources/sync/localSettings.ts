@@ -13,6 +13,12 @@ export const LocalSettingsSchema = z.object({
     markdownCopyV2: z.boolean().describe('Replace native paragraph selection with long-press modal for full markdown copy'),
     // CLI version acknowledgments - keyed by machineId
     acknowledgedCliVersions: z.record(z.string(), z.string()).describe('Acknowledged CLI versions per machine'),
+
+    // Voice Mode settings (device-specific)
+    ttsAutoPlay: z.boolean().describe('Automatically read Claude responses aloud'),
+    ttsSpeed: z.number().min(0.5).max(2.0).describe('Text-to-speech playback speed (0.5x - 2.0x)'),
+    ttsSkipCodeBlocks: z.boolean().describe('Skip reading code blocks and technical content'),
+    ttsMaxLength: z.number().describe('Maximum message length to read aloud (characters)'),
 });
 
 //
@@ -35,6 +41,12 @@ export const localSettingsDefaults: LocalSettings = {
     themePreference: 'adaptive',
     markdownCopyV2: false,
     acknowledgedCliVersions: {},
+
+    // Voice Mode defaults
+    ttsAutoPlay: false,
+    ttsSpeed: 1.0,
+    ttsSkipCodeBlocks: true,
+    ttsMaxLength: 2000,
 };
 Object.freeze(localSettingsDefaults);
 
