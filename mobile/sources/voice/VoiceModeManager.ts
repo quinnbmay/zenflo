@@ -128,12 +128,12 @@ class VoiceModeManager {
                     },
                     body: JSON.stringify({
                         text: preparedText,
-                        model_id: 'eleven_monolingual_v1',
+                        model_id: 'eleven_turbo_v2_5', // Modern, low-latency model with 32 language support
                         voice_settings: {
-                            stability: 0.5,
-                            similarity_boost: 0.75,
-                            style: 0,
-                            use_speaker_boost: true,
+                            stability: 0.5,           // Balanced natural speech
+                            similarity_boost: 0.0,    // ElevenLabs recommends 0 for best quality
+                            style: 0.0,               // Avoid style to reduce latency
+                            use_speaker_boost: false, // Disable to reduce latency
                         },
                     }),
                 }
