@@ -223,6 +223,9 @@ class Sync {
 
 
     async sendMessage(sessionId: string, text: string, displayText?: string) {
+        // Stop any ongoing TTS playback when user sends a message
+        const { voiceModeManager } = await import('@/voice/VoiceModeManager');
+        await voiceModeManager.stop();
 
         // Get encryption
         const encryption = this.encryption.getSessionEncryption(sessionId);
