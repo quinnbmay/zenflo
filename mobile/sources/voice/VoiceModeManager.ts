@@ -103,34 +103,35 @@ class VoiceModeManager {
             );
 
             if (!response.ok) {
-                throw new Error(`ElevenLabs API error: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`);
             }
 
-            // Get audio data as base64
-            const audioBlob = await response.blob();
-            const reader = new FileReader();
+            console.log('[VoiceMode] Received audio from ElevenLabs');
 
-            reader.onloadend = async () => {
-                try {
-                    const base64Audio = reader.result as string;
+            // Get audio data as ArrayBuffer
+            const arrayBuffer = await response.arrayBuffer();
 
-                    // Create and play sound
-                    const { sound } = await Audio.Sound.createAsync(
-                        { uri: base64Audio },
-                        { shouldPlay: true, rate: options.speed },
-                        this.onPlaybackStatusUpdate.bind(this)
-                    );
+            // Convert ArrayBuffer to base64
+            const bytes = new Uint8Array(arrayBuffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            const base64Audio = btoa(binary);
+            const uri = `data:audio/mpeg;base64,${base64Audio}`;
 
-                    this.sound = sound;
-                    console.log('[VoiceMode] Started playing:', messageId);
-                } catch (error) {
-                    console.error('[VoiceMode] Failed to play audio:', error);
-                    this.isCurrentlySpeaking = false;
-                    this.currentMessageId = null;
-                }
-            };
+            console.log('[VoiceMode] Converted audio to base64, creating sound...');
 
-            reader.readAsDataURL(audioBlob);
+            // Create and play sound
+            const { sound } = await Audio.Sound.createAsync(
+                { uri },
+                { shouldPlay: true, rate: options.speed },
+                this.onPlaybackStatusUpdate.bind(this)
+            );
+
+            this.sound = sound;
+            console.log('[VoiceMode] Started playing:', messageId);
         } catch (error) {
             console.error('[VoiceMode] TTS error:', error);
             this.isCurrentlySpeaking = false;
