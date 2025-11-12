@@ -10,6 +10,8 @@ import { ToolView } from "./tools/ToolView";
 import { AgentEvent } from "@/sync/typesRaw";
 import { sync } from '@/sync/sync';
 import { Option } from './markdown/MarkdownView';
+import { voiceModeManager } from '@/voice/VoiceModeManager';
+import { useLocalSetting } from '@/sync/storage';
 
 export const MessageView = (props: {
   message: Message;
@@ -91,6 +93,30 @@ function AgentTextBlock(props: {
   const handleOptionPress = React.useCallback((option: Option) => {
     sync.sendMessage(props.sessionId, option.title);
   }, [props.sessionId]);
+
+  const ttsAutoPlay = useLocalSetting('ttsAutoPlay');
+  const ttsSpeed = useLocalSetting('ttsSpeed');
+  const ttsSkipCodeBlocks = useLocalSetting('ttsSkipCodeBlocks');
+  const ttsMaxLength = useLocalSetting('ttsMaxLength');
+
+  // Auto-play on mount if enabled
+  React.useEffect(() => {
+    if (ttsAutoPlay) {
+      const shouldRead = voiceModeManager.shouldReadMessage(props.message.text, {
+        speed: ttsSpeed,
+        skipCodeBlocks: ttsSkipCodeBlocks,
+        maxLength: ttsMaxLength,
+      });
+
+      if (shouldRead) {
+        voiceModeManager.speak(props.message.text, props.message.id, {
+          speed: ttsSpeed,
+          skipCodeBlocks: ttsSkipCodeBlocks,
+          maxLength: ttsMaxLength,
+        });
+      }
+    }
+  }, [props.message.id]);
 
   return (
     <View style={styles.agentMessageContainer}>

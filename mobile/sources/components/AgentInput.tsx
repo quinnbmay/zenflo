@@ -18,10 +18,11 @@ import { TextInputState, MultiTextInputHandle } from './MultiTextInput';
 import { applySuggestion } from './autocomplete/applySuggestion';
 import { GitStatusBadge, useHasMeaningfulGitStatus } from './GitStatusBadge';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { useSetting } from '@/sync/storage';
+import { useSetting, useLocalSetting, storage } from '@/sync/storage';
 import { Theme } from '@/theme';
 import { t } from '@/text';
 import { Metadata } from '@/sync/storageTypes';
+import { voiceModeManager } from '@/voice/VoiceModeManager';
 
 interface AgentInputProps {
     value: string;
@@ -950,6 +951,9 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                             <GitStatusButton sessionId={props.sessionId} onPress={props.onFileViewerPress} />
                         </View>
 
+                        {/* TTS Microphone button */}
+                        <TTSMicrophoneButton />
+
                         {/* Send/Voice button */}
                         <View
                             style={[
@@ -1061,5 +1065,73 @@ function GitStatusButton({ sessionId, onPress }: { sessionId?: string, onPress?:
                 />
             )}
         </Pressable>
+    );
+}
+
+// TTS Microphone Button Component
+function TTSMicrophoneButton() {
+    const styles = stylesheet;
+    const { theme } = useUnistyles();
+    const ttsAutoPlay = useLocalSetting('ttsAutoPlay');
+    const experiments = useSetting('experiments');
+    const [isSpeaking, setIsSpeaking] = React.useState(false);
+
+    // Subscribe to voice mode manager state changes
+    React.useEffect(() => {
+        const checkState = async () => {
+            const speaking = await voiceModeManager.isSpeaking();
+            setIsSpeaking(speaking);
+        };
+
+        // Check initial state
+        checkState();
+
+        // Set up interval to check state (voice manager doesn't expose event emitter)
+        const interval = setInterval(checkState, 100);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const handlePress = React.useCallback(() => {
+        hapticsLight();
+        if (isSpeaking) {
+            voiceModeManager.stop();
+        } else {
+            // Toggle auto-play setting
+            const newValue = !ttsAutoPlay;
+            storage.getState().applyLocalSettings({ ttsAutoPlay: newValue });
+        }
+    }, [isSpeaking, ttsAutoPlay]);
+
+    // Only show button if experimental features are enabled
+    if (!experiments || !voiceModeManager) {
+        return null;
+    }
+
+    return (
+        <View
+            style={[
+                styles.sendButton,
+                styles.sendButtonActive
+            ]}
+        >
+            <RNPressable
+                style={(p) => ({
+                    width: '100%',
+                    height: '100%',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: p.pressed ? 0.7 : 1,
+                })}
+                hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                onPress={handlePress}
+            >
+                <Ionicons
+                    name={isSpeaking ? "stop-circle" : ttsAutoPlay ? "mic" : "mic-off"}
+                    size={20}
+                    color={theme.colors.button.primary.tint}
+                />
+            </RNPressable>
+        </View>
     );
 }
