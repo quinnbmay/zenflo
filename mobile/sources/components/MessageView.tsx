@@ -106,7 +106,10 @@ function AgentTextBlock(props: {
   // Auto-play on mount if enabled
   React.useEffect(() => {
     console.log('[MessageView] TTS effect triggered for message:', props.message.id);
-    console.log('[MessageView] ttsAutoPlay:', ttsAutoPlay);
+    console.log('[MessageView] ttsAutoPlay value:', ttsAutoPlay);
+    console.log('[MessageView] ttsAutoPlay type:', typeof ttsAutoPlay);
+    console.log('[MessageView] ttsAutoPlay === true?', ttsAutoPlay === true);
+    console.log('[MessageView] ttsAutoPlay === false?', ttsAutoPlay === false);
 
     if (ttsAutoPlay) {
       // Check if we've already auto-played this message
@@ -133,7 +136,7 @@ function AgentTextBlock(props: {
         // Mark this as the last auto-played message for this session
         lastAutoPlayedMessage.set(props.sessionId, props.message.id);
 
-        voiceModeManager.speak(props.message.text, props.message.id, {
+        voiceModeManager.speak(props.message.text, props.message.id, props.sessionId, {
           speed: ttsSpeed,
           skipCodeBlocks: ttsSkipCodeBlocks,
           maxLength: ttsMaxLength,

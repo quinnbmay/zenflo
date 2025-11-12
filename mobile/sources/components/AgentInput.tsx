@@ -1099,7 +1099,7 @@ function TTSMicrophoneButton() {
         };
     }, [isSpeaking]);
 
-    // Handle tap (toggle TTS auto-play or stop speaking)
+    // Handle tap (only stop speaking, don't toggle auto-play)
     const handlePress = React.useCallback(async () => {
         console.log('[TTSButton] 🔘 Button pressed');
         console.log('[TTSButton] Current isSpeaking state:', isSpeaking);
@@ -1113,13 +1113,9 @@ function TTSMicrophoneButton() {
 
             // Force immediate state update
             setIsSpeaking(false);
-        } else {
-            console.log('[TTSButton] 🔄 Toggling auto-play (isSpeaking=false)');
-            // Toggle auto-play setting
-            const newValue = !ttsAutoPlay;
-            storage.getState().applyLocalSettings({ ttsAutoPlay: newValue });
-            console.log('[TTSButton] Auto-play toggled to:', newValue);
         }
+        // Note: Button no longer toggles auto-play when idle
+        // Users should use Settings → Voice → Auto Play toggle to control this setting
     }, [isSpeaking, ttsAutoPlay]);
 
     // Only show button if experimental features are enabled
@@ -1146,10 +1142,7 @@ function TTSMicrophoneButton() {
                 onPress={handlePress}
             >
                 <Ionicons
-                    name={
-                        isSpeaking ? "stop-circle" :
-                        ttsAutoPlay ? "mic" : "mic-off"
-                    }
+                    name={isSpeaking ? "stop-circle" : "volume-high"}
                     size={20}
                     color={theme.colors.button.primary.tint}
                 />

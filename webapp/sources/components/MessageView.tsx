@@ -10,6 +10,8 @@ import { ToolView } from "./tools/ToolView";
 import { AgentEvent } from "@/sync/typesRaw";
 import { sync } from '@/sync/sync';
 import { Option } from './markdown/MarkdownView';
+import { voiceModeManager } from '@/voice/VoiceModeManager';
+import { useLocalSetting } from '@/sync/storage';
 
 export const MessageView = (props: {
   message: Message;
@@ -84,6 +86,9 @@ function UserTextBlock(props: {
   );
 }
 
+// Track last auto-played message per session to avoid replaying on mount
+const lastAutoPlayedMessage = new Map<string, string>();
+
 function AgentTextBlock(props: {
   message: AgentTextMessage;
   sessionId: string;
@@ -91,6 +96,55 @@ function AgentTextBlock(props: {
   const handleOptionPress = React.useCallback((option: Option) => {
     sync.sendMessage(props.sessionId, option.title);
   }, [props.sessionId]);
+
+  const ttsAutoPlay = useLocalSetting('ttsAutoPlay');
+  const ttsSpeed = useLocalSetting('ttsSpeed');
+  const ttsSkipCodeBlocks = useLocalSetting('ttsSkipCodeBlocks');
+  const ttsMaxLength = useLocalSetting('ttsMaxLength');
+  const ttsVoiceId = useLocalSetting('ttsVoiceId');
+
+  // Auto-play on mount if enabled
+  React.useEffect(() => {
+    console.log('[MessageView] TTS effect triggered for message:', props.message.id);
+    console.log('[MessageView] ttsAutoPlay value:', ttsAutoPlay);
+    console.log('[MessageView] ttsAutoPlay type:', typeof ttsAutoPlay);
+    console.log('[MessageView] ttsAutoPlay === true?', ttsAutoPlay === true);
+    console.log('[MessageView] ttsAutoPlay === false?', ttsAutoPlay === false);
+
+    if (ttsAutoPlay) {
+      // Check if we've already auto-played this message
+      const lastPlayedId = lastAutoPlayedMessage.get(props.sessionId);
+      console.log('[MessageView] Last auto-played message for session:', lastPlayedId);
+
+      // Only auto-play if this is a NEW message (not previously auto-played)
+      if (lastPlayedId === props.message.id) {
+        console.log('[MessageView] Skipping auto-play - already played this message');
+        return;
+      }
+
+      const shouldRead = voiceModeManager.shouldReadMessage(props.message.text, {
+        speed: ttsSpeed,
+        skipCodeBlocks: ttsSkipCodeBlocks,
+        maxLength: ttsMaxLength,
+      });
+
+      console.log('[MessageView] shouldRead:', shouldRead);
+
+      if (shouldRead) {
+        console.log('[MessageView] Calling voiceModeManager.speak() for NEW message');
+
+        // Mark this as the last auto-played message for this session
+        lastAutoPlayedMessage.set(props.sessionId, props.message.id);
+
+        voiceModeManager.speak(props.message.text, props.message.id, props.sessionId, {
+          speed: ttsSpeed,
+          skipCodeBlocks: ttsSkipCodeBlocks,
+          maxLength: ttsMaxLength,
+          voiceId: ttsVoiceId,
+        });
+      }
+    }
+  }, [props.message.id, props.message.text, props.sessionId, ttsAutoPlay, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength, ttsVoiceId]);
 
   return (
     <View style={styles.agentMessageContainer}>

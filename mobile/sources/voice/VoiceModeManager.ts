@@ -18,6 +18,7 @@ class VoiceModeManager {
     private isCurrentlySpeaking = false;
     private messageQueue: Array<{ text: string; messageId: string; options: TTSOptions }> = [];
     private currentMessageId: string | null = null;
+    private currentSessionId: string | null = null; // Track which session is currently playing
     private queuedMessageIds: Set<string> = new Set(); // Track queued messages to prevent duplicates
     private sound: Audio.Sound | null = null;
     private apiKey: string | null = null;
@@ -52,12 +53,23 @@ class VoiceModeManager {
     /**
      * Speak a message using ElevenLabs TTS
      */
-    async speak(text: string, messageId: string, options: TTSOptions): Promise<void> {
+    async speak(text: string, messageId: string, sessionId: string, options: TTSOptions): Promise<void> {
         console.log('[VoiceMode] ====== SPEAK CALLED ======');
+        console.log('[VoiceMode] SessionId:', sessionId);
         console.log('[VoiceMode] MessageId:', messageId);
         console.log('[VoiceMode] Currently speaking:', this.isCurrentlySpeaking);
+        console.log('[VoiceMode] Current sessionId:', this.currentSessionId);
         console.log('[VoiceMode] Current messageId:', this.currentMessageId);
         console.log('[VoiceMode] Queue length:', this.messageQueue.length);
+
+        // If switching to a different session, stop current playback
+        if (this.currentSessionId && this.currentSessionId !== sessionId) {
+            console.log('[VoiceMode] 🔄 Session changed, stopping current playback');
+            await this.stop();
+        }
+
+        // Update current session
+        this.currentSessionId = sessionId;
 
         // Check API key
         if (!this.apiKey) {
@@ -309,6 +321,7 @@ class VoiceModeManager {
         this.queuedMessageIds.clear();
         this.isCurrentlySpeaking = false;
         this.currentMessageId = null;
+        this.currentSessionId = null;
 
         console.log('[VoiceMode] Stopped and cleared queue');
     }

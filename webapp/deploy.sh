@@ -16,7 +16,7 @@
 #   ./deploy.sh [options]
 #
 # Options:
-#   --skip-build     Skip the local build step (use existing dist-railway/)
+#   --skip-build     Skip the local build step (use existing dist/)
 #   --skip-cache     Skip Cloudflare cache purge
 #   --help           Show this help message
 #
@@ -51,7 +51,7 @@ readonly CONTAINER_NAME="zenflo-webapp"
 readonly NAS_PATH="developer/infrastructure/Zenflo Server/zenflo/webapp"
 readonly WEBAPP_DIR="/Users/quinnmay/developer/zenflo/webapp"
 readonly ARCHIVE_PATH="/tmp/webapp-deploy.tar.gz"
-readonly DIST_DIR="dist-railway"
+readonly DIST_DIR="dist"
 
 # Parse command line arguments
 SKIP_BUILD=false
@@ -144,7 +144,7 @@ build_webapp() {
     if [[ "$SKIP_BUILD" == true ]]; then
         log_warning "Skipping build step (--skip-build flag)"
 
-        # Verify dist-railway exists
+        # Verify dist exists
         if [[ ! -d "$WEBAPP_DIR/$DIST_DIR" ]]; then
             log_error "$DIST_DIR directory not found. Cannot skip build"
             exit 2
@@ -175,14 +175,17 @@ build_webapp() {
         exit 2
     fi
 
-    # Rename dist to dist-railway
+    # Verify dist directory exists
     if [[ ! -d "dist" ]]; then
         log_error "Build succeeded but dist directory not found"
         exit 2
     fi
 
-    log_info "Renaming dist to $DIST_DIR..."
-    mv dist "$DIST_DIR"
+    # If DIST_DIR is not "dist", rename it
+    if [[ "$DIST_DIR" != "dist" ]]; then
+        log_info "Renaming dist to $DIST_DIR..."
+        mv dist "$DIST_DIR"
+    fi
 
     log_success "Build completed successfully"
 }
@@ -192,7 +195,7 @@ package_and_transfer() {
 
     cd "$WEBAPP_DIR"
 
-    # Verify dist-railway exists
+    # Verify dist directory exists
     if [[ ! -d "$DIST_DIR" ]]; then
         log_error "$DIST_DIR directory not found"
         exit 3

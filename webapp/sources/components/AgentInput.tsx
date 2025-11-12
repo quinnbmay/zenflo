@@ -18,7 +18,8 @@ import { TextInputState, MultiTextInputHandle } from './MultiTextInput';
 import { applySuggestion } from './autocomplete/applySuggestion';
 import { GitStatusBadge, useHasMeaningfulGitStatus } from './GitStatusBadge';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { useSetting } from '@/sync/storage';
+import { useSetting, useLocalSetting, storage } from '@/sync/storage';
+import { voiceModeManager } from '@/voice/VoiceModeManager';
 import { Theme } from '@/theme';
 import { t } from '@/text';
 import { Metadata } from '@/sync/storageTypes';
@@ -950,6 +951,9 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                             <GitStatusButton sessionId={props.sessionId} onPress={props.onFileViewerPress} />
                         </View>
 
+                        {/* TTS Microphone button */}
+                        <TTSMicrophoneButton />
+
                         {/* Send/Voice button */}
                         <View
                             style={[
@@ -1061,5 +1065,85 @@ function GitStatusButton({ sessionId, onPress }: { sessionId?: string, onPress?:
                 />
             )}
         </Pressable>
+    );
+}
+
+// TTS Microphone Button Component
+function TTSMicrophoneButton() {
+    const { theme } = useUnistyles();
+    const ttsAutoPlay = useLocalSetting('ttsAutoPlay');
+    const experiments = useSetting('experiments');
+    const [isSpeaking, setIsSpeaking] = React.useState(false);
+
+    // Subscribe to voice mode manager state changes
+    React.useEffect(() => {
+        const checkState = async () => {
+            const speaking = await voiceModeManager.isSpeaking();
+            if (speaking !== isSpeaking) {
+                console.log('[TTSButton] 🔄 State changed:', isSpeaking, '→', speaking);
+            }
+            setIsSpeaking(speaking);
+        };
+
+        checkState();
+        const interval = setInterval(checkState, 100);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [isSpeaking]);
+
+    // Handle tap (only stop speaking, don't toggle auto-play)
+    const handlePress = React.useCallback(async () => {
+        console.log('[TTSButton] 🔘 Button pressed');
+        console.log('[TTSButton] Current isSpeaking state:', isSpeaking);
+        console.log('[TTSButton] Current ttsAutoPlay:', ttsAutoPlay);
+
+        hapticsLight();
+        if (isSpeaking) {
+            console.log('[TTSButton] 🛑 Stopping playback (isSpeaking=true)');
+            await voiceModeManager.stop();
+            console.log('[TTSButton] ✅ Stop completed');
+
+            // Force immediate state update
+            setIsSpeaking(false);
+        }
+        // Note: Button no longer toggles auto-play when idle
+        // Users should use Settings → Voice → Auto Play toggle to control this setting
+    }, [isSpeaking, ttsAutoPlay]);
+
+    if (!experiments || !voiceModeManager) {
+        return null;
+    }
+
+    return (
+        <View
+            style={{
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexShrink: 0,
+                backgroundColor: theme.colors.button.primary.background,
+            }}
+        >
+            <Pressable
+                style={(p) => ({
+                    width: '100%',
+                    height: '100%',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: p.pressed ? 0.7 : 1,
+                })}
+                onPress={handlePress}
+            >
+                <Ionicons
+                    name={isSpeaking ? "stop-circle" : "volume-high"}
+                    size={20}
+                    color={theme.colors.button.primary.tint}
+                />
+            </Pressable>
+        </View>
     );
 }
