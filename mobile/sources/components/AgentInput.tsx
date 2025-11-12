@@ -1139,9 +1139,15 @@ function TTSMicrophoneButton({ sessionId }: { sessionId?: string }) {
             }
 
             // Find last agent message (agent-text kind)
-            const lastAgentMessage = [...sessionMessages.messages]
-                .reverse()
-                .find(m => m.kind === 'agent-text');
+            // Use reverse iteration to find the LAST agent message, not the first
+            const messages = sessionMessages.messages;
+            let lastAgentMessage: Extract<typeof messages[0], { kind: 'agent-text' }> | null = null;
+            for (let i = messages.length - 1; i >= 0; i--) {
+                if (messages[i].kind === 'agent-text') {
+                    lastAgentMessage = messages[i] as Extract<typeof messages[0], { kind: 'agent-text' }>;
+                    break;
+                }
+            }
 
             if (!lastAgentMessage) {
                 console.log('[TTSButton] ⚠️ No agent messages found');
