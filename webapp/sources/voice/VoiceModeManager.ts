@@ -37,22 +37,28 @@ class VoiceModeManager {
 
     /**
      * Speak a message using ElevenLabs TTS
+     * @param isManual - If true, speaks even when Max is active (manual mic button click)
      */
-    async speak(text: string, messageId: string, sessionId: string, options: TTSOptions): Promise<void> {
+    async speak(text: string, messageId: string, sessionId: string, options: TTSOptions, isManual: boolean = false): Promise<void> {
         console.log('[VoiceMode] ====== SPEAK CALLED ======');
         console.log('[VoiceMode] SessionId:', sessionId);
         console.log('[VoiceMode] MessageId:', messageId);
+        console.log('[VoiceMode] isManual:', isManual);
         console.log('[VoiceMode] Currently speaking:', this.isCurrentlySpeaking);
         console.log('[VoiceMode] Current sessionId:', this.currentSessionId);
         console.log('[VoiceMode] Current messageId:', this.currentMessageId);
         console.log('[VoiceMode] Queue length:', this.messageQueue.length);
 
-        // Check if Max (conversational AI) is active - if so, don't interrupt
-        const { storage } = await import('../sync/storage');
-        const realtimeStatus = storage.getState().realtimeStatus;
-        if (realtimeStatus === 'connected' || realtimeStatus === 'connecting') {
-            console.log('[VoiceMode] ⏸️  Max is active (', realtimeStatus, ') - skipping TTS to avoid conflict');
-            return;
+        // Check if Max (conversational AI) is active - if so, only block auto-play (not manual)
+        if (!isManual) {
+            const { storage } = await import('../sync/storage');
+            const realtimeStatus = storage.getState().realtimeStatus;
+            if (realtimeStatus === 'connected' || realtimeStatus === 'connecting') {
+                console.log('[VoiceMode] ⏸️  Max is active (', realtimeStatus, ') - skipping auto-play TTS to avoid conflict');
+                return;
+            }
+        } else {
+            console.log('[VoiceMode] 🎤 Manual playback - bypassing Max active check');
         }
 
         // If switching to a different session, stop current playback

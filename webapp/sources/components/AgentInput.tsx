@@ -1150,7 +1150,7 @@ function TTSMicrophoneButton({ sessionId }: { sessionId?: string }) {
                 skipCodeBlocks: ttsSkipCodeBlocks,
                 maxLength: ttsMaxLength,
                 voiceId: ttsVoiceId,
-            });
+            }, true); // isManual = true for mic button clicks
         }
     }, [isSpeaking, ttsAutoPlay, sessionId, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength, ttsVoiceId]);
 
