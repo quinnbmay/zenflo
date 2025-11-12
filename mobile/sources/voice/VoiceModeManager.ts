@@ -16,8 +16,9 @@ interface TTSOptions {
 
 class VoiceModeManager {
     private isCurrentlySpeaking = false;
-    private messageQueue: Array<{ text: string; messageId: string }> = [];
+    private messageQueue: Array<{ text: string; messageId: string; options: TTSOptions }> = [];
     private currentMessageId: string | null = null;
+    private queuedMessageIds: Set<string> = new Set(); // Track queued messages to prevent duplicates
     private sound: Audio.Sound | null = null;
     private apiKey: string | null = null;
 
@@ -54,11 +55,9 @@ class VoiceModeManager {
     async speak(text: string, messageId: string, options: TTSOptions): Promise<void> {
         console.log('[VoiceMode] ====== SPEAK CALLED ======');
         console.log('[VoiceMode] MessageId:', messageId);
-        console.log('[VoiceMode] Text length:', text.length);
-        console.log('[VoiceMode] Text preview:', text.substring(0, 100));
-        console.log('[VoiceMode] Options:', JSON.stringify(options));
-        console.log('[VoiceMode] API key set?', !!this.apiKey);
-        console.log('[VoiceMode] API key value:', this.apiKey ? `${this.apiKey.substring(0, 10)}...` : 'NOT SET');
+        console.log('[VoiceMode] Currently speaking:', this.isCurrentlySpeaking);
+        console.log('[VoiceMode] Current messageId:', this.currentMessageId);
+        console.log('[VoiceMode] Queue length:', this.messageQueue.length);
 
         // Check API key
         if (!this.apiKey) {
@@ -66,10 +65,15 @@ class VoiceModeManager {
             return;
         }
 
+        // Check if this message is already queued or currently playing
+        if (this.currentMessageId === messageId || this.queuedMessageIds.has(messageId)) {
+            console.log('[VoiceMode] ⏭️  Message already queued/playing, skipping:', messageId);
+            return;
+        }
+
         // Prepare text for TTS
         const preparedText = this.prepareTextForTTS(text, options);
         console.log('[VoiceMode] Prepared text length:', preparedText.length);
-        console.log('[VoiceMode] Prepared text preview:', preparedText.substring(0, 100));
 
         // Skip if text is too long or empty
         if (!preparedText || preparedText.length > options.maxLength) {
@@ -77,10 +81,27 @@ class VoiceModeManager {
             return;
         }
 
-        // Stop current speech if any
+        // If currently speaking, add to queue instead of interrupting
         if (this.isCurrentlySpeaking) {
-            console.log('[VoiceMode] Stopping current speech...');
-            await this.stop();
+            console.log('[VoiceMode] 📋 Adding to queue (currently speaking):', messageId);
+            this.messageQueue.push({ text: preparedText, messageId, options });
+            this.queuedMessageIds.add(messageId);
+            return;
+        }
+
+        // Start speaking immediately
+        console.log('[VoiceMode] 🎤 Starting speech immediately:', messageId);
+        await this.speakNow(preparedText, messageId, options);
+    }
+
+    /**
+     * Internal method to actually speak (used by speak() and queue processing)
+     */
+    private async speakNow(preparedText: string, messageId: string, options: TTSOptions): Promise<void> {
+        // Double-check API key (should never happen due to check in speak())
+        if (!this.apiKey) {
+            console.error('[VoiceMode] ❌ API key not set in speakNow - ABORTING');
+            return;
         }
 
         this.isCurrentlySpeaking = true;
@@ -103,7 +124,7 @@ class VoiceModeManager {
                     headers: {
                         'Accept': 'audio/mpeg',
                         'Content-Type': 'application/json',
-                        'xi-api-key': this.apiKey,
+                        'xi-api-key': this.apiKey, // TypeScript knows it's non-null now
                     },
                     body: JSON.stringify({
                         text: preparedText,
@@ -168,10 +189,13 @@ class VoiceModeManager {
 
     private onPlaybackStatusUpdate(status: any) {
         if (status.didJustFinish) {
-            console.log('[VoiceMode] Finished playing:', this.currentMessageId);
-            this.isCurrentlySpeaking = false;
-            const messageId = this.currentMessageId;
-            this.currentMessageId = null;
+            console.log('[VoiceMode] ✅ Finished playing:', this.currentMessageId);
+            const finishedMessageId = this.currentMessageId;
+
+            // Remove from queued IDs set
+            if (finishedMessageId) {
+                this.queuedMessageIds.delete(finishedMessageId);
+            }
 
             // Unload sound
             if (this.sound) {
@@ -179,8 +203,21 @@ class VoiceModeManager {
                 this.sound = null;
             }
 
-            if (messageId && this.onPlaybackFinished) {
-                this.onPlaybackFinished(messageId);
+            // Reset state
+            this.isCurrentlySpeaking = false;
+            this.currentMessageId = null;
+
+            // Process next item in queue
+            if (this.messageQueue.length > 0) {
+                console.log('[VoiceMode] 📋 Processing next item from queue (', this.messageQueue.length, 'remaining)');
+                const next = this.messageQueue.shift()!;
+                this.queuedMessageIds.delete(next.messageId); // Remove from queued set before playing
+                this.speakNow(next.text, next.messageId, next.options);
+            }
+
+            // Call callback
+            if (finishedMessageId && this.onPlaybackFinished) {
+                this.onPlaybackFinished(finishedMessageId);
             }
         }
     }
@@ -256,16 +293,24 @@ class VoiceModeManager {
     }
 
     /**
-     * Stop current speech
+     * Stop current speech and clear queue
      */
     async stop(): Promise<void> {
+        console.log('[VoiceMode] 🛑 Stop called');
+
         if (this.sound) {
             await this.sound.stopAsync();
             await this.sound.unloadAsync();
             this.sound = null;
         }
+
+        // Clear queue and state
+        this.messageQueue = [];
+        this.queuedMessageIds.clear();
         this.isCurrentlySpeaking = false;
         this.currentMessageId = null;
+
+        console.log('[VoiceMode] Stopped and cleared queue');
     }
 
     /**
