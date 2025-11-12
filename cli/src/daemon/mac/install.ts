@@ -1,39 +1,60 @@
 /**
- * Installation script for Happy daemon using macOS LaunchDaemons
- * 
- * NOTE: This installation method is currently NOT USED in favor of auto-starting 
- * the daemon when the user runs the happy command. 
- * 
- * Why we're not using this approach:
- * 1. Installing a LaunchDaemon requires sudo permissions, which users might not be comfortable with
- * 2. We assume users will run happy frequently (every time they open their laptop)
- * 3. The auto-start approach provides the same functionality without requiring elevated permissions
- * 
- * This code is kept for potential future use if we decide to offer system-level installation as an option.
+ * Installation script for ZenFlo daemon using macOS LaunchAgent
+ *
+ * This installs the daemon as a user-level LaunchAgent that:
+ * - Runs automatically when you log in
+ * - No sudo required (installs to ~/Library/LaunchAgents)
+ * - Can be granted Full Disk Access in System Settings
+ * - Provides better system integration than auto-start
+ *
+ * Usage:
+ *   zenflo daemon install   - Install LaunchAgent
+ *   zenflo daemon uninstall - Remove LaunchAgent
+ *   zenflo daemon status    - Check installation status
+ *
+ * Note: Auto-start remains the default behavior. This is an optional
+ * enhancement for users who want daemon running 24/7.
  */
 
-import { writeFileSync, chmodSync, existsSync } from 'fs';
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
 import { logger } from '@/ui/logger';
 import { trimIdent } from '@/utils/trimIdent';
 import os from 'os';
+import path from 'path';
+import chalk from 'chalk';
+import { configuration } from '@/configuration';
 
-const PLIST_LABEL = 'com.happy-cli.daemon';
-const PLIST_FILE = `/Library/LaunchDaemons/${PLIST_LABEL}.plist`;
-
-// NOTE: Local installation like --local does not make too much sense I feel like
+const PLIST_LABEL = 'com.zenflo.daemon';
+const LAUNCH_AGENTS_DIR = path.join(os.homedir(), 'Library', 'LaunchAgents');
+const PLIST_FILE = path.join(LAUNCH_AGENTS_DIR, `${PLIST_LABEL}.plist`);
 
 export async function install(): Promise<void> {
     try {
+        console.log(chalk.cyan('📦 Installing ZenFlo daemon as LaunchAgent...\n'));
+
         // Check if already installed
         if (existsSync(PLIST_FILE)) {
-            logger.info('Daemon plist already exists. Uninstalling first...');
-            execSync(`launchctl unload ${PLIST_FILE}`, { stdio: 'inherit' });
+            console.log(chalk.yellow('⚠️  LaunchAgent already installed. Uninstalling first...\n'));
+            try {
+                execSync(`launchctl unload "${PLIST_FILE}"`, { stdio: 'pipe' });
+            } catch (error) {
+                // Ignore errors - plist might not be loaded
+            }
         }
 
-        // Get the path to the ZenFlo CLI executable
-        const happyPath = process.argv[0]; // Node.js executable
-        const scriptPath = process.argv[1]; // Script path
+        // Ensure LaunchAgents directory exists
+        if (!existsSync(LAUNCH_AGENTS_DIR)) {
+            mkdirSync(LAUNCH_AGENTS_DIR, { recursive: true });
+        }
+
+        // Get the path to zenflo binary (the symlink in PATH)
+        let zenfloBinaryPath: string;
+        try {
+            zenfloBinaryPath = execSync('which zenflo', { encoding: 'utf-8' }).trim();
+        } catch (error) {
+            throw new Error('Could not find zenflo binary in PATH. Is ZenFlo installed?');
+        }
 
         // Create plist content
         const plistContent = trimIdent(`
@@ -43,51 +64,74 @@ export async function install(): Promise<void> {
             <dict>
                 <key>Label</key>
                 <string>${PLIST_LABEL}</string>
-                
+
                 <key>ProgramArguments</key>
                 <array>
-                    <string>${happyPath}</string>
-                    <string>${scriptPath}</string>
-                    <string>happy-daemon</string>
+                    <string>${zenfloBinaryPath}</string>
+                    <string>daemon</string>
+                    <string>start-sync</string>
                 </array>
-                
-                <key>EnvironmentVariables</key>
-                <dict>
-                    <key>ZENFLO_DAEMON_MODE</key>
-                    <string>true</string>
-                </dict>
-                
+
                 <key>RunAtLoad</key>
                 <true/>
-                
+
                 <key>KeepAlive</key>
-                <true/>
-                
+                <dict>
+                    <key>SuccessfulExit</key>
+                    <false/>
+                </dict>
+
                 <key>StandardErrorPath</key>
-                <string>${os.homedir()}/.happy/daemon.err</string>
-                
+                <string>${configuration.zenfloHomeDir}/daemon.err</string>
+
                 <key>StandardOutPath</key>
-                <string>${os.homedir()}/.happy/daemon.log</string>
-                
+                <string>${configuration.zenfloHomeDir}/daemon.log</string>
+
                 <key>WorkingDirectory</key>
-                <string>/tmp</string>
+                <string>${os.homedir()}</string>
+
+                <key>ProcessType</key>
+                <string>Background</string>
+
+                <key>ThrottleInterval</key>
+                <integer>10</integer>
             </dict>
             </plist>
         `);
 
         // Write plist file
-        writeFileSync(PLIST_FILE, plistContent);
-        chmodSync(PLIST_FILE, 0o644);
-
-        logger.info(`Created daemon plist at ${PLIST_FILE}`);
+        writeFileSync(PLIST_FILE, plistContent, { mode: 0o644 });
+        console.log(chalk.green('✅ Created LaunchAgent plist'));
+        console.log(chalk.dim(`   ${PLIST_FILE}\n`));
 
         // Load the daemon
-        execSync(`launchctl load ${PLIST_FILE}`, { stdio: 'inherit' });
+        try {
+            execSync(`launchctl load "${PLIST_FILE}"`, { stdio: 'pipe' });
+            console.log(chalk.green('✅ LaunchAgent loaded successfully\n'));
+        } catch (error) {
+            throw new Error(`Failed to load LaunchAgent: ${error instanceof Error ? error.message : error}`);
+        }
 
-        logger.info('Daemon installed and started successfully');
-        logger.info('Check logs at ~/.happy/daemon.log');
+        // Print success message
+        console.log(chalk.green.bold('🎉 Installation complete!\n'));
+        console.log(chalk.cyan('The daemon will now:'));
+        console.log(chalk.dim('  • Start automatically when you log in'));
+        console.log(chalk.dim('  • Run in the background 24/7'));
+        console.log(chalk.dim('  • Restart automatically if it crashes\n'));
+
+        console.log(chalk.cyan('Next steps:'));
+        console.log(chalk.dim('  • Check status: ') + chalk.white('zenflo daemon status'));
+        console.log(chalk.dim('  • View logs: ') + chalk.white(`tail -f ${configuration.zenfloHomeDir}/daemon.log`));
+        console.log(chalk.dim('  • Uninstall: ') + chalk.white('zenflo daemon uninstall\n'));
+
+        console.log(chalk.yellow('💡 Tip: To grant Full Disk Access:'));
+        console.log(chalk.dim('  1. Open System Settings → Privacy & Security → Full Disk Access'));
+        console.log(chalk.dim('  2. Click the + button'));
+        console.log(chalk.dim('  3. Navigate to: ') + chalk.white(zenfloBinaryPath));
+        console.log(chalk.dim('  4. Enable the toggle\n'));
 
     } catch (error) {
+        console.error(chalk.red('❌ Installation failed:'), error instanceof Error ? error.message : error);
         logger.debug('Failed to install daemon:', error);
         throw error;
     }

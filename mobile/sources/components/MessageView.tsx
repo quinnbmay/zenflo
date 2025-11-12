@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { StyleSheet } from 'react-native-unistyles';
 import { MarkdownView } from "./markdown/MarkdownView";
 import { t } from '@/text';
@@ -12,6 +12,7 @@ import { sync } from '@/sync/sync';
 import { Option } from './markdown/MarkdownView';
 import { voiceModeManager } from '@/voice/VoiceModeManager';
 import { useLocalSetting } from '@/sync/storage';
+import { Ionicons } from '@expo/vector-icons';
 
 export const MessageView = (props: {
   message: Message;
@@ -103,6 +104,52 @@ function AgentTextBlock(props: {
   const ttsMaxLength = useLocalSetting('ttsMaxLength');
   const ttsVoiceId = useLocalSetting('ttsVoiceId');
 
+  // Track if this specific message is currently playing
+  const [isPlaying, setIsPlaying] = React.useState(false);
+
+  // Poll for playing state (VoiceModeManager doesn't have subscribe yet)
+  React.useEffect(() => {
+    let mounted = true;
+
+    const checkPlayingState = async () => {
+      if (!mounted) return;
+
+      const speaking = await voiceModeManager.isSpeaking();
+      // For now, we can only check if ANY message is speaking
+      // TODO: Add currentMessageId getter to VoiceModeManager to check specific message
+      setIsPlaying(speaking);
+    };
+
+    // Check immediately
+    checkPlayingState();
+
+    // Poll every 500ms while mounted
+    const interval = setInterval(checkPlayingState, 500);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [props.message.id]);
+
+  // Handle manual speaker button click
+  const handleSpeakerPress = React.useCallback(async () => {
+    const speaking = await voiceModeManager.isSpeaking();
+
+    if (speaking) {
+      // Stop playback
+      await voiceModeManager.stop();
+    } else {
+      // Start playing this message
+      voiceModeManager.speak(props.message.text, props.message.id, props.sessionId, {
+        speed: ttsSpeed,
+        skipCodeBlocks: ttsSkipCodeBlocks,
+        maxLength: ttsMaxLength,
+        voiceId: ttsVoiceId,
+      }, true); // isManual = true
+    }
+  }, [props.message.text, props.message.id, props.sessionId, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength, ttsVoiceId]);
+
   // Auto-play on mount if enabled
   React.useEffect(() => {
     console.log('[MessageView] TTS effect triggered for message:', props.message.id);
@@ -149,6 +196,20 @@ function AgentTextBlock(props: {
   return (
     <View style={styles.agentMessageContainer}>
       <MarkdownView markdown={props.message.text} onOptionPress={handleOptionPress} />
+      <Pressable
+        onPress={handleSpeakerPress}
+        style={({ pressed }) => [
+          styles.speakerButton,
+          pressed && styles.speakerButtonPressed,
+        ]}
+        hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+      >
+        <Ionicons
+          name={isPlaying ? "stop-circle" : "volume-medium"}
+          size={18}
+          color={isPlaying ? "#FF6B6B" : "#8E8E93"}
+        />
+      </Pressable>
     </View>
   );
 }
@@ -249,6 +310,16 @@ const styles = StyleSheet.create((theme) => ({
     marginBottom: 12,
     borderRadius: 16,
     alignSelf: 'flex-start',
+  },
+  speakerButton: {
+    marginTop: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+    alignSelf: 'flex-start',
+    opacity: 0.7,
+  },
+  speakerButtonPressed: {
+    opacity: 1,
   },
   agentEventContainer: {
     marginHorizontal: 8,

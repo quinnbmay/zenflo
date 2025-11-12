@@ -195,8 +195,9 @@ import { execFileSync } from 'node:child_process'
       await stopDaemon()
       process.exit(0)
     } else if (daemonSubcommand === 'status') {
-      // Show daemon-specific doctor output
-      await runDoctorCommand('daemon')
+      // Show daemon status (LaunchAgent vs auto-start)
+      const { status } = await import('./daemon/mac/status')
+      await status()
       process.exit(0)
     } else if (daemonSubcommand === 'logs') {
       // Simply print the path to the latest daemon log file
