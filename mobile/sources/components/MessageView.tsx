@@ -152,45 +152,44 @@ function AgentTextBlock(props: {
 
   // Auto-play on mount if enabled
   React.useEffect(() => {
-    console.log('[MessageView] TTS effect triggered for message:', props.message.id);
-    console.log('[MessageView] ttsAutoPlay value:', ttsAutoPlay);
-    console.log('[MessageView] ttsAutoPlay type:', typeof ttsAutoPlay);
-    console.log('[MessageView] ttsAutoPlay === true?', ttsAutoPlay === true);
-    console.log('[MessageView] ttsAutoPlay === false?', ttsAutoPlay === false);
-
-    if (ttsAutoPlay) {
-      // Check if we've already auto-played this message
-      const lastPlayedId = lastAutoPlayedMessage.get(props.sessionId);
-      console.log('[MessageView] Last auto-played message for session:', lastPlayedId);
-
-      // Only auto-play if this is a NEW message (not previously auto-played)
-      if (lastPlayedId === props.message.id) {
-        console.log('[MessageView] Skipping auto-play - already played this message');
-        return;
-      }
-
-      const shouldRead = voiceModeManager.shouldReadMessage(props.message.text, {
-        speed: ttsSpeed,
-        skipCodeBlocks: ttsSkipCodeBlocks,
-        maxLength: ttsMaxLength,
-      });
-
-      console.log('[MessageView] shouldRead:', shouldRead);
-
-      if (shouldRead) {
-        console.log('[MessageView] Calling voiceModeManager.speak() for NEW message');
-
-        // Mark this as the last auto-played message for this session
-        lastAutoPlayedMessage.set(props.sessionId, props.message.id);
-
-        voiceModeManager.speak(props.message.text, props.message.id, props.sessionId, {
-          speed: ttsSpeed,
-          skipCodeBlocks: ttsSkipCodeBlocks,
-          maxLength: ttsMaxLength,
-          voiceId: ttsVoiceId,
-        });
-      }
+    if (!ttsAutoPlay) {
+      return;
     }
+
+    // Check if we've already auto-played this message
+    const lastPlayedId = lastAutoPlayedMessage.get(props.sessionId);
+
+    // Only auto-play if this is a NEW message (not previously auto-played)
+    // Check both exact match AND if this message was created before the last played message
+    if (lastPlayedId === props.message.id) {
+      return; // Already played this exact message
+    }
+
+    // Check if message should be read (filters out tool calls, thinking, etc.)
+    const shouldRead = voiceModeManager.shouldReadMessage(props.message.text, {
+      speed: ttsSpeed,
+      skipCodeBlocks: ttsSkipCodeBlocks,
+      maxLength: ttsMaxLength,
+    });
+
+    if (!shouldRead) {
+      // Even if we don't read it, mark it as "played" to advance the pointer
+      // This prevents older messages from playing when conversation mode is toggled
+      lastAutoPlayedMessage.set(props.sessionId, props.message.id);
+      return;
+    }
+
+    // Mark this as the last auto-played message BEFORE speaking
+    // This prevents duplicate playback if component re-renders during speech
+    lastAutoPlayedMessage.set(props.sessionId, props.message.id);
+
+    // Start speaking
+    voiceModeManager.speak(props.message.text, props.message.id, props.sessionId, {
+      speed: ttsSpeed,
+      skipCodeBlocks: ttsSkipCodeBlocks,
+      maxLength: ttsMaxLength,
+      voiceId: ttsVoiceId,
+    });
   }, [props.message.id, props.message.text, props.sessionId, ttsAutoPlay, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength, ttsVoiceId]);
 
   return (
