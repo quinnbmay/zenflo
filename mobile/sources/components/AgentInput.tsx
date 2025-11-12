@@ -952,7 +952,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                         </View>
 
                         {/* TTS Microphone button */}
-                        <TTSMicrophoneButton />
+                        <TTSMicrophoneButton sessionId={props.sessionId} />
 
                         {/* Send/Voice button */}
                         <View
@@ -1069,10 +1069,14 @@ function GitStatusButton({ sessionId, onPress }: { sessionId?: string, onPress?:
 }
 
 // TTS Microphone Button Component (TTS toggle only - no STT)
-function TTSMicrophoneButton() {
+function TTSMicrophoneButton({ sessionId }: { sessionId?: string }) {
     const styles = stylesheet;
     const { theme } = useUnistyles();
     const ttsAutoPlay = useLocalSetting('ttsAutoPlay');
+    const ttsSpeed = useLocalSetting('ttsSpeed');
+    const ttsSkipCodeBlocks = useLocalSetting('ttsSkipCodeBlocks');
+    const ttsMaxLength = useLocalSetting('ttsMaxLength');
+    const ttsVoiceId = useLocalSetting('ttsVoiceId');
     const experiments = useSetting('experiments');
     const [isSpeaking, setIsSpeaking] = React.useState(false);
 
@@ -1099,7 +1103,7 @@ function TTSMicrophoneButton() {
         };
     }, [isSpeaking]);
 
-    // Handle tap (only stop speaking, don't toggle auto-play)
+    // Handle tap: stop if speaking, or read last message if idle
     const handlePress = React.useCallback(async () => {
         console.log('[TTSButton] 🔘 Button pressed');
         console.log('[TTSButton] Current isSpeaking state:', isSpeaking);
@@ -1110,13 +1114,49 @@ function TTSMicrophoneButton() {
             console.log('[TTSButton] 🛑 Stopping playback (isSpeaking=true)');
             await voiceModeManager.stop();
             console.log('[TTSButton] ✅ Stop completed');
-
-            // Force immediate state update
             setIsSpeaking(false);
+        } else {
+            // When idle, read the last agent message from the session
+            console.log('[TTSButton] 📖 Reading last message (isSpeaking=false)');
+            if (!sessionId) {
+                console.log('[TTSButton] ⚠️ No sessionId available');
+                return;
+            }
+
+            // Get the last agent message from storage
+            const state = storage.getState();
+            const session = state.sessions[sessionId];
+            if (!session) {
+                console.log('[TTSButton] ⚠️ Session not found');
+                return;
+            }
+
+            // Get messages from sessionMessages (messages are stored separately)
+            const sessionMessages = state.sessionMessages[sessionId];
+            if (!sessionMessages || !sessionMessages.isLoaded) {
+                console.log('[TTSButton] ⚠️ Session messages not loaded');
+                return;
+            }
+
+            // Find last agent message (agent-text kind)
+            const lastAgentMessage = [...sessionMessages.messages]
+                .reverse()
+                .find(m => m.kind === 'agent-text');
+
+            if (!lastAgentMessage) {
+                console.log('[TTSButton] ⚠️ No agent messages found');
+                return;
+            }
+
+            console.log('[TTSButton] 🎤 Speaking message:', lastAgentMessage.id);
+            voiceModeManager.speak(lastAgentMessage.text, lastAgentMessage.id, sessionId, {
+                speed: ttsSpeed,
+                skipCodeBlocks: ttsSkipCodeBlocks,
+                maxLength: ttsMaxLength,
+                voiceId: ttsVoiceId,
+            });
         }
-        // Note: Button no longer toggles auto-play when idle
-        // Users should use Settings → Voice → Auto Play toggle to control this setting
-    }, [isSpeaking, ttsAutoPlay]);
+    }, [isSpeaking, ttsAutoPlay, sessionId, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength, ttsVoiceId]);
 
     // Only show button if experimental features are enabled
     if (!experiments || !voiceModeManager) {
