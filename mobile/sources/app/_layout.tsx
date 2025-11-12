@@ -179,7 +179,10 @@ export default function RootLayout() {
                 await setupInteractiveNotifications();
 
                 // Initialize ElevenLabs API key for TTS
-                const elevenlabsKey = Constants.expoConfig?.extra?.app?.elevenlabsApiKey;
+                // Try config first, then fall back to hardcoded key (for OTA updates)
+                const elevenlabsKey = Constants.expoConfig?.extra?.app?.elevenlabsApiKey
+                    || 'sk_f9bf84125ea4a0dcbbe4adcf9e655439a9c08ea8fef16ab6';
+
                 if (elevenlabsKey) {
                     voiceModeManager.setApiKey(elevenlabsKey);
                     console.log('[App] ✅ ElevenLabs TTS initialized');
