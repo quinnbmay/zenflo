@@ -195,9 +195,28 @@ import { execFileSync } from 'node:child_process'
       await stopDaemon()
       process.exit(0)
     } else if (daemonSubcommand === 'status') {
-      // Show daemon status (LaunchAgent vs auto-start)
-      const { status } = await import('./daemon/mac/status')
-      await status()
+      // Show daemon status (platform-specific)
+      try {
+        let statusModule;
+        switch (process.platform) {
+          case 'darwin':
+            statusModule = await import('./daemon/mac/status');
+            break;
+          case 'win32':
+            statusModule = await import('./daemon/windows/status');
+            break;
+          case 'linux':
+            statusModule = await import('./daemon/linux/status');
+            break;
+          default:
+            console.error(chalk.red(`Status command not supported on platform: ${process.platform}`));
+            process.exit(1);
+        }
+        await statusModule.status();
+      } catch (error) {
+        console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error')
+        process.exit(1)
+      }
       process.exit(0)
     } else if (daemonSubcommand === 'logs') {
       // Simply print the path to the latest daemon log file

@@ -137,11 +137,27 @@ export const realtimeClientTools = {
         const sessionMessages = storage.getState().sessionMessages[sessionId];
         const recentMessages = sessionMessages?.messages?.slice(-10) || [];
 
-        const messagePreview = recentMessages.map(msg => ({
-            role: msg.role,
-            preview: extractTextContent(msg.content).slice(0, 200),
-            timestamp: msg.timestamp
-        }));
+        const messagePreview = recentMessages.map(msg => {
+            let role = 'unknown';
+            let preview = '';
+
+            if (msg.kind === 'user-text') {
+                role = 'user';
+                preview = msg.text.slice(0, 200);
+            } else if (msg.kind === 'agent-text') {
+                role = 'assistant';
+                preview = msg.text.slice(0, 200);
+            } else if (msg.kind === 'tool-call') {
+                role = 'assistant';
+                preview = `[Used tool: ${msg.tool?.name || 'unknown'}]`;
+            }
+
+            return {
+                role,
+                preview,
+                timestamp: msg.createdAt
+            };
+        });
 
         const details = {
             id: session.id,
@@ -187,12 +203,30 @@ export const realtimeClientTools = {
         const endIndex = allMessages.length - offset;
         const requestedMessages = allMessages.slice(startIndex, endIndex);
 
-        const messages = requestedMessages.map(msg => ({
-            role: msg.role,
-            content: extractTextContent(msg.content),
-            timestamp: msg.timestamp,
-            hasTools: msg.content.some((c: any) => c.type === 'tool-use' || c.type === 'tool-result')
-        }));
+        const messages = requestedMessages.map(msg => {
+            let role = 'unknown';
+            let content = '';
+            let hasTools = false;
+
+            if (msg.kind === 'user-text') {
+                role = 'user';
+                content = msg.text;
+            } else if (msg.kind === 'agent-text') {
+                role = 'assistant';
+                content = msg.text;
+            } else if (msg.kind === 'tool-call') {
+                role = 'assistant';
+                content = `[Used tool: ${msg.tool?.name || 'unknown'}]`;
+                hasTools = true;
+            }
+
+            return {
+                role,
+                content,
+                timestamp: msg.createdAt,
+                hasTools
+            };
+        });
 
         console.log(`📜 getSessionMessages called for ${sessionId}: showing ${messages.length} messages (offset: ${offset})`);
 
@@ -217,6 +251,22 @@ export const realtimeClientTools = {
                 const messageCount = sessionMessages?.messages?.length || 0;
                 const lastMessage = sessionMessages?.messages?.slice(-1)[0];
 
+                let lastMessagePreview = '';
+                let lastMessageRole = 'unknown';
+
+                if (lastMessage) {
+                    if (lastMessage.kind === 'user-text') {
+                        lastMessageRole = 'user';
+                        lastMessagePreview = lastMessage.text.slice(0, 150);
+                    } else if (lastMessage.kind === 'agent-text') {
+                        lastMessageRole = 'assistant';
+                        lastMessagePreview = lastMessage.text.slice(0, 150);
+                    } else if (lastMessage.kind === 'tool-call') {
+                        lastMessageRole = 'assistant';
+                        lastMessagePreview = `[Used tool: ${lastMessage.tool?.name || 'unknown'}]`;
+                    }
+                }
+
                 return {
                     id: session.id,
                     title: getSessionName(session),
@@ -225,8 +275,8 @@ export const realtimeClientTools = {
                     isThinking: session.thinking,
                     lastActive: new Date(session.activeAt).toISOString(),
                     messageCount,
-                    lastMessagePreview: lastMessage ? extractTextContent(lastMessage.content).slice(0, 150) : '',
-                    lastMessageRole: lastMessage?.role,
+                    lastMessagePreview,
+                    lastMessageRole,
                     hasPermissionRequests: !!(session.agentState?.requests && Object.keys(session.agentState.requests).length > 0)
                 };
             })

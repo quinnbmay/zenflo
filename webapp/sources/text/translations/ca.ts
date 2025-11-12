@@ -553,6 +553,20 @@ export const ca: TranslationStructure = {
         voice: 'Veu',
         voiceSubtitle: 'Tria la teva veu preferida per TTS',
         changeVoice: 'Canviar',
+        voiceSelection: {
+            loading: 'Carregant veus...',
+            loadError: 'No s\'ha pogut carregar les veus. Si us plau, torna-ho a provar.',
+            searchPlaceholder: 'Cerca veus...',
+            noResults: 'Cap veu coincideix amb la teva cerca',
+            categoryDescription: 'Veus d\'alta qualitat per a narració professional',
+            category: {
+                premade: 'Premade Voices',
+                cloned: 'Cloned Voices',
+                professional: 'Professional Voices',
+                generated: 'Generated Voices',
+                other: 'Other Voices',
+            },
+        },
     },
 
     settingsAccount: {

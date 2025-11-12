@@ -559,15 +559,14 @@ export const storage = create<StorageState>()((set, get) => {
                         if (!message) continue;
 
                         // Format message for Max based on type
-                        if (message.kind === 'text') {
-                            const role = message.role === 'user' ? 'Quinn' : 'Assistant';
+                        if (message.kind === 'user-text') {
                             const text = message.text?.slice(0, 800) || '';
-                            messageUpdates.push(`${role}: ${text}${text.length >= 800 ? '...' : ''}`);
+                            messageUpdates.push(`Quinn: ${text}${text.length >= 800 ? '...' : ''}`);
+                        } else if (message.kind === 'agent-text') {
+                            const text = message.text?.slice(0, 800) || '';
+                            messageUpdates.push(`Assistant: ${text}${text.length >= 800 ? '...' : ''}`);
                         } else if (message.kind === 'tool-call') {
                             messageUpdates.push(`Assistant used tool: ${message.tool?.name || 'unknown'}`);
-                        } else if (message.kind === 'tool-result') {
-                            // Skip tool results - too verbose for voice
-                            continue;
                         }
                     }
 

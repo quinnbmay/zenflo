@@ -582,8 +582,8 @@ export async function updateTodoStatusAndPriority(
         priority: newPriority,
         done: newDone,
         updatedAt: now,
-        completedAt: newStatus === 'DONE' ? now : (newStatus === 'DONE' ? todo.completedAt : undefined),
-        cancelledAt: newStatus === 'CANCELLED' ? now : (newStatus === 'CANCELLED' ? todo.cancelledAt : undefined)
+        completedAt: newStatus === 'DONE' ? now : (todo.status === 'DONE' ? todo.completedAt : undefined),
+        cancelledAt: newStatus === 'CANCELLED' ? now : (todo.status === 'CANCELLED' ? todo.cancelledAt : undefined)
     };
 
     // Calculate new orders if status changed between done/undone

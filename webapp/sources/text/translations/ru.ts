@@ -563,6 +563,20 @@ export const ru: TranslationStructure = {
         voice: 'Голос',
         voiceSubtitle: 'Выберите предпочтительный голос для TTS',
         changeVoice: 'Изменить',
+        voiceSelection: {
+            loading: 'Загрузка голосов...',
+            loadError: 'Не удалось загрузить голоса. Пожалуйста, попробуйте снова.',
+            searchPlaceholder: 'Поиск голосов...',
+            noResults: 'Ни один голос не соответствует вашему поиску',
+            categoryDescription: 'Высококачественные голоса для профессиональной озвучки',
+            category: {
+                premade: 'Premade Voices',
+                cloned: 'Cloned Voices',
+                professional: 'Professional Voices',
+                generated: 'Generated Voices',
+                other: 'Other Voices',
+            },
+        },
     },
 
     settingsAccount: {

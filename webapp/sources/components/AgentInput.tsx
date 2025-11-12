@@ -18,7 +18,7 @@ import { TextInputState, MultiTextInputHandle } from './MultiTextInput';
 import { applySuggestion } from './autocomplete/applySuggestion';
 import { GitStatusBadge, useHasMeaningfulGitStatus } from './GitStatusBadge';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { useSetting, useLocalSetting, storage } from '@/sync/storage';
+import { useSetting, useLocalSetting, useLocalSettingMutable, storage } from '@/sync/storage';
 import { voiceModeManager } from '@/voice/VoiceModeManager';
 import { Theme } from '@/theme';
 import { t } from '@/text';
@@ -1068,125 +1068,37 @@ function GitStatusButton({ sessionId, onPress }: { sessionId?: string, onPress?:
     );
 }
 
-// TTS Microphone Button Component
+// TTS Mode Toggle Button - Toggles conversational TTS mode (auto-play)
 function TTSMicrophoneButton({ sessionId }: { sessionId?: string }) {
+    const styles = stylesheet;
     const { theme } = useUnistyles();
-    const ttsAutoPlay = useLocalSetting('ttsAutoPlay');
-    const ttsSpeed = useLocalSetting('ttsSpeed');
-    const ttsSkipCodeBlocks = useLocalSetting('ttsSkipCodeBlocks');
-    const ttsMaxLength = useLocalSetting('ttsMaxLength');
-    const ttsVoiceId = useLocalSetting('ttsVoiceId');
+    const [ttsAutoPlay, setTtsAutoPlay] = useLocalSettingMutable('ttsAutoPlay');
     const experiments = useSetting('experiments');
-    const [isSpeaking, setIsSpeaking] = React.useState(false);
 
-    // Subscribe to voice mode manager state changes
-    React.useEffect(() => {
-        const checkState = async () => {
-            const speaking = await voiceModeManager.isSpeaking();
-            if (speaking !== isSpeaking) {
-                console.log('[TTSButton] 🔄 State changed:', isSpeaking, '→', speaking);
-            }
-            setIsSpeaking(speaking);
-        };
-
-        checkState();
-        const interval = setInterval(checkState, 100);
-
-        return () => {
-            clearInterval(interval);
-        };
-    }, [isSpeaking]);
-
-    // Handle tap: stop if speaking, or read last message if idle
-    const handlePress = React.useCallback(async () => {
-        console.log('[TTSButton] 🔘 Button pressed');
-        console.log('[TTSButton] Current isSpeaking state:', isSpeaking);
-        console.log('[TTSButton] Current ttsAutoPlay:', ttsAutoPlay);
+    // Handle tap: toggle TTS auto-play mode
+    const handlePress = React.useCallback(() => {
+        console.log('[TTSModeToggle] 🔘 Button pressed - toggling TTS mode');
+        console.log('[TTSModeToggle] Current ttsAutoPlay:', ttsAutoPlay);
 
         hapticsLight();
-        if (isSpeaking) {
-            console.log('[TTSButton] 🛑 Stopping playback (isSpeaking=true)');
-            await voiceModeManager.stop();
-            console.log('[TTSButton] ✅ Stop completed');
 
-            // Force immediate state update
-            setIsSpeaking(false);
-        } else {
-            // When idle, read the last agent message from the session
-            console.log('[TTSButton] 📖 Reading last message (isSpeaking=false)');
-            if (!sessionId) {
-                console.log('[TTSButton] ⚠️ No sessionId available');
-                return;
-            }
+        // Toggle the auto-play setting
+        setTtsAutoPlay(!ttsAutoPlay);
 
-            // Get the last agent message from storage
-            const state = storage.getState();
-            const session = state.sessions[sessionId];
-            if (!session) {
-                console.log('[TTSButton] ⚠️ Session not found');
-                return;
-            }
+        console.log('[TTSModeToggle] ✅ TTS mode toggled to:', !ttsAutoPlay);
+    }, [ttsAutoPlay, setTtsAutoPlay]);
 
-            // Get messages from sessionMessages (messages are stored separately)
-            const sessionMessages = state.sessionMessages[sessionId];
-            if (!sessionMessages || !sessionMessages.isLoaded) {
-                console.log('[TTSButton] ⚠️ Session messages not loaded');
-                return;
-            }
-
-            // Find last agent message (agent-text kind)
-            // Use reverse iteration to find the LAST agent message, not the first
-            const messages = sessionMessages.messages;
-            console.log('[TTSButton] 🔍 Total messages in session:', messages.length);
-            console.log('[TTSButton] 🔍 Message types:', messages.map(m => m.kind).join(', '));
-
-            // Find ALL agent-text messages for debugging
-            const allAgentMessages = messages.filter(m => m.kind === 'agent-text');
-            console.log('[TTSButton] 🔍 Found', allAgentMessages.length, 'agent-text messages');
-            if (allAgentMessages.length > 0) {
-                console.log('[TTSButton] 🔍 First agent message ID:', allAgentMessages[0].id);
-                console.log('[TTSButton] 🔍 Last agent message ID:', allAgentMessages[allAgentMessages.length - 1].id);
-            }
-
-            let lastAgentMessage: Extract<typeof messages[0], { kind: 'agent-text' }> | null = null;
-            for (let i = messages.length - 1; i >= 0; i--) {
-                if (messages[i].kind === 'agent-text') {
-                    lastAgentMessage = messages[i] as Extract<typeof messages[0], { kind: 'agent-text' }>;
-                    console.log('[TTSButton] 🔍 Found last agent message at index', i, 'with ID:', lastAgentMessage.id);
-                    break;
-                }
-            }
-
-            if (!lastAgentMessage) {
-                console.log('[TTSButton] ⚠️ No agent messages found');
-                return;
-            }
-
-            console.log('[TTSButton] 🎤 Speaking message:', lastAgentMessage.id);
-            voiceModeManager.speak(lastAgentMessage.text, lastAgentMessage.id, sessionId, {
-                speed: ttsSpeed,
-                skipCodeBlocks: ttsSkipCodeBlocks,
-                maxLength: ttsMaxLength,
-                voiceId: ttsVoiceId,
-            }, true); // isManual = true for mic button clicks
-        }
-    }, [isSpeaking, ttsAutoPlay, sessionId, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength, ttsVoiceId]);
-
+    // Only show button if experimental features are enabled
     if (!experiments || !voiceModeManager) {
         return null;
     }
 
     return (
         <View
-            style={{
-                width: 32,
-                height: 32,
-                borderRadius: 16,
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexShrink: 0,
-                backgroundColor: theme.colors.button.primary.background,
-            }}
+            style={[
+                styles.sendButton,
+                ttsAutoPlay ? styles.sendButtonActive : styles.sendButtonInactive,
+            ]}
         >
             <Pressable
                 style={(p) => ({
@@ -1196,10 +1108,11 @@ function TTSMicrophoneButton({ sessionId }: { sessionId?: string }) {
                     justifyContent: 'center',
                     opacity: p.pressed ? 0.7 : 1,
                 })}
+                hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
                 onPress={handlePress}
             >
                 <Ionicons
-                    name={isSpeaking ? "stop-circle" : "volume-high"}
+                    name={ttsAutoPlay ? "volume-high" : "volume-mute"}
                     size={20}
                     color={theme.colors.button.primary.tint}
                 />

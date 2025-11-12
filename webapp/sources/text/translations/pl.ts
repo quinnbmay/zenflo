@@ -563,6 +563,20 @@ export const pl: TranslationStructure = {
         voice: 'Głos',
         voiceSubtitle: 'Wybierz preferowany głos do TTS',
         changeVoice: 'Zmień',
+        voiceSelection: {
+            loading: 'Ładowanie głosów...',
+            loadError: 'Nie udało się załadować głosów. Proszę spróbować ponownie.',
+            searchPlaceholder: 'Wyszukaj głosy...',
+            noResults: 'Żaden głos nie pasuje do Twojego wyszukiwania',
+            categoryDescription: 'Wysokiej jakości głosy do profesjonalnej narracji',
+            category: {
+                premade: 'Premade Voices',
+                cloned: 'Cloned Voices',
+                professional: 'Professional Voices',
+                generated: 'Generated Voices',
+                other: 'Other Voices',
+            },
+        },
     },
 
     settingsAccount: {

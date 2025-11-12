@@ -555,6 +555,20 @@ export const zhHans: TranslationStructure = {
         voice: '语音',
         voiceSubtitle: '选择文本转语音的语音',
         changeVoice: '更改',
+        voiceSelection: {
+            loading: '正在加载语音...',
+            loadError: '加载语音失败。请重试。',
+            searchPlaceholder: '搜索语音...',
+            noResults: '没有语音匹配您的搜索',
+            categoryDescription: '专业叙述的高质量语音',
+            category: {
+                premade: 'Premade Voices',
+                cloned: 'Cloned Voices',
+                professional: 'Professional Voices',
+                generated: 'Generated Voices',
+                other: 'Other Voices',
+            },
+        },
     },
 
     settingsAccount: {

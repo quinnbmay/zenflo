@@ -1,10 +1,25 @@
 import { install as installMac } from './mac/install';
+import { install as installWindows } from './windows/install';
+import { install as installLinux } from './linux/install';
 
 export async function install(): Promise<void> {
-    if (process.platform !== 'darwin') {
-        throw new Error('Daemon installation is currently only supported on macOS');
-    }
+    switch (process.platform) {
+        case 'darwin':
+            // No sudo required - LaunchAgent installs to user directory
+            await installMac();
+            break;
 
-    // No sudo required - LaunchAgent installs to user directory
-    await installMac();
+        case 'win32':
+            // No admin required - Task Scheduler user tasks
+            await installWindows();
+            break;
+
+        case 'linux':
+            // No sudo required - systemd user services
+            await installLinux();
+            break;
+
+        default:
+            throw new Error(`Daemon installation is not supported on platform: ${process.platform}`);
+    }
 }
