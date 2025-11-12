@@ -1,27 +1,61 @@
 /**
- * VoiceModeManager - Simple TTS using expo-speech
+ * VoiceModeManager - TTS using ElevenLabs
  *
- * Handles text-to-speech playback for Claude responses using native device voices.
- * Uses expo-speech for zero-cost, offline voice synthesis.
+ * Handles text-to-speech playback for Claude responses using ElevenLabs API.
+ * Provides high-quality voice synthesis with professional voices.
  */
 
-import * as Speech from 'expo-speech';
+import { Audio } from 'expo-av';
 
 interface TTSOptions {
     speed: number;
     skipCodeBlocks: boolean;
     maxLength: number;
+    voiceId?: string;
 }
 
 class VoiceModeManager {
     private isCurrentlySpeaking = false;
     private messageQueue: Array<{ text: string; messageId: string }> = [];
     private currentMessageId: string | null = null;
+    private sound: Audio.Sound | null = null;
+    private apiKey: string | null = null;
+
+    constructor() {
+        // Initialize audio mode
+        this.initializeAudio();
+    }
+
+    private async initializeAudio() {
+        try {
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: false,
+                playsInSilentModeIOS: true, // Important: play even in silent mode
+                staysActiveInBackground: false,
+                shouldDuckAndroid: true,
+            });
+        } catch (error) {
+            console.error('[VoiceMode] Failed to initialize audio:', error);
+        }
+    }
 
     /**
-     * Speak a message using native TTS
+     * Set ElevenLabs API key
+     */
+    setApiKey(key: string) {
+        this.apiKey = key;
+    }
+
+    /**
+     * Speak a message using ElevenLabs TTS
      */
     async speak(text: string, messageId: string, options: TTSOptions): Promise<void> {
+        // Check API key
+        if (!this.apiKey) {
+            console.error('[VoiceMode] ElevenLabs API key not set');
+            return;
+        }
+
         // Prepare text for TTS
         const preparedText = this.prepareTextForTTS(text, options);
 
@@ -39,35 +73,88 @@ class VoiceModeManager {
         this.isCurrentlySpeaking = true;
         this.currentMessageId = messageId;
 
-        return new Promise<void>((resolve, reject) => {
-            Speech.speak(preparedText, {
-                language: 'en-US',
-                pitch: 1.0,
-                rate: options.speed,
-                onStart: () => {
-                    console.log('[VoiceMode] Started speaking:', messageId);
-                },
-                onDone: () => {
-                    console.log('[VoiceMode] Finished speaking:', messageId);
+        try {
+            console.log('[VoiceMode] Requesting TTS from ElevenLabs...');
+
+            // Use voice_id from options or default to Adam
+            const voiceId = options.voiceId || 'pNInz6obpgDQGcFmaJgB';
+
+            // Call ElevenLabs TTS API
+            const response = await fetch(
+                `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'audio/mpeg',
+                        'Content-Type': 'application/json',
+                        'xi-api-key': this.apiKey,
+                    },
+                    body: JSON.stringify({
+                        text: preparedText,
+                        model_id: 'eleven_monolingual_v1',
+                        voice_settings: {
+                            stability: 0.5,
+                            similarity_boost: 0.75,
+                            style: 0,
+                            use_speaker_boost: true,
+                        },
+                    }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`ElevenLabs API error: ${response.status}`);
+            }
+
+            // Get audio data as base64
+            const audioBlob = await response.blob();
+            const reader = new FileReader();
+
+            reader.onloadend = async () => {
+                try {
+                    const base64Audio = reader.result as string;
+
+                    // Create and play sound
+                    const { sound } = await Audio.Sound.createAsync(
+                        { uri: base64Audio },
+                        { shouldPlay: true, rate: options.speed },
+                        this.onPlaybackStatusUpdate.bind(this)
+                    );
+
+                    this.sound = sound;
+                    console.log('[VoiceMode] Started playing:', messageId);
+                } catch (error) {
+                    console.error('[VoiceMode] Failed to play audio:', error);
                     this.isCurrentlySpeaking = false;
                     this.currentMessageId = null;
-                    this.onPlaybackFinished?.(messageId);
-                    resolve();
-                },
-                onStopped: () => {
-                    console.log('[VoiceMode] Stopped:', messageId);
-                    this.isCurrentlySpeaking = false;
-                    this.currentMessageId = null;
-                    resolve();
-                },
-                onError: (error) => {
-                    console.error('[VoiceMode] Error:', error);
-                    this.isCurrentlySpeaking = false;
-                    this.currentMessageId = null;
-                    reject(error);
-                },
-            });
-        });
+                }
+            };
+
+            reader.readAsDataURL(audioBlob);
+        } catch (error) {
+            console.error('[VoiceMode] TTS error:', error);
+            this.isCurrentlySpeaking = false;
+            this.currentMessageId = null;
+        }
+    }
+
+    private onPlaybackStatusUpdate(status: any) {
+        if (status.didJustFinish) {
+            console.log('[VoiceMode] Finished playing:', this.currentMessageId);
+            this.isCurrentlySpeaking = false;
+            const messageId = this.currentMessageId;
+            this.currentMessageId = null;
+
+            // Unload sound
+            if (this.sound) {
+                this.sound.unloadAsync();
+                this.sound = null;
+            }
+
+            if (messageId && this.onPlaybackFinished) {
+                this.onPlaybackFinished(messageId);
+            }
+        }
     }
 
     /**
@@ -144,37 +231,65 @@ class VoiceModeManager {
      * Stop current speech
      */
     async stop(): Promise<void> {
-        await Speech.stop();
+        if (this.sound) {
+            await this.sound.stopAsync();
+            await this.sound.unloadAsync();
+            this.sound = null;
+        }
         this.isCurrentlySpeaking = false;
         this.currentMessageId = null;
     }
 
     /**
-     * Pause current speech (iOS only)
+     * Pause current speech
      */
     async pause(): Promise<void> {
-        await Speech.pause();
+        if (this.sound) {
+            await this.sound.pauseAsync();
+        }
     }
 
     /**
-     * Resume paused speech (iOS only)
+     * Resume paused speech
      */
     async resume(): Promise<void> {
-        await Speech.resume();
+        if (this.sound) {
+            await this.sound.playAsync();
+        }
     }
 
     /**
      * Check if currently speaking
      */
     async isSpeaking(): Promise<boolean> {
-        return await Speech.isSpeakingAsync();
+        return this.isCurrentlySpeaking;
     }
 
     /**
-     * Get available voices
+     * Get available ElevenLabs voices
      */
     async getAvailableVoices() {
-        return await Speech.getAvailableVoicesAsync();
+        if (!this.apiKey) {
+            return [];
+        }
+
+        try {
+            const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+                headers: {
+                    'xi-api-key': this.apiKey,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch voices: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.voices || [];
+        } catch (error) {
+            console.error('[VoiceMode] Failed to fetch voices:', error);
+            return [];
+        }
     }
 
     /**
