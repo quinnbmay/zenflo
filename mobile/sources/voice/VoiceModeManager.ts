@@ -342,26 +342,36 @@ class VoiceModeManager {
      * Get available ElevenLabs voices
      */
     async getAvailableVoices() {
+        console.log('[VoiceMode] getAvailableVoices called');
+        console.log('[VoiceMode] API key available:', !!this.apiKey);
+
         if (!this.apiKey) {
-            return [];
+            console.error('[VoiceMode] ❌ Cannot fetch voices - API key not set');
+            throw new Error('ElevenLabs API key not configured. Please restart the app.');
         }
 
         try {
+            console.log('[VoiceMode] Fetching voices from ElevenLabs API...');
             const response = await fetch('https://api.elevenlabs.io/v1/voices', {
                 headers: {
                     'xi-api-key': this.apiKey,
                 },
             });
 
+            console.log('[VoiceMode] Voices API response status:', response.status);
+
             if (!response.ok) {
-                throw new Error(`Failed to fetch voices: ${response.status}`);
+                const errorText = await response.text();
+                console.error('[VoiceMode] ❌ API error:', response.status, errorText);
+                throw new Error(`Failed to fetch voices: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
+            console.log('[VoiceMode] ✅ Fetched', data.voices?.length || 0, 'voices');
             return data.voices || [];
         } catch (error) {
             console.error('[VoiceMode] Failed to fetch voices:', error);
-            return [];
+            throw error; // Re-throw so UI can show the error
         }
     }
 

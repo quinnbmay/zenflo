@@ -38,10 +38,13 @@ export default function VoiceSelectionScreen() {
             setLoading(true);
             setError(null);
             const availableVoices = await voiceModeManager.getAvailableVoices();
+            console.log('[VoiceSelection] Loaded', availableVoices.length, 'voices');
             setVoices(availableVoices);
         } catch (err) {
             console.error('[VoiceSelection] Failed to load voices:', err);
-            setError(t('settingsVoice.voiceSelection.loadError'));
+            // Show specific error message from VoiceModeManager
+            const errorMessage = err instanceof Error ? err.message : t('settingsVoice.voiceSelection.loadError');
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
