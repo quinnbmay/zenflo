@@ -1080,27 +1080,45 @@ function TTSMicrophoneButton() {
     React.useEffect(() => {
         const checkState = async () => {
             const speaking = await voiceModeManager.isSpeaking();
+            if (speaking !== isSpeaking) {
+                console.log('[TTSButton] 🔄 State changed:', isSpeaking, '→', speaking);
+            }
             setIsSpeaking(speaking);
         };
 
         // Check initial state
+        console.log('[TTSButton] 🎬 Initializing state polling');
         checkState();
 
         // Set up interval to check state (voice manager doesn't expose event emitter)
         const interval = setInterval(checkState, 100);
 
-        return () => clearInterval(interval);
-    }, []);
+        return () => {
+            console.log('[TTSButton] 🛑 Cleaning up state polling');
+            clearInterval(interval);
+        };
+    }, [isSpeaking]);
 
     // Handle tap (toggle TTS auto-play or stop speaking)
-    const handlePress = React.useCallback(() => {
+    const handlePress = React.useCallback(async () => {
+        console.log('[TTSButton] 🔘 Button pressed');
+        console.log('[TTSButton] Current isSpeaking state:', isSpeaking);
+        console.log('[TTSButton] Current ttsAutoPlay:', ttsAutoPlay);
+
         hapticsLight();
         if (isSpeaking) {
-            voiceModeManager.stop();
+            console.log('[TTSButton] 🛑 Stopping playback (isSpeaking=true)');
+            await voiceModeManager.stop();
+            console.log('[TTSButton] ✅ Stop completed');
+
+            // Force immediate state update
+            setIsSpeaking(false);
         } else {
+            console.log('[TTSButton] 🔄 Toggling auto-play (isSpeaking=false)');
             // Toggle auto-play setting
             const newValue = !ttsAutoPlay;
             storage.getState().applyLocalSettings({ ttsAutoPlay: newValue });
+            console.log('[TTSButton] Auto-play toggled to:', newValue);
         }
     }, [isSpeaking, ttsAutoPlay]);
 
