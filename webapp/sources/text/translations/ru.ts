@@ -157,6 +157,7 @@ export const ru: TranslationStructure = {
             pixelated: 'Пиксельная',
             gradient: 'Градиентная',
             brutalist: 'Бруталистская',
+            icon: 'Значок ZenFlo',
         },
         showFlavorIcons: 'Показывать иконки провайдеров ИИ',
         showFlavorIconsDescription: 'Отображать иконки провайдеров ИИ на аватарах сессий',
@@ -550,7 +551,18 @@ export const ru: TranslationStructure = {
             title: 'Языки',
             footer: ({ count }: { count: number }) => `Доступно ${count} ${plural({ count, one: 'язык', few: 'языка', many: 'языков' })}`,
             autoDetect: 'Автоопределение',
-        }
+        },
+        // Text-to-Speech settings
+        ttsTitle: 'Синтез Речи',
+        ttsDescription: 'Конфигурация синтеза речи с использованием высококачественных голосов ElevenLabs',
+        autoPlay: 'Автоматическое Воспроизведение',
+        autoPlaySubtitle: 'Автоматически читать сообщения Claude вслух',
+        skipCodeBlocks: 'Пропускать Блоки Кода',
+        skipCodeBlocksSubtitle: 'Не читать блоки кода и технический контент',
+        playbackSpeed: 'Скорость Воспроизведения',
+        voice: 'Голос',
+        voiceSubtitle: 'Выберите предпочтительный голос для TTS',
+        changeVoice: 'Изменить',
     },
 
     settingsAccount: {

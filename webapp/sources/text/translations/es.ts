@@ -174,6 +174,7 @@ export const es: TranslationStructure = {
             pixelated: 'Pixelado',
             gradient: 'Gradiente',
             brutalist: 'Brutalista',
+            icon: 'Icono ZenFlo',
         },
         showFlavorIcons: 'Mostrar íconos de proveedor de IA',
         showFlavorIconsDescription: 'Mostrar íconos del proveedor de IA en los avatares de sesión',
@@ -540,7 +541,32 @@ export const es: TranslationStructure = {
             title: 'Idiomas',
             footer: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'idioma', plural: 'idiomas' })} disponibles`,
             autoDetect: 'Detectar automáticamente',
-        }
+        },
+        // Text-to-Speech settings
+        ttsTitle: 'Texto a Voz',
+        ttsDescription: 'Configuración de texto a voz usando voces de alta calidad de ElevenLabs',
+        autoPlay: 'Reproducción Automática',
+        autoPlaySubtitle: 'Leer automáticamente los mensajes de Claude en voz alta',
+        skipCodeBlocks: 'Omitir Bloques de Código',
+        skipCodeBlocksSubtitle: 'No leer bloques de código y contenido técnico',
+        playbackSpeed: 'Velocidad de Reproducción',
+        voice: 'Voz',
+        voiceSubtitle: 'Elige tu voz preferida para TTS',
+        changeVoice: 'Cambiar',
+        voiceSelection: {
+            loading: 'Cargando voces...',
+            loadError: 'Error al cargar voces. Por favor, intenta de nuevo.',
+            searchPlaceholder: 'Buscar voces...',
+            noResults: 'No se encontraron voces',
+            categoryDescription: 'Voces de alta calidad para narración profesional',
+            category: {
+                premade: 'Voces Predefinidas',
+                cloned: 'Voces Clonadas',
+                professional: 'Voces Profesionales',
+                generated: 'Voces Generadas',
+                other: 'Otras Voces',
+            },
+        },
     },
 
     settingsAccount: {

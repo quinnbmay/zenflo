@@ -174,6 +174,7 @@ export const pt: TranslationStructure = {
             pixelated: 'Pixelizado',
             gradient: 'Gradiente',
             brutalist: 'Brutalista',
+            icon: 'Ícone ZenFlo',
         },
         showFlavorIcons: 'Mostrar ícones de provedores de IA',
         showFlavorIconsDescription: 'Exibir ícones do provedor de IA nos avatares de sessão',
@@ -540,7 +541,18 @@ export const pt: TranslationStructure = {
             title: 'Idiomas',
             footer: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'idioma', plural: 'idiomas' })} disponíveis`,
             autoDetect: 'Detectar automaticamente',
-        }
+        },
+        // Text-to-Speech settings
+        ttsTitle: 'Texto para Fala',
+        ttsDescription: 'Configuração de texto para fala usando vozes de alta qualidade da ElevenLabs',
+        autoPlay: 'Reprodução Automática',
+        autoPlaySubtitle: 'Ler automaticamente as mensagens de Claude em voz alta',
+        skipCodeBlocks: 'Pular Blocos de Código',
+        skipCodeBlocksSubtitle: 'Não ler blocos de código e conteúdo técnico',
+        playbackSpeed: 'Velocidade de Reprodução',
+        voice: 'Voz',
+        voiceSubtitle: 'Escolha sua voz preferida para TTS',
+        changeVoice: 'Alterar',
     },
 
     settingsAccount: {

@@ -174,6 +174,7 @@ export const ca: TranslationStructure = {
             pixelated: 'Pixelat',
             gradient: 'Gradient',
             brutalist: 'Brutalista',
+            icon: 'Icona ZenFlo',
         },
         showFlavorIcons: "Mostrar icones de proveïdors d'IA",
         showFlavorIconsDescription: "Mostrar icones del proveïdor d'IA als avatars de sessió",
@@ -540,7 +541,18 @@ export const ca: TranslationStructure = {
             title: 'Idiomes',
             footer: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'idioma', plural: 'idiomes' })} disponibles`,
             autoDetect: 'Detecta automàticament',
-        }
+        },
+        // Text-to-Speech settings
+        ttsTitle: 'Text a Veu',
+        ttsDescription: 'Configuració de text a veu usant veus d\'alta qualitat d\'ElevenLabs',
+        autoPlay: 'Reproducció Automàtica',
+        autoPlaySubtitle: 'Llegir automàticament els missatges de Claude en veu alta',
+        skipCodeBlocks: 'Ometre Blocs de Codi',
+        skipCodeBlocksSubtitle: 'No llegir blocs de codi i contingut tècnic',
+        playbackSpeed: 'Velocitat de Reproducció',
+        voice: 'Veu',
+        voiceSubtitle: 'Tria la teva veu preferida per TTS',
+        changeVoice: 'Canviar',
     },
 
     settingsAccount: {

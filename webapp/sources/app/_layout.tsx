@@ -29,6 +29,7 @@ import { AsyncLock } from '@/utils/lock';
 import { setupInteractiveNotifications } from '@/notifications/interactiveCategories';
 import { handleNotificationResponse } from '@/notifications/notificationResponseHandler';
 import * as Notifications from 'expo-notifications';
+import { voiceModeManager } from '@/voice/VoiceModeManager';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -170,6 +171,16 @@ export default function RootLayout() {
 
                 // Setup interactive notifications for Apple Watch
                 await setupInteractiveNotifications();
+
+                // Initialize ElevenLabs API key for TTS (web version)
+                // Hardcoded key for compatibility (same as mobile)
+                const elevenlabsKey = 'sk_f9bf84125ea4a0dcbbe4adcf9e655439a9c08ea8fef16ab6';
+                if (elevenlabsKey) {
+                    voiceModeManager.setApiKey(elevenlabsKey);
+                    console.log('[App] ✅ ElevenLabs TTS initialized (web)');
+                } else {
+                    console.error('[App] ❌ ElevenLabs API key not found');
+                }
 
                 setInitState({ credentials });
             } catch (error) {

@@ -249,7 +249,7 @@ export const en = {
     newSession: {
         // Used by new-session screen and launch flows
         title: 'Start New Session',
-        noMachinesFound: 'No machines found. Start a Happy session on your computer first.',
+        noMachinesFound: 'No machines found. Start a ZenFlo session on your computer first.',
         allMachinesOffline: 'All machines appear offline',
         machineDetails: 'View machine details →',
         directoryDoesNotExist: 'Directory Not Found',
@@ -321,7 +321,7 @@ export const en = {
         archiveSession: 'Archive Session',
         archiveSessionConfirm: 'Are you sure you want to archive this session?',
         zenFloSessionIdCopied: 'ZenFlo Session ID copied to clipboard',
-        failedToCopySessionId: 'Failed to copy Happy Session ID',
+        failedToCopySessionId: 'Failed to copy ZenFlo Session ID',
         zenFloSessionId: 'ZenFlo Session ID',
         claudeCodeSessionId: 'Claude Code Session ID',
         claudeCodeSessionIdCopied: 'Claude Code Session ID copied to clipboard',
@@ -345,7 +345,7 @@ export const en = {
         path: 'Path',
         operatingSystem: 'Operating System',
         processId: 'Process ID',
-        happyHome: 'Happy Home',
+        happyHome: 'ZenFlo Home',
         copyMetadata: 'Copy Metadata',
         agentState: 'Agent State',
         controlledByUser: 'Controlled by User',
@@ -357,7 +357,7 @@ export const en = {
         cliVersionOutdated: 'CLI Update Required',
         cliVersionOutdatedMessage: ({ currentVersion, requiredVersion }: { currentVersion: string; requiredVersion: string }) =>
             `Version ${currentVersion} installed. Update to ${requiredVersion} or later`,
-        updateCliInstructions: 'Please run npm install -g happy-coder@latest',
+        updateCliInstructions: 'Please run npm install -g @zenflo/cli@latest',
         deleteSession: 'Delete Session',
         deleteSessionSubtitle: 'Permanently remove this session',
         deleteSessionConfirm: 'Delete Session Permanently?',
@@ -440,7 +440,7 @@ export const en = {
     },
 
     sidebar: {
-        sessionsTitle: 'Happy',
+        sessionsTitle: 'ZenFlo',
     },
 
     toolView: {
@@ -541,7 +541,32 @@ export const en = {
             title: 'Languages',
             footer: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'language', plural: 'languages' })} available`,
             autoDetect: 'Auto-detect',
-        }
+        },
+        // Text-to-Speech settings
+        ttsTitle: 'Text-to-Speech',
+        ttsDescription: 'Configure how Claude\'s responses are read aloud. These settings are specific to this device.',
+        autoPlay: 'Auto-play Responses',
+        autoPlaySubtitle: 'Automatically read Claude responses aloud',
+        skipCodeBlocks: 'Skip Code Blocks',
+        skipCodeBlocksSubtitle: 'Don\'t read code and technical content',
+        playbackSpeed: 'Playback Speed',
+        voice: 'Voice',
+        voiceSubtitle: 'Choose text-to-speech voice',
+        changeVoice: 'Change',
+        voiceSelection: {
+            loading: 'Loading voices...',
+            loadError: 'Failed to load voices. Please try again.',
+            searchPlaceholder: 'Search voices...',
+            noResults: 'No voices match your search',
+            categoryDescription: 'High-quality voices for professional narration',
+            category: {
+                premade: 'Premade Voices',
+                cloned: 'Cloned Voices',
+                professional: 'Professional Voices',
+                generated: 'Generated Voices',
+                other: 'Other Voices',
+            },
+        },
     },
 
     settingsAccount: {
@@ -694,7 +719,7 @@ export const en = {
     machine: {
         launchNewSessionInDirectory: 'Launch New Session in Directory',
         offlineUnableToSpawn: 'Launcher disabled while machine is offline',
-        offlineHelp: '• Make sure your computer is online\n• Run `happy daemon status` to diagnose\n• Are you running the latest CLI version? Upgrade with `npm install -g happy-coder@latest`',
+        offlineHelp: '• Make sure your computer is online\n• Run `zenflo daemon status` to diagnose\n• Are you running the latest CLI version? Upgrade with `npm install -g @zenflo/cli@latest`',
         daemon: 'Daemon',
         status: 'Status',
         stopDaemon: 'Stop Daemon',

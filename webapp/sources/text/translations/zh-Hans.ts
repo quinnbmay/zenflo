@@ -176,6 +176,7 @@ export const zhHans: TranslationStructure = {
             pixelated: '像素化',
             gradient: '渐变',
             brutalist: '粗糙风格',
+            icon: 'ZenFlo 图标',
         },
         showFlavorIcons: '显示 AI 提供商图标',
         showFlavorIconsDescription: '在会话头像上显示 AI 提供商图标',
@@ -542,7 +543,18 @@ export const zhHans: TranslationStructure = {
             title: '语言',
             footer: ({ count }: { count: number }) => `${count} 种可用语言`,
             autoDetect: '自动检测',
-        }
+        },
+        // Text-to-Speech settings
+        ttsTitle: '文本转语音',
+        ttsDescription: '配置如何朗读 Claude 的回复。这些设置特定于此设备。',
+        autoPlay: '自动播放回复',
+        autoPlaySubtitle: '自动朗读 Claude 的回复',
+        skipCodeBlocks: '跳过代码块',
+        skipCodeBlocksSubtitle: '不朗读代码和技术内容',
+        playbackSpeed: '播放速度',
+        voice: '语音',
+        voiceSubtitle: '选择文本转语音的语音',
+        changeVoice: '更改',
     },
 
     settingsAccount: {
