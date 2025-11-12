@@ -545,12 +545,29 @@ export const en = {
 
         // Text-to-Speech settings
         ttsTitle: 'Text-to-Speech',
-        ttsDescription: 'Hear Claude\'s responses read aloud using your device\'s native voice. Free and works offline.',
+        ttsDescription: 'Hear Claude\'s responses read aloud using high-quality voices from ElevenLabs.',
         autoPlay: 'Auto-Play Responses',
         autoPlaySubtitle: 'Automatically read Claude\'s messages aloud',
         skipCodeBlocks: 'Skip Code Blocks',
         skipCodeBlocksSubtitle: 'Don\'t read code blocks and technical content',
         playbackSpeed: 'Playback Speed',
+        voice: 'Voice',
+        voiceSubtitle: 'Choose your preferred TTS voice',
+        changeVoice: 'Change',
+        voiceSelection: {
+            loading: 'Loading voices...',
+            loadError: 'Failed to load voices. Please try again.',
+            searchPlaceholder: 'Search voices...',
+            noResults: 'No voices match your search',
+            categoryDescription: 'High-quality voices for professional narration',
+            category: {
+                premade: 'Premade Voices',
+                cloned: 'Cloned Voices',
+                professional: 'Professional Voices',
+                generated: 'Generated Voices',
+                other: 'Other Voices',
+            },
+        },
     },
 
     settingsAccount: {
@@ -885,16 +902,24 @@ export type Translations = typeof en;
  */
 export type TranslationStructure = {
     readonly [K in keyof Translations]: {
-        readonly [P in keyof Translations[K]]: Translations[K][P] extends string 
-            ? string 
-            : Translations[K][P] extends (...args: any[]) => string 
-                ? Translations[K][P] 
+        readonly [P in keyof Translations[K]]: Translations[K][P] extends string
+            ? string
+            : Translations[K][P] extends (...args: any[]) => string
+                ? Translations[K][P]
                 : Translations[K][P] extends object
-                    ? {
-                        readonly [Q in keyof Translations[K][P]]: Translations[K][P][Q] extends string
-                            ? string
-                            : Translations[K][P][Q]
-                      }
+                    ? Translations[K][P] extends Record<string, any>
+                        ? {
+                            readonly [Q in keyof Translations[K][P]]: Translations[K][P][Q] extends string
+                                ? string
+                                : Translations[K][P][Q] extends object
+                                    ? {
+                                        readonly [R in keyof Translations[K][P][Q]]: Translations[K][P][Q][R] extends string
+                                            ? string
+                                            : Translations[K][P][Q][R]
+                                      }
+                                    : Translations[K][P][Q]
+                          }
+                        : Translations[K][P]
                     : Translations[K][P]
     }
 };

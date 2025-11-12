@@ -547,12 +547,29 @@ export const zhHans: TranslationStructure = {
 
         // Text-to-Speech settings
         ttsTitle: '文本转语音',
-        ttsDescription: '使用设备原生语音收听 Claude 的响应。免费且离线可用。',
+        ttsDescription: '使用 ElevenLabs 高质量语音的文本转语音设置',
         autoPlay: '自动播放',
         autoPlaySubtitle: '自动朗读 Claude 的消息',
         skipCodeBlocks: '跳过代码块',
         skipCodeBlocksSubtitle: '不朗读代码块和技术内容',
         playbackSpeed: '播放速度',
+        voice: '语音',
+        voiceSubtitle: '选择您喜欢的 TTS 语音',
+        changeVoice: '更改',
+        voiceSelection: {
+            loading: '正在加载语音...',
+            loadError: '加载语音失败。请重试。',
+            searchPlaceholder: '搜索语音...',
+            noResults: '未找到匹配的语音',
+            categoryDescription: '用于专业旁白的高质量语音',
+            category: {
+                premade: '预制语音',
+                cloned: '克隆语音',
+                professional: '专业语音',
+                generated: '生成语音',
+                other: '其他语音',
+            },
+        },
     },
 
     settingsAccount: {

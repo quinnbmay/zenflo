@@ -16,6 +16,7 @@ export default function VoiceSettingsScreen() {
     const [ttsAutoPlay, setTtsAutoPlay] = useLocalSettingMutable('ttsAutoPlay');
     const [ttsSkipCodeBlocks, setTtsSkipCodeBlocks] = useLocalSettingMutable('ttsSkipCodeBlocks');
     const [ttsSpeed, setTtsSpeed] = useLocalSettingMutable('ttsSpeed');
+    const [ttsVoiceId] = useLocalSettingMutable('ttsVoiceId');
 
     // Find current language or default to first option
     const currentLanguage = findLanguageByCode(voiceAssistantLanguage) || LANGUAGES[0];
@@ -79,6 +80,14 @@ export default function VoiceSettingsScreen() {
                         const nextIndex = (currentIndex + 1) % speeds.length;
                         setTtsSpeed(speeds[nextIndex]);
                     }}
+                />
+
+                <Item
+                    title={t('settingsVoice.voice')}
+                    subtitle={t('settingsVoice.voiceSubtitle')}
+                    icon={<Ionicons name="person-outline" size={29} color="#007AFF" />}
+                    detail={t('settingsVoice.changeVoice')}
+                    onPress={() => router.push('/settings/voice/select' as any)}
                 />
             </ItemGroup>
 

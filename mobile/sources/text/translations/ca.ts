@@ -545,12 +545,29 @@ export const ca: TranslationStructure = {
 
         // Text-to-Speech settings
         ttsTitle: 'Text a Veu',
-        ttsDescription: 'Escolta les respostes de Claude llegides en veu alta utilitzant la veu nativa del teu dispositiu. Gratu\u00eft i funciona fora de línia.',
+        ttsDescription: 'Configuració de text a veu utilitzant veus d\'alta qualitat d\'ElevenLabs',
         autoPlay: 'Reproducció Automàtica',
         autoPlaySubtitle: 'Llegeix automàticament els missatges de Claude en veu alta',
         skipCodeBlocks: 'Omet Blocs de Codi',
         skipCodeBlocksSubtitle: 'No llegeixis blocs de codi i contingut tècnic',
         playbackSpeed: 'Velocitat de Reproducció',
+        voice: 'Veu',
+        voiceSubtitle: 'Tria la teva veu preferida per a TTS',
+        changeVoice: 'Canviar',
+        voiceSelection: {
+            loading: 'Carregant veus...',
+            loadError: 'Error en carregar les veus. Si us plau, torna-ho a provar.',
+            searchPlaceholder: 'Cercar veus...',
+            noResults: 'No s\'han trobat veus',
+            categoryDescription: 'Veus d\'alta qualitat per a narració professional',
+            category: {
+                premade: 'Veus Predefinides',
+                cloned: 'Veus Clonades',
+                professional: 'Veus Professionals',
+                generated: 'Veus Generades',
+                other: 'Altres Veus',
+            },
+        },
     },
 
     settingsAccount: {

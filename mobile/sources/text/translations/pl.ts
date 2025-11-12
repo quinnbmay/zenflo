@@ -555,12 +555,29 @@ export const pl: TranslationStructure = {
 
         // Text-to-Speech settings
         ttsTitle: 'Tekst na Mowę',
-        ttsDescription: 'Słuchaj odpowiedzi Claude czytanych na głos przy użyciu natywnego głosu urządzenia. Bezpłatne i działa offline.',
+        ttsDescription: 'Ustawienia zamiany tekstu na mowę wykorzystujące wysokiej jakości głosy ElevenLabs',
         autoPlay: 'Automatyczne Odtwarzanie',
         autoPlaySubtitle: 'Automatyczne czytanie wiadomości Claude na głos',
         skipCodeBlocks: 'Pomijaj Bloki Kodu',
         skipCodeBlocksSubtitle: 'Nie czytaj bloków kodu i treści technicznych',
         playbackSpeed: 'Prędkość Odtwarzania',
+        voice: 'Głos',
+        voiceSubtitle: 'Wybierz preferowany głos TTS',
+        changeVoice: 'Zmień',
+        voiceSelection: {
+            loading: 'Ładowanie głosów...',
+            loadError: 'Nie udało się załadować głosów. Spróbuj ponownie.',
+            searchPlaceholder: 'Szukaj głosów...',
+            noResults: 'Nie znaleziono głosów',
+            categoryDescription: 'Wysokiej jakości głosy do profesjonalnej narracji',
+            category: {
+                premade: 'Gotowe Głosy',
+                cloned: 'Sklonowane Głosy',
+                professional: 'Głosy Profesjonalne',
+                generated: 'Głosy Wygenerowane',
+                other: 'Inne Głosy',
+            },
+        },
     },
 
     settingsAccount: {

@@ -98,6 +98,7 @@ function AgentTextBlock(props: {
   const ttsSpeed = useLocalSetting('ttsSpeed');
   const ttsSkipCodeBlocks = useLocalSetting('ttsSkipCodeBlocks');
   const ttsMaxLength = useLocalSetting('ttsMaxLength');
+  const ttsVoiceId = useLocalSetting('ttsVoiceId');
 
   // Auto-play on mount if enabled
   React.useEffect(() => {
@@ -119,10 +120,11 @@ function AgentTextBlock(props: {
           speed: ttsSpeed,
           skipCodeBlocks: ttsSkipCodeBlocks,
           maxLength: ttsMaxLength,
+          voiceId: ttsVoiceId,
         });
       }
     }
-  }, [props.message.id, props.message.text, ttsAutoPlay, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength]);
+  }, [props.message.id, props.message.text, ttsAutoPlay, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength, ttsVoiceId]);
 
   return (
     <View style={styles.agentMessageContainer}>

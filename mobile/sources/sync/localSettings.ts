@@ -19,6 +19,7 @@ export const LocalSettingsSchema = z.object({
     ttsSpeed: z.number().min(0.5).max(2.0).describe('Text-to-speech playback speed (0.5x - 2.0x)'),
     ttsSkipCodeBlocks: z.boolean().describe('Skip reading code blocks and technical content'),
     ttsMaxLength: z.number().describe('Maximum message length to read aloud (characters)'),
+    ttsVoiceId: z.string().describe('ElevenLabs voice ID for text-to-speech'),
 });
 
 //
@@ -47,6 +48,7 @@ export const localSettingsDefaults: LocalSettings = {
     ttsSpeed: 1.0,
     ttsSkipCodeBlocks: true,
     ttsMaxLength: 2000,
+    ttsVoiceId: 'pNInz6obpgDQGcFmaJgB', // Default to Adam voice
 };
 Object.freeze(localSettingsDefaults);
 
