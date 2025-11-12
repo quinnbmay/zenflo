@@ -97,13 +97,18 @@ export interface DecryptedMessage {
 //
 
 export const MachineMetadataSchema = z.object({
-    // Make all fields optional for backward compatibility with old machines
+    // Core metadata (matching CLI schema)
     host: z.string().optional(),
     platform: z.string().optional(),
+    homeDir: z.string().optional(), // User's home directory
+    // CLI-specific directories
+    zenfloCliVersion: z.string().optional(),
+    zenfloHomeDir: z.string().optional(), // Directory for Zenflo auth, settings, logs (.zenflo/)
+    zenfloLibDir: z.string().optional(),
+    // Legacy field names for backward compatibility
     happyCliVersion: z.string().optional(),
-    happyHomeDir: z.string().optional(), // Directory for Happy auth, settings, logs (usually .happy/ or .happy-dev/)
-    homeDir: z.string().optional(), // User's home directory (matches CLI field name)
-    // Optional fields that may be added in future versions
+    happyHomeDir: z.string().optional(),
+    // Optional fields
     username: z.string().optional(),
     arch: z.string().optional(),
     displayName: z.string().optional(), // Custom display name for the machine
