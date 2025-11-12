@@ -1,11 +1,10 @@
 /**
- * VoiceModeManager - TTS using ElevenLabs
+ * VoiceModeManager - TTS using ElevenLabs (Web version)
  *
  * Handles text-to-speech playback for Claude responses using ElevenLabs API.
  * Provides high-quality voice synthesis with professional voices.
+ * Uses Web Audio API for browser playback.
  */
-
-import { Audio } from 'expo-av';
 
 interface TTSOptions {
     speed: number;
@@ -19,26 +18,12 @@ class VoiceModeManager {
     private messageQueue: Array<{ text: string; messageId: string; options: TTSOptions }> = [];
     private currentMessageId: string | null = null;
     private currentSessionId: string | null = null; // Track which session is currently playing
-    private queuedMessageIds: Set<string> = new Set(); // Track queued messages to prevent duplicates
-    private sound: Audio.Sound | null = null;
+    private queuedMessageIds: Set<string> = new Set();
+    private audioElement: HTMLAudioElement | null = null;
     private apiKey: string | null = null;
 
     constructor() {
-        // Initialize audio mode
-        this.initializeAudio();
-    }
-
-    private async initializeAudio() {
-        try {
-            await Audio.setAudioModeAsync({
-                allowsRecordingIOS: false,
-                playsInSilentModeIOS: true, // Important: play even in silent mode
-                staysActiveInBackground: false,
-                shouldDuckAndroid: true,
-            });
-        } catch (error) {
-            console.error('[VoiceMode] Failed to initialize audio:', error);
-        }
+        console.log('[VoiceMode] Web VoiceModeManager initialized');
     }
 
     /**
@@ -118,7 +103,6 @@ class VoiceModeManager {
      * Internal method to actually speak (used by speak() and queue processing)
      */
     private async speakNow(preparedText: string, messageId: string, options: TTSOptions): Promise<void> {
-        // Double-check API key (should never happen due to check in speak())
         if (!this.apiKey) {
             console.error('[VoiceMode] ❌ API key not set in speakNow - ABORTING');
             return;
@@ -144,16 +128,16 @@ class VoiceModeManager {
                     headers: {
                         'Accept': 'audio/mpeg',
                         'Content-Type': 'application/json',
-                        'xi-api-key': this.apiKey, // TypeScript knows it's non-null now
+                        'xi-api-key': this.apiKey,
                     },
                     body: JSON.stringify({
                         text: preparedText,
-                        model_id: 'eleven_turbo_v2_5', // Modern, low-latency model with 32 language support
+                        model_id: 'eleven_turbo_v2_5',
                         voice_settings: {
-                            stability: 0.35,          // Lower for more natural variation and emotion
-                            similarity_boost: 0.75,   // Higher for better voice character
-                            style: 0.3,               // Add expressiveness and conversational flow
-                            use_speaker_boost: true,  // Enhance voice presence
+                            stability: 0.35,
+                            similarity_boost: 0.75,
+                            style: 0.3,
+                            use_speaker_boost: true,
                         },
                     }),
                 }
@@ -169,37 +153,28 @@ class VoiceModeManager {
 
             console.log('[VoiceMode] ✅ Received audio from ElevenLabs');
 
-            // Get audio data as ArrayBuffer
-            console.log('[VoiceMode] Converting to ArrayBuffer...');
-            const arrayBuffer = await response.arrayBuffer();
-            console.log('[VoiceMode] ArrayBuffer size:', arrayBuffer.byteLength, 'bytes');
+            // Get audio data as blob
+            const audioBlob = await response.blob();
+            console.log('[VoiceMode] Audio blob size:', audioBlob.size, 'bytes');
 
-            // Convert ArrayBuffer to base64
-            console.log('[VoiceMode] Converting to base64...');
-            const bytes = new Uint8Array(arrayBuffer);
-            let binary = '';
-            for (let i = 0; i < bytes.byteLength; i++) {
-                binary += String.fromCharCode(bytes[i]);
-            }
-            const base64Audio = btoa(binary);
-            const uri = `data:audio/mpeg;base64,${base64Audio}`;
-            console.log('[VoiceMode] Base64 URI length:', uri.length);
+            // Create object URL for the audio
+            const audioUrl = URL.createObjectURL(audioBlob);
 
-            console.log('[VoiceMode] 🔊 Creating sound object...');
+            // Create and play audio element
+            this.audioElement = new Audio(audioUrl);
+            this.audioElement.playbackRate = options.speed;
 
-            // Create and play sound
-            const { sound } = await Audio.Sound.createAsync(
-                { uri },
-                { shouldPlay: true, rate: options.speed },
-                this.onPlaybackStatusUpdate.bind(this)
-            );
+            // Set up event listeners
+            this.audioElement.addEventListener('ended', () => this.onPlaybackEnded());
+            this.audioElement.addEventListener('error', (e) => {
+                console.error('[VoiceMode] Audio playback error:', e);
+                this.onPlaybackEnded();
+            });
 
-            this.sound = sound;
-            console.log('[VoiceMode] ✅ Sound created and playing!', messageId);
+            // Start playback
+            await this.audioElement.play();
+            console.log('[VoiceMode] ✅ Audio playing!', messageId);
 
-            // Get initial playback status
-            const status = await sound.getStatusAsync();
-            console.log('[VoiceMode] Initial playback status:', JSON.stringify(status));
         } catch (error) {
             console.error('[VoiceMode] TTS error:', error);
             this.isCurrentlySpeaking = false;
@@ -207,38 +182,39 @@ class VoiceModeManager {
         }
     }
 
-    private onPlaybackStatusUpdate(status: any) {
-        if (status.didJustFinish) {
-            console.log('[VoiceMode] ✅ Finished playing:', this.currentMessageId);
-            const finishedMessageId = this.currentMessageId;
+    private onPlaybackEnded() {
+        console.log('[VoiceMode] ✅ Finished playing:', this.currentMessageId);
+        const finishedMessageId = this.currentMessageId;
 
-            // Remove from queued IDs set
-            if (finishedMessageId) {
-                this.queuedMessageIds.delete(finishedMessageId);
-            }
+        // Remove from queued IDs set
+        if (finishedMessageId) {
+            this.queuedMessageIds.delete(finishedMessageId);
+        }
 
-            // Unload sound
-            if (this.sound) {
-                this.sound.unloadAsync();
-                this.sound = null;
-            }
+        // Clean up audio element
+        if (this.audioElement) {
+            const audioUrl = this.audioElement.src;
+            this.audioElement.pause();
+            this.audioElement.src = '';
+            this.audioElement = null;
+            URL.revokeObjectURL(audioUrl);
+        }
 
-            // Reset state
-            this.isCurrentlySpeaking = false;
-            this.currentMessageId = null;
+        // Reset state
+        this.isCurrentlySpeaking = false;
+        this.currentMessageId = null;
 
-            // Process next item in queue
-            if (this.messageQueue.length > 0) {
-                console.log('[VoiceMode] 📋 Processing next item from queue (', this.messageQueue.length, 'remaining)');
-                const next = this.messageQueue.shift()!;
-                this.queuedMessageIds.delete(next.messageId); // Remove from queued set before playing
-                this.speakNow(next.text, next.messageId, next.options);
-            }
+        // Process next item in queue
+        if (this.messageQueue.length > 0) {
+            console.log('[VoiceMode] 📋 Processing next item from queue (', this.messageQueue.length, 'remaining)');
+            const next = this.messageQueue.shift()!;
+            this.queuedMessageIds.delete(next.messageId);
+            this.speakNow(next.text, next.messageId, next.options);
+        }
 
-            // Call callback
-            if (finishedMessageId && this.onPlaybackFinished) {
-                this.onPlaybackFinished(finishedMessageId);
-            }
+        // Call callback
+        if (finishedMessageId && this.onPlaybackFinished) {
+            this.onPlaybackFinished(finishedMessageId);
         }
     }
 
@@ -318,10 +294,12 @@ class VoiceModeManager {
     async stop(): Promise<void> {
         console.log('[VoiceMode] 🛑 Stop called');
 
-        if (this.sound) {
-            await this.sound.stopAsync();
-            await this.sound.unloadAsync();
-            this.sound = null;
+        if (this.audioElement) {
+            const audioUrl = this.audioElement.src;
+            this.audioElement.pause();
+            this.audioElement.src = '';
+            this.audioElement = null;
+            URL.revokeObjectURL(audioUrl);
         }
 
         // Clear queue and state
@@ -338,8 +316,8 @@ class VoiceModeManager {
      * Pause current speech
      */
     async pause(): Promise<void> {
-        if (this.sound) {
-            await this.sound.pauseAsync();
+        if (this.audioElement) {
+            this.audioElement.pause();
         }
     }
 
@@ -347,8 +325,8 @@ class VoiceModeManager {
      * Resume paused speech
      */
     async resume(): Promise<void> {
-        if (this.sound) {
-            await this.sound.playAsync();
+        if (this.audioElement) {
+            await this.audioElement.play();
         }
     }
 
@@ -392,7 +370,7 @@ class VoiceModeManager {
             return data.voices || [];
         } catch (error) {
             console.error('[VoiceMode] Failed to fetch voices:', error);
-            throw error; // Re-throw so UI can show the error
+            throw error;
         }
     }
 
