@@ -31,6 +31,7 @@ import { setupInteractiveNotifications } from '@/notifications/interactiveCatego
 import { handleNotificationResponse } from '@/notifications/notificationResponseHandler';
 import * as Notifications from 'expo-notifications';
 import { voiceModeManager } from '@/voice/VoiceModeManager';
+import Constants from 'expo-constants';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -178,10 +179,12 @@ export default function RootLayout() {
                 await setupInteractiveNotifications();
 
                 // Initialize ElevenLabs API key for TTS
-                const elevenlabsKey = process.env.EXPO_PUBLIC_ELEVENLABS_API_KEY;
+                const elevenlabsKey = Constants.expoConfig?.extra?.app?.elevenlabsApiKey;
                 if (elevenlabsKey) {
                     voiceModeManager.setApiKey(elevenlabsKey);
-                    console.log('[App] ElevenLabs TTS initialized');
+                    console.log('[App] ✅ ElevenLabs TTS initialized');
+                } else {
+                    console.error('[App] ❌ ElevenLabs API key not found in config');
                 }
 
                 setInitState({ credentials });
