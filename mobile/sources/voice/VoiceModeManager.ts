@@ -130,10 +130,10 @@ class VoiceModeManager {
                         text: preparedText,
                         model_id: 'eleven_turbo_v2_5', // Modern, low-latency model with 32 language support
                         voice_settings: {
-                            stability: 0.5,           // Balanced natural speech
-                            similarity_boost: 0.0,    // ElevenLabs recommends 0 for best quality
-                            style: 0.0,               // Avoid style to reduce latency
-                            use_speaker_boost: false, // Disable to reduce latency
+                            stability: 0.35,          // Lower for more natural variation and emotion
+                            similarity_boost: 0.75,   // Higher for better voice character
+                            style: 0.3,               // Add expressiveness and conversational flow
+                            use_speaker_boost: true,  // Enhance voice presence
                         },
                     }),
                 }
