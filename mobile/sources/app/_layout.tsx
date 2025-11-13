@@ -32,6 +32,7 @@ import { handleNotificationResponse } from '@/notifications/notificationResponse
 import * as Notifications from 'expo-notifications';
 import { voiceModeManager } from '@/voice/VoiceModeManager';
 import Constants from 'expo-constants';
+import { initializeCarPlay } from '@/carplay';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -196,6 +197,12 @@ export default function RootLayout() {
                     console.log('[App] ✅ ElevenLabs TTS initialized');
                 } else {
                     console.error('[App] ❌ ElevenLabs API key not found in config');
+                }
+
+                // Initialize CarPlay on iOS only
+                if (Platform.OS === 'ios') {
+                    initializeCarPlay();
+                    console.log('[App] ✅ CarPlay initialized');
                 }
 
                 setInitState({ credentials });
