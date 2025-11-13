@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, ScrollView, TextInput, Switch, Alert } from 'react-native';
+import { View, Text, ScrollView, TextInput, Switch } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useRouter } from 'expo-router';
 import { Typography } from '@/constants/Typography';
@@ -10,6 +10,7 @@ import { AgentType } from '@/sync/storageTypes';
 import { layout } from '@/components/layout';
 import { Picker } from '@react-native-picker/picker';
 import { useState } from 'react';
+import { Modal } from '@/modal';
 
 const styles = StyleSheet.create((theme) => ({
     container: {
@@ -98,17 +99,17 @@ export default function NewAgentConfigScreen() {
 
     const handleCreate = async () => {
         if (!auth.credentials) {
-            Alert.alert('Error', 'Not authenticated');
+            Modal.alert('Error', 'Not authenticated');
             return;
         }
 
         if (!name.trim()) {
-            Alert.alert('Validation Error', 'Please enter a name for this agent');
+            Modal.alert('Validation Error', 'Please enter a name for this agent');
             return;
         }
 
         if (!webhookUrl.trim()) {
-            Alert.alert('Validation Error', 'Please enter a webhook URL');
+            Modal.alert('Validation Error', 'Please enter a webhook URL');
             return;
         }
 
@@ -123,7 +124,7 @@ export default function NewAgentConfigScreen() {
                 },
             });
 
-            Alert.alert('Success', 'Agent created successfully', [
+            Modal.alert('Success', 'Agent created successfully', [
                 {
                     text: 'OK',
                     onPress: () => router.back(),
@@ -131,7 +132,7 @@ export default function NewAgentConfigScreen() {
             ]);
         } catch (err) {
             console.error('Failed to create agent config:', err);
-            Alert.alert(
+            Modal.alert(
                 'Error',
                 err instanceof Error ? err.message : 'Failed to create agent configuration'
             );

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, ScrollView, TextInput, Switch, Alert, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, ScrollView, TextInput, Switch, ActivityIndicator, Modal as RNModal } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Typography } from '@/constants/Typography';
@@ -10,6 +10,7 @@ import { AgentType, AgentConfig } from '@/sync/storageTypes';
 import { layout } from '@/components/layout';
 import { Picker } from '@react-native-picker/picker';
 import { useState, useEffect } from 'react';
+import { Modal } from '@/modal';
 
 const styles = StyleSheet.create((theme) => ({
     container: {
@@ -144,7 +145,7 @@ export default function EditAgentConfigScreen() {
             const found = configs.find((c) => c.id === id);
 
             if (!found) {
-                Alert.alert('Error', 'Agent configuration not found', [
+                Modal.alert('Error', 'Agent configuration not found', [
                     { text: 'OK', onPress: () => router.back() },
                 ]);
                 return;
@@ -157,7 +158,7 @@ export default function EditAgentConfigScreen() {
             setActive(found.active);
         } catch (err) {
             console.error('Failed to load agent config:', err);
-            Alert.alert('Error', 'Failed to load configuration', [
+            Modal.alert('Error', 'Failed to load configuration', [
                 { text: 'OK', onPress: () => router.back() },
             ]);
         } finally {
@@ -169,12 +170,12 @@ export default function EditAgentConfigScreen() {
         if (!auth.credentials || !id) return;
 
         if (!name.trim()) {
-            Alert.alert('Validation Error', 'Please enter a name for this agent');
+            Modal.alert('Validation Error', 'Please enter a name for this agent');
             return;
         }
 
         if (!webhookUrl.trim()) {
-            Alert.alert('Validation Error', 'Please enter a webhook URL');
+            Modal.alert('Validation Error', 'Please enter a webhook URL');
             return;
         }
 
@@ -189,11 +190,11 @@ export default function EditAgentConfigScreen() {
                 active,
             });
 
-            Alert.alert('Success', 'Agent updated successfully');
+            Modal.alert('Success', 'Agent updated successfully');
             loadConfig(); // Reload to get updated data
         } catch (err) {
             console.error('Failed to update agent config:', err);
-            Alert.alert(
+            Modal.alert(
                 'Error',
                 err instanceof Error ? err.message : 'Failed to update agent configuration'
             );
@@ -205,7 +206,7 @@ export default function EditAgentConfigScreen() {
     const handleDelete = async () => {
         if (!auth.credentials || !id) return;
 
-        Alert.alert(
+        Modal.alert(
             'Delete Agent',
             'Are you sure you want to delete this agent? This action cannot be undone.',
             [
@@ -219,7 +220,7 @@ export default function EditAgentConfigScreen() {
                             router.back();
                         } catch (err) {
                             console.error('Failed to delete agent config:', err);
-                            Alert.alert(
+                            Modal.alert(
                                 'Error',
                                 err instanceof Error ? err.message : 'Failed to delete agent'
                             );
@@ -245,7 +246,7 @@ export default function EditAgentConfigScreen() {
             try {
                 parsedRuntimeData = JSON.parse(runtimeData);
             } catch (err) {
-                Alert.alert('Invalid JSON', 'Please enter valid JSON for runtime data');
+                Modal.alert('Invalid JSON', 'Please enter valid JSON for runtime data');
                 return;
             }
         }
@@ -256,7 +257,7 @@ export default function EditAgentConfigScreen() {
             setShowTriggerModal(false);
             setRuntimeData('');
 
-            Alert.alert(
+            Modal.alert(
                 'Success',
                 `Agent triggered successfully!\n\nSession ID: ${result.sessionId}`,
                 [
@@ -269,7 +270,7 @@ export default function EditAgentConfigScreen() {
             );
         } catch (err) {
             console.error('Failed to trigger agent:', err);
-            Alert.alert(
+            Modal.alert(
                 'Error',
                 err instanceof Error ? err.message : 'Failed to trigger agent'
             );
@@ -398,7 +399,7 @@ export default function EditAgentConfigScreen() {
                 </View>
             </ScrollView>
 
-            <Modal
+            <RNModal
                 visible={showTriggerModal}
                 animationType="slide"
                 presentationStyle="pageSheet"
@@ -440,7 +441,7 @@ export default function EditAgentConfigScreen() {
                         </View>
                     </ScrollView>
                 </View>
-            </Modal>
+            </RNModal>
         </View>
     );
 }
