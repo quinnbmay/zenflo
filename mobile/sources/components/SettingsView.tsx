@@ -55,7 +55,7 @@ function ManualAuthModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
                 }}
                 value={url}
                 onChangeText={setUrl}
-                placeholder={'happy://terminal?...'}
+                placeholder={'zenflo://terminal?...'}
                 placeholderTextColor={theme.colors.input.placeholder}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -254,7 +254,7 @@ export const SettingsView = React.memo(function SettingsView() {
                                     ],
                                     'plain-text',
                                     '',
-                                    'happy://terminal?...'
+                                    'zenflo://terminal?...'
                                 );
                             } else {
                                 // For Android, show a custom modal

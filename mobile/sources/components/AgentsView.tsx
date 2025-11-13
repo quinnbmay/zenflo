@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { useAcceptedFriends, useFriendRequests, useRequestedFriends, useSocketStatus, useFeedItems, useFeedLoaded, useFriendsLoaded } from '@/sync/storage';
+import { useSocketStatus } from '@/sync/storage';
 import { StatusDot } from './StatusDot';
-import { UserCard } from '@/components/UserCard';
 import { t } from '@/text';
 import { ItemGroup } from '@/components/ItemGroup';
 import { UpdateBanner } from './UpdateBanner';
@@ -14,7 +13,9 @@ import { useIsTablet } from '@/utils/responsive';
 import { Header } from './navigation/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { FeedItemCard } from './FeedItemCard';
+import { useAuth } from '@/auth/AuthContext';
+import { listAgentConfigs } from '@/sync/apiAgents';
+import { AgentConfig } from '@/sync/storageTypes';
 
 const styles = StyleSheet.create((theme) => ({
     container: {
@@ -44,24 +45,81 @@ const styles = StyleSheet.create((theme) => ({
         textAlign: 'center',
         lineHeight: 22,
     },
-    sectionHeader: {
-        fontSize: 14,
+    configCard: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: theme.colors.divider,
+    },
+    configHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    configName: {
+        fontSize: 17,
         ...Typography.default('semiBold'),
+        color: theme.colors.text,
+        flex: 1,
+    },
+    configType: {
+        fontSize: 13,
+        ...Typography.default(),
         color: theme.colors.textSecondary,
-        paddingHorizontal: 16,
-        paddingTop: 24,
-        paddingBottom: 8,
-        textTransform: 'uppercase',
+        marginBottom: 4,
+    },
+    configUrl: {
+        fontSize: 13,
+        ...Typography.default(),
+        color: theme.colors.textSecondary,
+    },
+    statusBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        marginLeft: 8,
+    },
+    statusBadgeActive: {
+        backgroundColor: theme.colors.status.connected + '20',
+    },
+    statusBadgeInactive: {
+        backgroundColor: theme.colors.status.error + '20',
+    },
+    statusText: {
+        fontSize: 12,
+        ...Typography.default('semiBold'),
+    },
+    statusTextActive: {
+        color: theme.colors.status.connected,
+    },
+    statusTextInactive: {
+        color: theme.colors.status.error,
+    },
+    codeBlock: {
+        backgroundColor: theme.colors.terminal.background,
+        borderRadius: 8,
+        padding: 16,
+        marginTop: 20,
+        width: '100%',
+        maxWidth: 400,
+    },
+    codeText: {
+        fontFamily: 'monospace',
+        fontSize: 14,
+        lineHeight: 20,
     },
 }));
 
-interface InboxViewProps {
+interface AgentsViewProps {
 }
 
 function HeaderTitle() {
     const { theme } = useUnistyles();
     const socketStatus = useSocketStatus();
-    
+
     const getConnectionStatus = () => {
         const { status } = socketStatus;
         switch (status) {
@@ -104,7 +162,7 @@ function HeaderTitle() {
     };
 
     const connectionStatus = getConnectionStatus();
-    
+
     return (
         <View style={{ flex: 1, alignItems: 'center' }}>
             <Text style={{
@@ -113,7 +171,7 @@ function HeaderTitle() {
                 fontWeight: '600',
                 ...Typography.default('semiBold'),
             }}>
-                {t('tabs.inbox')}
+                {t('tabs.agents')}
             </Text>
             {connectionStatus.text && (
                 <View style={{
@@ -165,7 +223,7 @@ function HeaderRight() {
     const { theme } = useUnistyles();
     return (
         <Pressable
-            onPress={() => router.push('/friends/search')}
+            onPress={() => router.push('/agents/configs/new' as any)}
             hitSlop={15}
             style={{
                 width: 32,
@@ -174,7 +232,7 @@ function HeaderRight() {
                 justifyContent: 'center',
             }}
         >
-            <Ionicons name="person-add-outline" size={24} color={theme.colors.header.tint} />
+            <Ionicons name="add" size={28} color={theme.colors.header.tint} />
         </Pressable>
     );
 }
@@ -189,46 +247,72 @@ function HeaderTitleTablet() {
             fontWeight: '600',
             ...Typography.default('semiBold'),
         }}>
-            {t('tabs.inbox')}
+            {t('tabs.agents')}
         </Text>
     );
 }
 
-export const InboxView = React.memo(({}: InboxViewProps) => {
-    const router = useRouter();
-    const friends = useAcceptedFriends();
-    const friendRequests = useFriendRequests();
-    const requestedFriends = useRequestedFriends();
-    const feedItems = useFeedItems();
-    const feedLoaded = useFeedLoaded();
-    const friendsLoaded = useFriendsLoaded();
+function AgentConfigCard({ config, onPress }: { config: AgentConfig; onPress: () => void }) {
     const { theme } = useUnistyles();
-    const isTablet = useIsTablet();
 
-    const isLoading = !feedLoaded || !friendsLoaded;
-    const isEmpty = !isLoading && friendRequests.length === 0 && requestedFriends.length === 0 && friends.length === 0 && feedItems.length === 0;
+    const typeLabels: Record<AgentConfig['type'], string> = {
+        'N8N_WEBHOOK': 'n8n Webhook',
+        'GITHUB_ACTIONS': 'GitHub Actions',
+        'CUSTOM_WEBHOOK': 'Custom Webhook',
+    };
 
-    if (isLoading) {
-        return (
-            <View style={styles.container}>
-                <View style={{ backgroundColor: theme.colors.groupped.background }}>
-                    <Header
-                        title={isTablet ? <HeaderTitleTablet /> : <HeaderTitle />}
-                        headerRight={() => <HeaderRight />}
-                        headerLeft={isTablet ? () => null : () => <HeaderLeft />}
-                        headerShadowVisible={false}
-                        headerTransparent={true}
-                    />
-                </View>
-                <UpdateBanner />
-                <View style={styles.emptyContainer}>
-                    <ActivityIndicator size="large" color={theme.colors.textSecondary} />
+    return (
+        <Pressable onPress={onPress} style={styles.configCard}>
+            <View style={styles.configHeader}>
+                <Text style={styles.configName}>{config.name}</Text>
+                <View style={[
+                    styles.statusBadge,
+                    config.active ? styles.statusBadgeActive : styles.statusBadgeInactive
+                ]}>
+                    <Text style={[
+                        styles.statusText,
+                        config.active ? styles.statusTextActive : styles.statusTextInactive
+                    ]}>
+                        {config.active ? 'Active' : 'Inactive'}
+                    </Text>
                 </View>
             </View>
-        );
-    }
+            <Text style={styles.configType}>{typeLabels[config.type]}</Text>
+            {config.config.webhookUrl && (
+                <Text style={styles.configUrl} numberOfLines={1}>
+                    {config.config.webhookUrl}
+                </Text>
+            )}
+        </Pressable>
+    );
+}
 
-    if (isEmpty) {
+export const AgentsView = React.memo(({}: AgentsViewProps) => {
+    const router = useRouter();
+    const auth = useAuth();
+    const { theme } = useUnistyles();
+    const isTablet = useIsTablet();
+    const [configs, setConfigs] = React.useState<AgentConfig[]>([]);
+    const [error, setError] = React.useState<string | null>(null);
+
+    const loadConfigs = React.useCallback(async () => {
+        if (!auth.credentials) return;
+
+        try {
+            setError(null);
+            const result = await listAgentConfigs(auth.credentials);
+            setConfigs(result);
+        } catch (err) {
+            console.error('Failed to load agent configs:', err);
+            setError(err instanceof Error ? err.message : 'Failed to load configurations');
+        }
+    }, [auth.credentials]);
+
+    React.useEffect(() => {
+        loadConfigs();
+    }, [loadConfigs]);
+
+    if (error) {
         return (
             <View style={styles.container}>
                 <View style={{ backgroundColor: theme.colors.groupped.background }}>
@@ -246,10 +330,46 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
                         source={require('@/assets/images/brutalist/Brutalism 10.png')}
                         contentFit="contain"
                         style={[{ width: 64, height: 64 }, styles.emptyIcon]}
+                        tintColor={theme.colors.status.error}
+                    />
+                    <Text style={[styles.emptyTitle, { color: theme.colors.status.error }]}>
+                        Error Loading Agents
+                    </Text>
+                    <Text style={styles.emptyDescription}>{error}</Text>
+                </View>
+            </View>
+        );
+    }
+
+    if (configs.length === 0) {
+        return (
+            <View style={styles.container}>
+                <View style={{ backgroundColor: theme.colors.groupped.background }}>
+                    <Header
+                        title={isTablet ? <HeaderTitleTablet /> : <HeaderTitle />}
+                        headerRight={() => <HeaderRight />}
+                        headerLeft={isTablet ? () => null : () => <HeaderLeft />}
+                        headerShadowVisible={false}
+                        headerTransparent={true}
+                    />
+                </View>
+                <UpdateBanner />
+                <View style={styles.emptyContainer}>
+                    <Image
+                        source={require('@/assets/images/brutalist/Brutalism 24.png')}
+                        contentFit="contain"
+                        style={[{ width: 64, height: 64 }, styles.emptyIcon]}
                         tintColor={theme.colors.textSecondary}
                     />
-                    <Text style={styles.emptyTitle}>{t('inbox.emptyTitle')}</Text>
-                    <Text style={styles.emptyDescription}>{t('inbox.emptyDescription')}</Text>
+                    <Text style={styles.emptyTitle}>No Agents Yet</Text>
+                    <Text style={styles.emptyDescription}>
+                        Connect n8n workflows, GitHub Actions, or custom webhooks to your mobile sessions.
+                    </Text>
+                    <View style={styles.codeBlock}>
+                        <Text style={[styles.codeText, { color: theme.colors.textSecondary }]}>
+                            {`Tap the + button above to create your first agent.\n\nAgents can:\n• Send messages to your sessions\n• Ask questions and wait for replies\n• Trigger workflows from your phone`}
+                        </Text>
+                    </View>
                 </View>
             </View>
         );
@@ -266,67 +386,23 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
                     headerTransparent={true}
                 />
             </View>
-            <ScrollView contentContainerStyle={{ 
-                maxWidth: layout.maxWidth, 
-                alignSelf: 'center', 
-                width: '100%'
-            }}>
+            <ScrollView
+                contentContainerStyle={{
+                    maxWidth: layout.maxWidth,
+                    alignSelf: 'center',
+                    width: '100%',
+                    padding: 16,
+                }}
+            >
                 <UpdateBanner />
-                
-                {feedItems.length > 0 && (
-                    <>
-                        <ItemGroup title={t('inbox.updates')}>
-                            {feedItems.map((item) => (
-                                <FeedItemCard
-                                    key={item.id}
-                                    item={item}
-                                />
-                            ))}
-                        </ItemGroup>
-                    </>
-                )}
-                
-                {friendRequests.length > 0 && (
-                    <>
-                        <ItemGroup title={t('friends.pendingRequests')}>
-                            {friendRequests.map((friend) => (
-                                <UserCard
-                                    key={friend.id}
-                                    user={friend}
-                                    onPress={() => router.push(`/user/${friend.id}`)}
-                                />
-                            ))}
-                        </ItemGroup>
-                    </>
-                )}
 
-                {requestedFriends.length > 0 && (
-                    <>
-                        <ItemGroup title={t('friends.requestPending')}>
-                            {requestedFriends.map((friend) => (
-                                <UserCard
-                                    key={friend.id}
-                                    user={friend}
-                                    onPress={() => router.push(`/user/${friend.id}`)}
-                                />
-                            ))}
-                        </ItemGroup>
-                    </>
-                )}
-
-                {friends.length > 0 && (
-                    <>
-                        <ItemGroup title={t('friends.myFriends')}>
-                            {friends.map((friend) => (
-                                <UserCard
-                                    key={friend.id}
-                                    user={friend}
-                                    onPress={() => router.push(`/user/${friend.id}`)}
-                                />
-                            ))}
-                        </ItemGroup>
-                    </>
-                )}
+                {configs.map((config) => (
+                    <AgentConfigCard
+                        key={config.id}
+                        config={config}
+                        onPress={() => router.push(`/agents/configs/${config.id}` as any)}
+                    />
+                ))}
             </ScrollView>
         </View>
     );

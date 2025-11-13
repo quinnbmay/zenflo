@@ -13,7 +13,7 @@ import { MainView } from './MainView';
 import { Image } from 'expo-image';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@/text';
-import { useInboxHasContent } from '@/hooks/useInboxHasContent';
+import { useAgentsHasContent } from '@/hooks/useAgentsHasContent';
 
 const stylesheet = StyleSheet.create((theme, runtime) => ({
     container: {
@@ -130,7 +130,7 @@ export const SidebarView = React.memo(() => {
     const socketStatus = useSocketStatus();
     const realtimeStatus = useRealtimeStatus();
     const friendRequests = useFriendRequests();
-    const inboxHasContent = useInboxHasContent();
+    const inboxHasContent = useAgentsHasContent();
     const settings = useSettings();
 
     // Get connection status styling (matching sessionUtils.ts pattern)
@@ -205,7 +205,7 @@ export const SidebarView = React.memo(() => {
                             </Pressable>
                         )}
                         <Pressable
-                            onPress={() => router.push('/(app)/inbox')}
+                            onPress={() => router.push('/(app)/agents')}
                             hitSlop={15}
                             style={styles.notificationButton}
                         >

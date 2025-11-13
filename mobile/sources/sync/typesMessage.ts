@@ -47,6 +47,7 @@ export type AgentTextMessage = {
     createdAt: number;
     text: string;
     meta?: MessageMeta;
+    requiresUserInput?: boolean; // NEW: Agent is asking a question and requires user response
 }
 
 export type ToolCallMessage = {

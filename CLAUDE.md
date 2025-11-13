@@ -490,19 +490,15 @@ Co-Authored-By: ZenFlo <yesreply@zenflo.app>
 **CRITICAL: Always use Zen Mode MCP for task management, NEVER TodoWrite**
 
 At the start of every session:
-1. `mcp__zen-mode__list_tasks` or `mcp__zen-mode__list_todo_tasks` - See existing tasks
+1. `mcp__zen-mode__list_tasks` - See existing tasks
 2. `mcp__zen-mode__create_task` - Create tasks for session
 3. `mcp__zen-mode__update_task` - Update status as you work
 
 **Available Tools:**
-- `mcp__zen-mode__list_tasks` - List all tasks
-- `mcp__zen-mode__list_todo_tasks` - TODO tasks only, sorted by priority (URGENT → HIGH → MEDIUM → LOW)
-- `mcp__zen-mode__list_in_progress_tasks` - Active tasks, sorted by recently updated
-- `mcp__zen-mode__list_completed_tasks` - DONE tasks (paginated, default 10)
-- `mcp__zen-mode__list_cancelled_tasks` - CANCELLED tasks (paginated)
+- `mcp__zen-mode__list_tasks` - List TODO and IN_PROGRESS tasks (paginated, 5 per page, filterable by project_path)
 - `mcp__zen-mode__create_task` - Create new task
 - `mcp__zen-mode__get_task` - Get task details
-- `mcp__zen-mode__update_task` - Update status/priority/title/description
+- `mcp__zen-mode__update_task` - Update status/priority/title/description/project context
 - `mcp__zen-mode__delete_task` - Delete task
 
 **Task Properties:**
@@ -574,8 +570,7 @@ sudo docker logs zenflo-server --tail 100
 10. **All user-facing strings** must use `t()` translation function
 11. **Backend is deployed on NAS** - monorepo copy is reference only
 12. Only launch production on xcode when local and eas when i ask if i am remote
-13. Always use claude-context and claude code mcp when working on any task and before editing anything to see where we can make sense of everything. Store to memory important findings with timestamp
-14. claude-code-mcp has memory, meaning use multiple in parallel it help keep context low and continue working on main tasks
-15. Use **`search_code`**: Semantic search using natural language
-    - Hybrid search by default (BM25 + vector)
-    - Returns file paths, line ranges, scores, and content for searching codebase. DO NOT WASTE CREDITS READING OR SEARCHING WITH NATIVE TOOLS
+13. claude-code-mcp has memory, meaning use multiple in parallel it help keep context low and continue working on main tasks
+14. Always store important findings to memory with timestamp
+- expo-dev
+description: React Native Expo specialist. Use PROACTIVELY for all mobile app development, Expo Go testing, React Native components, and TypeScript mobile code. MUST BE USED when working with .tsx/.ts files in mobile projects.

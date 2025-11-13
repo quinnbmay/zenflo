@@ -1,0 +1,138 @@
+{
+  "name": "ZenFlo Test Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "start",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sessionId": "={{ $json.sessionId }}",
+        "message": "Hello from n8n! This is a test message from your workflow."
+      },
+      "id": "send-message",
+      "name": "Send Message",
+      "type": "n8n-nodes-zenflo.zenFlo",
+      "typeVersion": 1,
+      "position": [450, 200],
+      "credentials": {
+        "zenFloApi": {
+          "id": "1",
+          "name": "ZenFlo API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendAndWait",
+        "sessionId": "={{ $json.sessionId }}",
+        "message": "What's your favorite color? (This will wait for your reply)",
+        "timeout": 60,
+        "pollInterval": 2
+      },
+      "id": "send-and-wait",
+      "name": "Ask Question",
+      "type": "n8n-nodes-zenflo.zenFlo",
+      "typeVersion": 1,
+      "position": [650, 200],
+      "credentials": {
+        "zenFloApi": {
+          "id": "1",
+          "name": "ZenFlo API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "session",
+        "operation": "get",
+        "sessionId": "={{ $json.sessionId }}"
+      },
+      "id": "get-session",
+      "name": "Get Session Details",
+      "type": "n8n-nodes-zenflo.zenFlo",
+      "typeVersion": 1,
+      "position": [850, 300],
+      "credentials": {
+        "zenFloApi": {
+          "id": "1",
+          "name": "ZenFlo API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sessionId": "={{ $json.sessionId }}",
+        "message": "Thanks! Your favorite color is: {{ $('Ask Question').item.json.userReply }}"
+      },
+      "id": "send-followup",
+      "name": "Send Follow-up",
+      "type": "n8n-nodes-zenflo.zenFlo",
+      "typeVersion": 1,
+      "position": [650, 400],
+      "credentials": {
+        "zenFloApi": {
+          "id": "1",
+          "name": "ZenFlo API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Message": {
+      "main": [
+        [
+          {
+            "node": "Ask Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Question": {
+      "main": [
+        [
+          {
+            "node": "Send Follow-up",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Session Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-13T19:30:00.000Z",
+  "versionId": "1"
+}

@@ -30,6 +30,8 @@ export default React.memo(() => {
     const router = useRouter();
     const [showSecret, setShowSecret] = useState(false);
     const [copiedRecently, setCopiedRecently] = useState(false);
+    const [showApiToken, setShowApiToken] = useState(false);
+    const [copiedTokenRecently, setCopiedTokenRecently] = useState(false);
     const [analyticsOptOut, setAnalyticsOptOut] = useSettingMutable('analyticsOptOut');
     const { connectAccount, isLoading: isConnecting } = useConnectAccount();
     const profile = useProfile();
@@ -91,6 +93,22 @@ export default React.memo(() => {
             Modal.alert(t('common.success'), t('settingsAccount.secretKeyCopied'));
         } catch (error) {
             Modal.alert(t('common.error'), t('settingsAccount.secretKeyCopyFailed'));
+        }
+    };
+
+    const handleShowApiToken = () => {
+        setShowApiToken(!showApiToken);
+    };
+
+    const handleCopyApiToken = async () => {
+        try {
+            const apiToken = auth.credentials?.token || '';
+            await Clipboard.setStringAsync(apiToken);
+            setCopiedTokenRecently(true);
+            setTimeout(() => setCopiedTokenRecently(false), 2000);
+            Modal.alert(t('common.success'), 'API Token copied to clipboard');
+        } catch (error) {
+            Modal.alert(t('common.error'), 'Failed to copy API Token');
         }
     };
 
@@ -245,6 +263,62 @@ export default React.memo(() => {
                         showChevron={false}
                     />
                 </ItemGroup>
+
+                {/* API Token Section */}
+                <ItemGroup
+                    title="API Token"
+                    footer="Use this token to authenticate with the ZenFlo API (e.g., for n8n or other integrations)"
+                >
+                    <Item
+                        title="API Token"
+                        subtitle={showApiToken ? "Tap to hide" : "Tap to reveal"}
+                        icon={<Ionicons name={showApiToken ? "eye-off-outline" : "eye-outline"} size={29} color="#007AFF" />}
+                        onPress={handleShowApiToken}
+                        showChevron={false}
+                    />
+                </ItemGroup>
+
+                {/* API Token Display */}
+                {showApiToken && (
+                    <ItemGroup>
+                        <Pressable onPress={handleCopyApiToken}>
+                            <View style={{
+                                backgroundColor: theme.colors.surface,
+                                paddingHorizontal: 16,
+                                paddingVertical: 14,
+                                width: '100%',
+                                maxWidth: layout.maxWidth,
+                                alignSelf: 'center'
+                            }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                                    <Text style={{
+                                        fontSize: 11,
+                                        color: theme.colors.textSecondary,
+                                        letterSpacing: 0.5,
+                                        textTransform: 'uppercase',
+                                        ...Typography.default('semiBold')
+                                    }}>
+                                        API TOKEN
+                                    </Text>
+                                    <Ionicons
+                                        name={copiedTokenRecently ? "checkmark-circle" : "copy-outline"}
+                                        size={18}
+                                        color={copiedTokenRecently ? "#34C759" : theme.colors.textSecondary}
+                                    />
+                                </View>
+                                <Text style={{
+                                    fontSize: 13,
+                                    letterSpacing: 0.5,
+                                    lineHeight: 20,
+                                    color: theme.colors.text,
+                                    ...Typography.mono()
+                                }}>
+                                    {auth.credentials?.token || 'Not available'}
+                                </Text>
+                            </View>
+                        </Pressable>
+                    </ItemGroup>
+                )}
 
                 {/* Secret Key Display */}
                 {showSecret && (

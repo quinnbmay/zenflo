@@ -50,6 +50,29 @@ export const AgentStateSchema = z.object({
 
 export type AgentState = z.infer<typeof AgentStateSchema>;
 
+//
+// Remote Agents (n8n webhooks, GitHub Actions, etc.)
+//
+
+export type SessionType = 'TERMINAL' | 'N8N_AGENT' | 'GITHUB_ACTIONS' | 'CUSTOM_AGENT';
+export type AgentType = 'N8N_WEBHOOK' | 'GITHUB_ACTIONS' | 'CUSTOM_WEBHOOK';
+
+export interface AgentConfig {
+    id: string;
+    name: string;
+    type: AgentType;
+    config: {
+        webhookUrl?: string;
+        apiKey?: string;
+        [key: string]: any;
+    };
+    runtimeFields?: any; // Runtime field definitions for agent
+    active: boolean;
+    lastTriggeredAt: number | null;
+    createdAt: number;
+    updatedAt: number;
+}
+
 export interface Session {
     id: string,
     seq: number,
@@ -57,6 +80,8 @@ export interface Session {
     updatedAt: number,
     active: boolean,
     activeAt: number,
+    type?: SessionType, // NEW: Session type (defaults to TERMINAL)
+    agentConfigId?: string | null, // NEW: Reference to agent config if type is agent
     metadata: Metadata | null,
     metadataVersion: number,
     agentState: AgentState | null,

@@ -749,8 +749,6 @@ export const ca: TranslationStructure = {
         unknownEvent: 'Esdeveniment desconegut',
         usageLimitUntil: ({ time }: { time: string }) => `Límit d'ús assolit fins a ${time}`,
         unknownTime: 'temps desconegut',
-        agentRequiresReply: 'Aquest agent està esperant la teva resposta',
-        typeYourReply: 'Escriu la teva resposta...',
     },
 
     codex: {

@@ -161,6 +161,14 @@ export default function RootLayout() {
     //
     const [initState, setInitState] = React.useState<{ credentials: AuthCredentials | null } | null>(null);
     React.useEffect(() => {
+        // Failsafe: Force hide splash after 10 seconds even if init hangs
+        const failsafeTimeout = setTimeout(() => {
+            console.error('[App] ⚠️ Initialization timeout - forcing splash hide');
+            if (!initState) {
+                setInitState({ credentials: null });
+            }
+        }, 10000);
+
         (async () => {
             try {
                 await loadFonts();
@@ -191,10 +199,16 @@ export default function RootLayout() {
                 }
 
                 setInitState({ credentials });
+                clearTimeout(failsafeTimeout);
             } catch (error) {
                 console.error('Error initializing:', error);
+                // CRITICAL: Set initState even on error so app doesn't hang on splash
+                setInitState({ credentials: null });
+                clearTimeout(failsafeTimeout);
             }
         })();
+
+        return () => clearTimeout(failsafeTimeout);
     }, []);
 
     // Setup notification response listener for Apple Watch actions

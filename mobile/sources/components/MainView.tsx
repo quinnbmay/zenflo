@@ -10,7 +10,7 @@ import { SessionsList } from './SessionsList';
 import { FABWide } from './FABWide';
 import { VoiceAssistantStatusBar } from './VoiceAssistantStatusBar';
 import { TabBar, TabType } from './TabBar';
-import { InboxView } from './InboxView';
+import { AgentsView } from './AgentsView';
 import { SettingsViewWrapper } from './SettingsViewWrapper';
 import { SessionsListWrapper } from './SessionsListWrapper';
 import { useSettings } from '@/sync/storage';
@@ -94,8 +94,8 @@ export const MainView = React.memo(({ variant }: MainViewProps) => {
         switch (activeTab) {
             case 'zen':
                 return <ZenHome />;
-            case 'inbox':
-                return <InboxView />;
+            case 'agents':
+                return <AgentsView />;
             case 'settings':
                 return <SettingsViewWrapper />;
             case 'sessions':
@@ -156,7 +156,7 @@ export const MainView = React.memo(({ variant }: MainViewProps) => {
             <TabBar
                 activeTab={activeTab}
                 onTabPress={handleTabPress}
-                inboxBadgeCount={friendRequests.length}
+                agentsBadgeCount={friendRequests.length}
             />
         </>
     );

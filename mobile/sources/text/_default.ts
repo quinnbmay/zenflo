@@ -17,7 +17,7 @@ function plural({ count, singular, plural }: { count: number; singular: string; 
 export const en = {
     tabs: {
         // Tab navigation labels
-        inbox: 'Inbox',
+        agents: 'Agents',
         sessions: 'Terminals',
         settings: 'Settings',
     },
@@ -749,6 +749,8 @@ export const en = {
         unknownEvent: 'Unknown event',
         usageLimitUntil: ({ time }: { time: string }) => `Usage limit reached until ${time}`,
         unknownTime: 'unknown time',
+        agentRequiresReply: 'This agent is waiting for your response',
+        typeYourReply: 'Type your reply...',
     },
 
     codex: {

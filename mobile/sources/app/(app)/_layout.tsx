@@ -46,11 +46,28 @@ export default function RootLayout() {
                 }}
             />
             <Stack.Screen
-                name="inbox/index"
+                name="agents/index"
                 options={{
                     headerShown: false,
-                    headerTitle: t('tabs.inbox'),
+                    headerTitle: t('tabs.agents'),
                     headerBackTitle: t('common.home')
+                }}
+            />
+            <Stack.Screen
+                name="agents/configs/new"
+                options={{
+                    headerShown: true,
+                    headerTitle: 'New Agent',
+                    headerBackTitle: t('common.cancel'),
+                    presentation: 'modal',
+                }}
+            />
+            <Stack.Screen
+                name="agents/configs/[id]"
+                options={{
+                    headerShown: true,
+                    headerTitle: 'Edit Agent',
+                    headerBackTitle: t('common.back'),
                 }}
             />
             <Stack.Screen

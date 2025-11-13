@@ -3,7 +3,7 @@ import { useFriendRequests, useRequestedFriends, useFeedItems } from '@/sync/sto
 import { useChangelog } from './useChangelog';
 
 // Hook to check if inbox has content to show
-export function useInboxHasContent(): boolean {
+export function useAgentsHasContent(): boolean {
     const { updateAvailable } = useUpdates();
     const friendRequests = useFriendRequests();
     const requestedFriends = useRequestedFriends();

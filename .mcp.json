@@ -52,6 +52,10 @@
       "args": [
         "/Users/quinnmay/developer/mcp-servers/appium-mcp/dist/index.js"
       ]
+    },
+    "rube-app": {
+      "type": "http",
+      "url": "https://server.smithery.ai/@quinnbmay/rube/mcp?api_key=c0696122-7da9-4c99-84e2-1798ce74a954&profile=given-narwhal-PvFXc4"
     }
   }
 }

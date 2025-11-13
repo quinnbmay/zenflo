@@ -747,8 +747,6 @@ export const ru: TranslationStructure = {
         unknownEvent: 'Неизвестное событие',
         usageLimitUntil: ({ time }: { time: string }) => `Лимит использования достигнут до ${time}`,
         unknownTime: 'неизвестное время',
-        agentRequiresReply: 'Этот агент ждет вашего ответа',
-        typeYourReply: 'Введите ваш ответ...',
     },
 
     codex: {

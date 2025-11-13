@@ -1,6 +1,6 @@
 import * as React from "react";
-import { View, Text, Pressable } from "react-native";
-import { StyleSheet } from 'react-native-unistyles';
+import { View, Text, Pressable, TextInput } from "react-native";
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { MarkdownView } from "./markdown/MarkdownView";
 import { t } from '@/text';
 import { Message, UserTextMessage, AgentTextMessage, ToolCallMessage } from "@/sync/typesMessage";
@@ -94,9 +94,26 @@ function AgentTextBlock(props: {
   message: AgentTextMessage;
   sessionId: string;
 }) {
+  const [replyText, setReplyText] = React.useState('');
+  const [isSending, setIsSending] = React.useState(false);
+
   const handleOptionPress = React.useCallback((option: Option) => {
     sync.sendMessage(props.sessionId, option.title);
   }, [props.sessionId]);
+
+  const handleReply = React.useCallback(async () => {
+    if (!replyText.trim() || isSending) return;
+
+    try {
+      setIsSending(true);
+      await sync.sendMessage(props.sessionId, replyText.trim());
+      setReplyText('');
+    } catch (err) {
+      console.error('Failed to send reply:', err);
+    } finally {
+      setIsSending(false);
+    }
+  }, [props.sessionId, replyText, isSending]);
 
   const ttsAutoPlay = useLocalSetting('ttsAutoPlay');
   const ttsSpeed = useLocalSetting('ttsSpeed');
@@ -193,6 +210,8 @@ function AgentTextBlock(props: {
     }
   }, [props.message.id, props.message.text, props.sessionId, ttsAutoPlay, ttsSpeed, ttsSkipCodeBlocks, ttsMaxLength, ttsVoiceId]);
 
+  const { theme } = useUnistyles();
+
   return (
     <View style={styles.agentMessageContainer}>
       <MarkdownView markdown={props.message.text} onOptionPress={handleOptionPress} />
@@ -210,6 +229,41 @@ function AgentTextBlock(props: {
           color={isPlaying ? "#FF6B6B" : "#8E8E93"}
         />
       </Pressable>
+
+      {props.message.requiresUserInput && (
+        <View style={styles.replyContainer}>
+          <Text style={[styles.replyPrompt, { color: theme.colors.warning }]}>
+            {t('message.agentRequiresReply')}
+          </Text>
+          <View style={styles.replyInputContainer}>
+            <TextInput
+              style={[styles.replyInput, { color: theme.colors.text, borderColor: theme.colors.divider }]}
+              placeholder={t('message.typeYourReply')}
+              placeholderTextColor={theme.colors.textSecondary}
+              value={replyText}
+              onChangeText={setReplyText}
+              multiline
+              editable={!isSending}
+            />
+            <Pressable
+              onPress={handleReply}
+              disabled={!replyText.trim() || isSending}
+              style={({ pressed }) => [
+                styles.replyButton,
+                { backgroundColor: theme.colors.button.primary.background },
+                pressed && styles.replyButtonPressed,
+                (!replyText.trim() || isSending) && styles.replyButtonDisabled,
+              ]}
+            >
+              <Ionicons
+                name="send"
+                size={20}
+                color={theme.colors.button.primary.tint}
+              />
+            </Pressable>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -336,5 +390,45 @@ const styles = StyleSheet.create((theme) => ({
   debugText: {
     color: theme.colors.agentEventText,
     fontSize: 12,
+  },
+  replyContainer: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: theme.colors.divider,
+  },
+  replyPrompt: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  replyInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  replyInput: {
+    flex: 1,
+    minHeight: 40,
+    maxHeight: 100,
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 8,
+    fontSize: 15,
+  },
+  replyButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+  replyButtonPressed: {
+    opacity: 0.7,
+  },
+  replyButtonDisabled: {
+    opacity: 0.4,
   },
 }));

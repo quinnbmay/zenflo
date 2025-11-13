@@ -1,0 +1,105 @@
+{
+  "description": "NEW list_tasks output format - grouped by status like native TodoWrite",
+  "example_response": {
+    "total": 47,
+    "limit": 5,
+    "offset": 0,
+    "hasMore": true,
+    "groups": {
+      "in_progress": [
+        {
+          "id": "0a3ebcc2-5543-45a5-b9f1-e7e1844b7c90",
+          "title": "Update list_tasks to group by status like native TodoWrite",
+          "description": "Format output to show tasks grouped by status:\n- IN PROGRESS section (most important, shown first)\n- TODO section (pending tasks)\n\nMatch native TodoWrite visual format for ZenFlo UI display",
+          "priority": "HIGH",
+          "createdAt": "2025-01-12T22:30:00.000Z",
+          "updatedAt": "2025-01-12T22:45:00.000Z",
+          "linkedSessions": 1
+        },
+        {
+          "id": "43927994-70fa-4557-afbd-b51774a497cf",
+          "title": "Simplify Zen Mode MCP to 5 core tools",
+          "description": "Remove cancelled tasks concept and all filtered list tools. Keep only: create_task, get_task, update_task, delete_task, list_tasks (with pagination)",
+          "priority": "URGENT",
+          "createdAt": "2025-01-12T21:00:00.000Z",
+          "updatedAt": "2025-01-12T22:15:00.000Z",
+          "linkedSessions": 1
+        }
+      ],
+      "todo": [
+        {
+          "id": "task-abc-123",
+          "title": "Test new grouped format in ZenFlo UI",
+          "description": "Verify that tasks display correctly in the /zen route with IN PROGRESS section at top, followed by TODO section",
+          "priority": "HIGH",
+          "createdAt": "2025-01-12T22:50:00.000Z",
+          "updatedAt": "2025-01-12T22:50:00.000Z",
+          "linkedSessions": 0
+        },
+        {
+          "id": "task-def-456",
+          "title": "Update ZenFlo mobile app to render grouped tasks",
+          "description": "Add UI components to display the new grouped format with section headers",
+          "priority": "MEDIUM",
+          "createdAt": "2025-01-12T22:51:00.000Z",
+          "updatedAt": "2025-01-12T22:51:00.000Z",
+          "linkedSessions": 0
+        },
+        {
+          "id": "task-ghi-789",
+          "title": "Add task filtering by priority",
+          "description": "Allow users to filter tasks by priority level (URGENT, HIGH, MEDIUM, LOW)",
+          "priority": "LOW",
+          "createdAt": "2025-01-12T22:52:00.000Z",
+          "updatedAt": "2025-01-12T22:52:00.000Z",
+          "linkedSessions": 0
+        }
+      ]
+    }
+  },
+  "ui_display_format": {
+    "description": "How the ZenFlo UI should render this",
+    "sections": [
+      {
+        "header": "📋 IN PROGRESS",
+        "emoji": "📋",
+        "items": [
+          "• Update list_tasks to group by status like native TodoWrite",
+          "  Format output to show tasks grouped by status: IN PROGRESS section...",
+          "",
+          "• Simplify Zen Mode MCP to 5 core tools",
+          "  Remove cancelled tasks concept and all filtered list tools. Keep..."
+        ]
+      },
+      {
+        "header": "📋 TODO",
+        "emoji": "📋",
+        "items": [
+          "• Test new grouped format in ZenFlo UI",
+          "  Verify that tasks display correctly in the /zen route with IN...",
+          "",
+          "• Update ZenFlo mobile app to render grouped tasks",
+          "  Add UI components to display the new grouped format with section...",
+          "",
+          "• Add task filtering by priority",
+          "  Allow users to filter tasks by priority level (URGENT, HIGH, MEDIUM, LOW)"
+        ]
+      }
+    ],
+    "footer": "📊 Showing 5 of 47 tasks (2 in progress, 3 todo)"
+  },
+  "key_improvements": [
+    "✅ Tasks are now grouped by status (IN_PROGRESS first, then TODO)",
+    "✅ Matches native TodoWrite CLI display format",
+    "✅ Description truncated to 200 chars in list view (use get_task for full text)",
+    "✅ Priority and linkedSessions visible for each task",
+    "✅ Pagination still works (limit, offset, hasMore)",
+    "✅ Easy to render in mobile UI with section headers"
+  ],
+  "notes": [
+    "Restart Claude Code to load the updated MCP server",
+    "The ZenFlo mobile app at /zen route will display tasks in groups",
+    "Use get_task to see full description and all details",
+    "No more DONE or CANCELLED tasks in list view - keeps it focused"
+  ]
+}
