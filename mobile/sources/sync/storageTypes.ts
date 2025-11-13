@@ -19,9 +19,11 @@ export const MetadataSchema = z.object({
     tools: z.array(z.string()).optional(),
     slashCommands: z.array(z.string()).optional(),
     homeDir: z.string().optional(), // User's home directory on the machine
-    happyHomeDir: z.string().optional(), // Happy configuration directory 
+    happyHomeDir: z.string().optional(), // Happy configuration directory
     hostPid: z.number().optional(), // Process ID of the session
-    flavor: z.string().nullish() // Session flavor/variant identifier
+    flavor: z.string().nullish(), // Session flavor/variant identifier
+    gitBranch: z.string().nullish(), // Current git branch name
+    gitRemote: z.string().nullish() // Git remote URL
 });
 
 export type Metadata = z.infer<typeof MetadataSchema>;
@@ -140,6 +142,7 @@ export interface Machine {
 
 export interface GitStatus {
     branch: string | null;
+    remote?: string | null; // Git remote URL (e.g., "https://github.com/user/repo.git")
     isDirty: boolean;
     modifiedCount: number;
     untrackedCount: number;

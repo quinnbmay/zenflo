@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Platform, Pressable, useWindowDimensions } from 'react-native';
+import { View, Text, Platform, Pressable, useWindowDimensions, TextInput } from 'react-native';
 import { Typography } from '@/constants/Typography';
 import { useAllMachines, storage, useSetting } from '@/sync/storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -106,6 +106,7 @@ function NewSessionScreen() {
     });
     const [isSending, setIsSending] = React.useState(false);
     const [sessionType, setSessionType] = React.useState<'simple' | 'worktree'>('simple');
+    const [branchName, setBranchName] = React.useState('');
     const ref = React.useRef<MultiTextInputHandle>(null);
     const headerHeight = useHeaderHeight();
     const safeArea = useSafeAreaInsets();
@@ -357,7 +358,11 @@ function NewSessionScreen() {
             
             // Handle worktree creation if selected and experiments are enabled
             if (sessionType === 'worktree' && experimentsEnabled) {
-                const worktreeResult = await createWorktree(selectedMachineId, selectedPath);
+                const worktreeResult = await createWorktree(
+                    selectedMachineId,
+                    selectedPath,
+                    branchName.trim() || undefined  // Pass custom name if provided
+                );
                 
                 if (!worktreeResult.success) {
                     if (worktreeResult.error === 'Not a Git repository') {
@@ -445,7 +450,7 @@ function NewSessionScreen() {
         } finally {
             setIsSending(false);
         }
-    }, [agentType, selectedMachineId, selectedPath, input, recentMachinePaths, sessionType, experimentsEnabled, permissionMode, modelMode]);
+    }, [agentType, selectedMachineId, selectedPath, input, recentMachinePaths, sessionType, experimentsEnabled, permissionMode, modelMode, branchName]);
 
     return (
         <KeyboardAvoidingView
@@ -533,6 +538,41 @@ function NewSessionScreen() {
                                 {selectedPath}
                             </Text>
                         </Pressable>
+
+                        {/* Branch name input - only show when worktree type is selected */}
+                        {sessionType === 'worktree' && experimentsEnabled && (
+                            <View style={{
+                                backgroundColor: theme.colors.input.background,
+                                borderRadius: Platform.select({ default: 16, android: 20 }),
+                                paddingHorizontal: 12,
+                                paddingVertical: 10,
+                                marginBottom: 8,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                                <Ionicons
+                                    name="git-branch-outline"
+                                    size={14}
+                                    color={theme.colors.button.secondary.tint}
+                                />
+                                <TextInput
+                                    style={{
+                                        fontSize: 13,
+                                        color: theme.colors.text,
+                                        fontWeight: '600',
+                                        marginLeft: 6,
+                                        flex: 1,
+                                        ...Typography.default('semiBold'),
+                                    }}
+                                    placeholder="Branch name (optional)"
+                                    placeholderTextColor={theme.colors.textSecondary}
+                                    value={branchName}
+                                    onChangeText={setBranchName}
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                />
+                            </View>
+                        )}
                     </View>
                 </View>
             </View>

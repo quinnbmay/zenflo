@@ -1137,29 +1137,11 @@ if (authToken) {
 // Tool Definitions
 // ============================================================================
 
+// Simplified task management - 5 core tools only
 const tools: Tool[] = [
   {
-    name: 'list_tasks',
-    description: 'List all tasks from Zen mode. Returns tasks with status, priority, and metadata.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        status: {
-          type: 'string',
-          enum: ['TODO', 'IN_PROGRESS', 'DONE', 'CANCELLED'],
-          description: 'Filter by task status (optional)',
-        },
-        priority: {
-          type: 'string',
-          enum: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'],
-          description: 'Filter by priority (optional)',
-        },
-      },
-    },
-  },
-  {
     name: 'create_task',
-    description: 'Create a new task in Zen mode',
+    description: 'Create a new task in Zen mode (supports multiple tasks like Todoist)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1278,212 +1260,22 @@ const tools: Tool[] = [
     },
   },
   {
-    name: 'rebuild_index',
-    description: 'Rebuild the task index from scratch. Use this to fix sync issues when tasks exist but don\'t appear in the UI.',
-    inputSchema: {
-      type: 'object',
-      properties: {},
-    },
-  },
-  {
-    name: 'analyze_task_complexity',
-    description: 'Analyze a task to determine if it\'s complex enough to benefit from AI breakdown into subtasks',
+    name: 'list_tasks',
+    description: 'List TODO and IN_PROGRESS tasks (5 at a time with pagination). Does not show DONE or CANCELLED tasks.',
     inputSchema: {
       type: 'object',
       properties: {
-        task_id: {
-          type: 'string',
-          description: 'Task ID to analyze',
-        },
-      },
-      required: ['task_id'],
-    },
-  },
-  {
-    name: 'suggest_subtasks',
-    description: 'Use AI to analyze a task and suggest subtasks for breaking it down. Returns suggested subtasks with estimates.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task_id: {
-          type: 'string',
-          description: 'Task ID to break down',
-        },
-        max_subtasks: {
+        limit: {
           type: 'number',
-          description: 'Maximum number of subtasks to suggest (default: 5)',
+          description: 'Number of tasks to return (default: 5, max: 20)',
         },
-      },
-      required: ['task_id'],
-    },
-  },
-  {
-    name: 'add_subtask',
-    description: 'Add a subtask to a task',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task_id: {
-          type: 'string',
-          description: 'Parent task ID',
-        },
-        subtask_title: {
-          type: 'string',
-          description: 'Subtask title',
-        },
-      },
-      required: ['task_id', 'subtask_title'],
-    },
-  },
-  {
-    name: 'toggle_subtask',
-    description: 'Toggle a subtask completion status',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task_id: {
-          type: 'string',
-          description: 'Parent task ID',
-        },
-        subtask_id: {
-          type: 'string',
-          description: 'Subtask ID to toggle',
-        },
-      },
-      required: ['task_id', 'subtask_id'],
-    },
-  },
-  {
-    name: 'create_plan',
-    description: 'Create a new plan with AI-generated tasks. The AI will break down the goal into actionable tasks automatically.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        goal: {
-          type: 'string',
-          description: 'High-level goal/objective for the plan',
-        },
-        description: {
-          type: 'string',
-          description: 'Additional context or requirements (optional)',
-        },
-        max_tasks: {
+        offset: {
           type: 'number',
-          description: 'Maximum number of tasks to generate (default: 5)',
+          description: 'Number of tasks to skip for pagination (default: 0)',
         },
         project_path: {
           type: 'string',
-          description: 'Absolute path to project/repo (optional)',
-        },
-        working_directory: {
-          type: 'string',
-          description: 'Specific subdirectory within project (optional)',
-        },
-        git_remote: {
-          type: 'string',
-          description: 'Git remote URL (optional)',
-        },
-        git_branch: {
-          type: 'string',
-          description: 'Git branch name (optional)',
-        },
-      },
-      required: ['goal'],
-    },
-  },
-  {
-    name: 'update_plan',
-    description: 'Update a plan\'s status, title, or description',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        plan_id: {
-          type: 'string',
-          description: 'Plan ID',
-        },
-        title: {
-          type: 'string',
-          description: 'New plan title (optional)',
-        },
-        description: {
-          type: 'string',
-          description: 'New plan description (optional)',
-        },
-        status: {
-          type: 'string',
-          enum: ['PLANNING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'],
-          description: 'New plan status (optional)',
-        },
-      },
-      required: ['plan_id'],
-    },
-  },
-  {
-    name: 'get_plan',
-    description: 'Get details of a specific plan including all attached tasks',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        plan_id: {
-          type: 'string',
-          description: 'Plan ID',
-        },
-      },
-      required: ['plan_id'],
-    },
-  },
-  {
-    name: 'list_todo_tasks',
-    description: 'List only TODO tasks, sorted by priority (URGENT → HIGH → MEDIUM → LOW). More focused than list_tasks.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        priority: {
-          type: 'string',
-          enum: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'],
-          description: 'Filter by specific priority (optional)',
-        },
-      },
-    },
-  },
-  {
-    name: 'list_in_progress_tasks',
-    description: 'List only IN_PROGRESS tasks, sorted by most recently updated. Should typically show only 1-2 tasks.',
-    inputSchema: {
-      type: 'object',
-      properties: {},
-    },
-  },
-  {
-    name: 'list_completed_tasks',
-    description: 'List only DONE tasks with pagination, sorted by completion date (most recent first). Use this to review recent work.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        limit: {
-          type: 'number',
-          description: 'Maximum number of tasks to return (default: 10, max: 50)',
-        },
-        offset: {
-          type: 'number',
-          description: 'Number of tasks to skip for pagination (default: 0)',
-        },
-      },
-    },
-  },
-  {
-    name: 'list_cancelled_tasks',
-    description: 'List only CANCELLED tasks with pagination, sorted by cancellation date (most recent first).',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        limit: {
-          type: 'number',
-          description: 'Maximum number of tasks to return (default: 10, max: 50)',
-        },
-        offset: {
-          type: 'number',
-          description: 'Number of tasks to skip for pagination (default: 0)',
+          description: 'Filter tasks by project path (optional). If provided, only returns tasks matching this exact project path.',
         },
       },
     },
@@ -1505,32 +1297,49 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     switch (name) {
       case 'list_tasks': {
         const todos = await apiClient.getTodos();
-        const filterStatus = args?.status as TaskStatus | undefined;
-        const filterPriority = args?.priority as TaskPriority | undefined;
+        const limit = Math.min((args?.limit as number) || 5, 20);
+        const offset = (args?.offset as number) || 0;
+        const projectPath = args?.project_path as string | undefined;
 
-        // Filter and format tasks
-        let tasks = Object.values(todos.todos);
+        // Filter and separate by status
+        let allTasks = Object.values(todos.todos).filter((t) => {
+          // Filter by status
+          const statusMatch = t.status === 'TODO' || t.status === 'IN_PROGRESS';
 
-        if (filterStatus) {
-          tasks = tasks.filter((t) => t.status === filterStatus);
-        }
-        if (filterPriority) {
-          tasks = tasks.filter((t) => t.priority === filterPriority);
-        }
+          // Filter by project path if provided
+          if (projectPath) {
+            return statusMatch && t.projectPath === projectPath;
+          }
 
-        // Sort: undone tasks first (by undoneOrder), then done tasks (by doneOrder)
-        const undone = tasks
-          .filter((t) => !t.done)
-          .sort(
-            (a, b) =>
-              todos.undoneOrder.indexOf(a.id) - todos.undoneOrder.indexOf(b.id)
-          );
-        const done = tasks
-          .filter((t) => t.done)
-          .sort(
-            (a, b) => todos.doneOrder.indexOf(a.id) - todos.doneOrder.indexOf(b.id)
-          );
-        const sorted = [...undone, ...done];
+          return statusMatch;
+        });
+
+        // Sort by undoneOrder (respects user's manual ordering)
+        allTasks.sort(
+          (a, b) => todos.undoneOrder.indexOf(a.id) - todos.undoneOrder.indexOf(b.id)
+        );
+
+        // Separate into groups
+        const inProgress = allTasks.filter((t) => t.status === 'IN_PROGRESS');
+        const todo = allTasks.filter((t) => t.status === 'TODO');
+
+        // Combine: IN_PROGRESS first, then TODO
+        const orderedTasks = [...inProgress, ...todo];
+
+        // Paginate
+        const total = orderedTasks.length;
+        const paginated = orderedTasks.slice(offset, offset + limit);
+
+        // Group paginated tasks by status for display
+        const paginatedInProgress = paginated.filter((t) => t.status === 'IN_PROGRESS');
+        const paginatedTodo = paginated.filter((t) => t.status === 'TODO');
+
+        // Helper to truncate long descriptions for list view
+        const truncateDescription = (desc: string | undefined, maxLength: number = 200): string | undefined => {
+          if (!desc) return undefined;
+          if (desc.length <= maxLength) return desc;
+          return desc.substring(0, maxLength) + '...';
+        };
 
         return {
           content: [
@@ -1538,23 +1347,39 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               type: 'text',
               text: JSON.stringify(
                 {
-                  total: sorted.length,
-                  tasks: sorted.map((t) => ({
-                    id: t.id,
-                    title: t.title,
-                    description: t.description,
-                    status: t.status,
-                    priority: t.priority || 'MEDIUM',
-                    done: t.done,
-                    createdAt: new Date(t.createdAt).toISOString(),
-                    updatedAt: new Date(t.updatedAt).toISOString(),
-                    completedAt: t.completedAt
-                      ? new Date(t.completedAt).toISOString()
-                      : undefined,
-                    linkedSessions: t.linkedSessions
-                      ? Object.keys(t.linkedSessions).length
-                      : 0,
-                  })),
+                  total,
+                  limit,
+                  offset,
+                  hasMore: offset + limit < total,
+                  projectFilter: projectPath || null,
+                  groups: {
+                    in_progress: paginatedInProgress.map((t) => ({
+                      id: t.id,
+                      title: t.title,
+                      description: truncateDescription(t.description),
+                      priority: t.priority || 'MEDIUM',
+                      projectPath: t.projectPath || null,
+                      workingDirectory: t.workingDirectory || null,
+                      createdAt: new Date(t.createdAt).toISOString(),
+                      updatedAt: new Date(t.updatedAt).toISOString(),
+                      linkedSessions: t.linkedSessions
+                        ? Object.keys(t.linkedSessions).length
+                        : 0,
+                    })),
+                    todo: paginatedTodo.map((t) => ({
+                      id: t.id,
+                      title: t.title,
+                      description: truncateDescription(t.description),
+                      priority: t.priority || 'MEDIUM',
+                      projectPath: t.projectPath || null,
+                      workingDirectory: t.workingDirectory || null,
+                      createdAt: new Date(t.createdAt).toISOString(),
+                      updatedAt: new Date(t.updatedAt).toISOString(),
+                      linkedSessions: t.linkedSessions
+                        ? Object.keys(t.linkedSessions).length
+                        : 0,
+                    })),
+                  },
                 },
                 null,
                 2
@@ -1623,6 +1448,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                   status: task.status,
                   priority: task.priority || 'MEDIUM',
                   done: task.done,
+                  projectPath: task.projectPath || null,
+                  workingDirectory: task.workingDirectory || null,
+                  gitRepo: task.gitRepo || null,
                   createdAt: new Date(task.createdAt).toISOString(),
                   updatedAt: new Date(task.updatedAt).toISOString(),
                   completedAt: task.completedAt
@@ -1702,403 +1530,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 task_id: taskId,
                 message: 'Task deleted successfully',
               }),
-            },
-          ],
-        };
-      }
-
-      case 'rebuild_index': {
-        const result = await apiClient.rebuildIndex();
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                success: true,
-                added: result.added,
-                removed: result.removed,
-                message: `Index rebuilt: ${result.added} tasks added, ${result.removed} tasks removed`,
-              }),
-            },
-          ],
-        };
-      }
-
-      case 'analyze_task_complexity': {
-        const taskId = args?.task_id as string;
-
-        if (!taskId) {
-          throw new Error('task_id is required');
-        }
-
-        const analysis = await apiClient.analyzeTaskComplexity(taskId);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                success: true,
-                task_id: taskId,
-                ...analysis,
-              }, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'suggest_subtasks': {
-        const taskId = args?.task_id as string;
-        const maxSubtasks = (args?.max_subtasks as number) || 5;
-
-        if (!taskId) {
-          throw new Error('task_id is required');
-        }
-
-        const suggestions = await apiClient.suggestSubtasks(taskId, maxSubtasks);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                success: true,
-                task_id: taskId,
-                ...suggestions,
-              }, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'add_subtask': {
-        const taskId = args?.task_id as string;
-        const subtaskTitle = args?.subtask_title as string;
-
-        if (!taskId || !subtaskTitle) {
-          throw new Error('task_id and subtask_title are required');
-        }
-
-        const subtaskId = await apiClient.addSubtask(taskId, subtaskTitle);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                success: true,
-                task_id: taskId,
-                subtask_id: subtaskId,
-                message: `Subtask added: ${subtaskTitle}`,
-              }),
-            },
-          ],
-        };
-      }
-
-      case 'toggle_subtask': {
-        const taskId = args?.task_id as string;
-        const subtaskId = args?.subtask_id as string;
-
-        if (!taskId || !subtaskId) {
-          throw new Error('task_id and subtask_id are required');
-        }
-
-        await apiClient.toggleSubtask(taskId, subtaskId);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                success: true,
-                task_id: taskId,
-                subtask_id: subtaskId,
-                message: 'Subtask toggled successfully',
-              }),
-            },
-          ],
-        };
-      }
-
-      case 'create_plan': {
-        const goal = args?.goal as string;
-        const description = args?.description as string | undefined;
-        const maxTasks = args?.max_tasks as number | undefined;
-        const projectPath = args?.project_path as string | undefined;
-        const workingDirectory = args?.working_directory as string | undefined;
-        const gitRemote = args?.git_remote as string | undefined;
-        const gitBranch = args?.git_branch as string | undefined;
-
-        if (!goal) {
-          throw new Error('goal is required');
-        }
-
-        const gitRepo = gitRemote && gitBranch ? { remote: gitRemote, branch: gitBranch } : undefined;
-
-        const result = await apiClient.createPlan(goal, description, maxTasks, projectPath, workingDirectory, gitRepo);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                success: true,
-                plan_id: result.planId,
-                task_ids: result.taskIds,
-                message: `Plan created with ${result.taskIds.length} tasks`,
-              }, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'update_plan': {
-        const planId = args?.plan_id as string;
-        const title = args?.title as string | undefined;
-        const description = args?.description as string | undefined;
-        const status = args?.status as 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | undefined;
-
-        if (!planId) {
-          throw new Error('plan_id is required');
-        }
-
-        await apiClient.updatePlan(planId, { title, description, status });
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                success: true,
-                plan_id: planId,
-                message: 'Plan updated successfully',
-              }),
-            },
-          ],
-        };
-      }
-
-      case 'get_plan': {
-        const planId = args?.plan_id as string;
-
-        if (!planId) {
-          throw new Error('plan_id is required');
-        }
-
-        const plan = await apiClient.getPlan(planId);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  id: plan.id,
-                  title: plan.title,
-                  description: plan.description,
-                  goal: plan.goal,
-                  status: plan.status,
-                  taskIds: plan.taskIds,
-                  taskCount: plan.taskIds.length,
-                  createdAt: new Date(plan.createdAt).toISOString(),
-                  updatedAt: new Date(plan.updatedAt).toISOString(),
-                  completedAt: plan.completedAt ? new Date(plan.completedAt).toISOString() : undefined,
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
-      }
-
-      case 'list_todo_tasks': {
-        const todos = await apiClient.getTodos();
-        const filterPriority = args?.priority as TaskPriority | undefined;
-
-        // Filter for TODO tasks only
-        let tasks = Object.values(todos.todos).filter((t) => t.status === 'TODO');
-
-        if (filterPriority) {
-          tasks = tasks.filter((t) => t.priority === filterPriority);
-        }
-
-        // Sort by priority: URGENT → HIGH → MEDIUM → LOW
-        const priorityOrder: Record<TaskPriority, number> = {
-          URGENT: 0,
-          HIGH: 1,
-          MEDIUM: 2,
-          LOW: 3,
-        };
-
-        tasks.sort((a, b) => {
-          const aPriority = a.priority || 'MEDIUM';
-          const bPriority = b.priority || 'MEDIUM';
-          return priorityOrder[aPriority] - priorityOrder[bPriority];
-        });
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  total: tasks.length,
-                  tasks: tasks.map((t) => ({
-                    id: t.id,
-                    title: t.title,
-                    description: t.description,
-                    priority: t.priority || 'MEDIUM',
-                    createdAt: new Date(t.createdAt).toISOString(),
-                    updatedAt: new Date(t.updatedAt).toISOString(),
-                    linkedSessions: t.linkedSessions
-                      ? Object.keys(t.linkedSessions).length
-                      : 0,
-                  })),
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
-      }
-
-      case 'list_in_progress_tasks': {
-        const todos = await apiClient.getTodos();
-
-        // Filter for IN_PROGRESS tasks only
-        let tasks = Object.values(todos.todos).filter((t) => t.status === 'IN_PROGRESS');
-
-        // Sort by most recently updated
-        tasks.sort((a, b) => b.updatedAt - a.updatedAt);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  total: tasks.length,
-                  tasks: tasks.map((t) => ({
-                    id: t.id,
-                    title: t.title,
-                    description: t.description,
-                    priority: t.priority || 'MEDIUM',
-                    createdAt: new Date(t.createdAt).toISOString(),
-                    updatedAt: new Date(t.updatedAt).toISOString(),
-                    linkedSessions: t.linkedSessions
-                      ? Object.keys(t.linkedSessions).length
-                      : 0,
-                  })),
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
-      }
-
-      case 'list_completed_tasks': {
-        const todos = await apiClient.getTodos();
-        const limit = Math.min((args?.limit as number) || 10, 50);
-        const offset = (args?.offset as number) || 0;
-
-        // Filter for DONE tasks only
-        let tasks = Object.values(todos.todos).filter((t) => t.status === 'DONE');
-
-        // Sort by completion date (most recent first)
-        tasks.sort((a, b) => {
-          const aTime = a.completedAt || a.updatedAt;
-          const bTime = b.completedAt || b.updatedAt;
-          return bTime - aTime;
-        });
-
-        // Paginate
-        const total = tasks.length;
-        const paginated = tasks.slice(offset, offset + limit);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  total,
-                  limit,
-                  offset,
-                  hasMore: offset + limit < total,
-                  tasks: paginated.map((t) => ({
-                    id: t.id,
-                    title: t.title,
-                    description: t.description,
-                    priority: t.priority || 'MEDIUM',
-                    createdAt: new Date(t.createdAt).toISOString(),
-                    completedAt: t.completedAt
-                      ? new Date(t.completedAt).toISOString()
-                      : new Date(t.updatedAt).toISOString(),
-                    linkedSessions: t.linkedSessions
-                      ? Object.keys(t.linkedSessions).length
-                      : 0,
-                  })),
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
-      }
-
-      case 'list_cancelled_tasks': {
-        const todos = await apiClient.getTodos();
-        const limit = Math.min((args?.limit as number) || 10, 50);
-        const offset = (args?.offset as number) || 0;
-
-        // Filter for CANCELLED tasks only
-        let tasks = Object.values(todos.todos).filter((t) => t.status === 'CANCELLED');
-
-        // Sort by cancellation date (most recent first)
-        tasks.sort((a, b) => {
-          const aTime = a.cancelledAt || a.updatedAt;
-          const bTime = b.cancelledAt || b.updatedAt;
-          return bTime - aTime;
-        });
-
-        // Paginate
-        const total = tasks.length;
-        const paginated = tasks.slice(offset, offset + limit);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  total,
-                  limit,
-                  offset,
-                  hasMore: offset + limit < total,
-                  tasks: paginated.map((t) => ({
-                    id: t.id,
-                    title: t.title,
-                    description: t.description,
-                    priority: t.priority || 'MEDIUM',
-                    createdAt: new Date(t.createdAt).toISOString(),
-                    cancelledAt: t.cancelledAt
-                      ? new Date(t.cancelledAt).toISOString()
-                      : new Date(t.updatedAt).toISOString(),
-                    linkedSessions: t.linkedSessions
-                      ? Object.keys(t.linkedSessions).length
-                      : 0,
-                  })),
-                },
-                null,
-                2
-              ),
             },
           ],
         };

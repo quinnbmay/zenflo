@@ -31,9 +31,16 @@ export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED';
 export interface TodoItem {
     id: string;
     title: string;
+    description?: string;  // Multi-line description for task context
     done: boolean;  // Keep for backward compatibility with existing UI
     status: TaskStatus;  // Enhanced status for MCP
     priority?: TaskPriority;  // Optional priority level
+    projectPath?: string;  // Absolute path to project/repo (e.g., "/Users/quinnmay/developer/zenflo")
+    workingDirectory?: string;  // Specific subdirectory within project (e.g., "mobile")
+    gitRepo?: {
+        remote: string;  // Git remote URL
+        branch: string;  // Current branch
+    };
     createdAt: number;
     updatedAt: number;
     completedAt?: number;  // Timestamp when marked as done
@@ -176,7 +183,10 @@ export async function addTodo(
     credentials: AuthCredentials,
     title: string,
     priority?: TaskPriority,
-    status?: TaskStatus
+    status?: TaskStatus,
+    projectPath?: string,
+    workingDirectory?: string,
+    gitRepo?: { remote: string; branch: string }
 ): Promise<string> {
     const id = randomUUID();
     const now = Date.now();
@@ -187,6 +197,9 @@ export async function addTodo(
         done: false,
         status: status || 'TODO',
         priority: priority,
+        projectPath,
+        workingDirectory,
+        gitRepo,
         createdAt: now,
         updatedAt: now,
         linkedSessions: {}  // Initialize with empty map

@@ -7,14 +7,27 @@ import { generateWorktreeName } from './generateWorktreeName';
 
 export async function createWorktree(
     machineId: string,
-    basePath: string
+    basePath: string,
+    customBranchName?: string
 ): Promise<{
     success: boolean;
     worktreePath: string;
     branchName: string;
     error?: string;
 }> {
-    const name = generateWorktreeName();
+    // Sanitize custom branch name: replace spaces/special chars with hyphens, lowercase
+    const sanitizeBranchName = (name: string): string => {
+        return name
+            .toLowerCase()
+            .replace(/[^a-z0-9-_]/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '')
+            .substring(0, 50); // Limit length
+    };
+
+    const name = customBranchName
+        ? sanitizeBranchName(customBranchName)
+        : generateWorktreeName();
     
     // Check if it's a git repository
     const gitCheck = await machineBash(
