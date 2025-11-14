@@ -31,6 +31,7 @@ export interface StartOptions {
     claudeEnvVars?: Record<string, string>
     claudeArgs?: string[]
     startedBy?: 'daemon' | 'terminal'
+    flavor?: 'claude' | 'ccr' | 'codex' | 'gemini' | 'qwen'
 }
 
 export async function runClaude(credentials: Credentials, options: StartOptions = {}): Promise<void> {
@@ -93,7 +94,7 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
         // Initialize lifecycle state
         lifecycleState: 'running',
         lifecycleStateSince: Date.now(),
-        flavor: 'claude'
+        flavor: options.flavor || 'claude'
     };
     
     const response = await api.getOrCreateSession({ tag: sessionTag, metadata, state });

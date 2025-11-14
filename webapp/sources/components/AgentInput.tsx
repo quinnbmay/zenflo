@@ -57,7 +57,7 @@ interface AgentInputProps {
     };
     alwaysShowContextSize?: boolean;
     onFileViewerPress?: () => void;
-    agentType?: 'claude' | 'codex' | 'qwen' | 'gemini';
+    agentType?: 'claude' | 'codex' | 'qwen' | 'gemini' | 'ccr';
     onAgentClick?: () => void;
     machineName?: string | null;
     onMachineClick?: () => void;
@@ -836,7 +836,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         fontWeight: '600',
                                         ...Typography.default('semiBold'),
                                     }}>
-                                        {props.agentType === 'claude' ? t('agentInput.agent.claude') : props.agentType === 'codex' ? t('agentInput.agent.codex') : props.agentType === 'qwen' ? t('agentInput.agent.qwen') : t('agentInput.agent.gemini')}
+                                        {props.agentType === 'claude' ? t('agentInput.agent.claude') : props.agentType === 'codex' ? t('agentInput.agent.codex') : props.agentType === 'qwen' ? t('agentInput.agent.qwen') : props.agentType === 'ccr' ? 'GLM' : t('agentInput.agent.gemini')}
                                     </Text>
                                 </Pressable>
                             )}

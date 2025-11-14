@@ -81,7 +81,7 @@ import { execFileSync } from 'node:child_process'
     // Handle codex command
     try {
       const { runCodex } = await import('@/codex/runCodex');
-      
+
       // Parse startedBy argument
       let startedBy: 'daemon' | 'terminal' | undefined = undefined;
       for (let i = 1; i < args.length; i++) {
@@ -89,11 +89,37 @@ import { execFileSync } from 'node:child_process'
           startedBy = args[++i] as 'daemon' | 'terminal';
         }
       }
-      
+
       const {
         credentials
       } = await authAndSetupMachineIfNeeded();
       await runCodex({credentials, startedBy});
+      // Do not force exit here; allow instrumentation to show lingering handles
+    } catch (error) {
+      console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error')
+      if (process.env.DEBUG) {
+        console.error(error)
+      }
+      process.exit(1)
+    }
+    return;
+  } else if (subcommand === 'ccr' || subcommand === 'glm') {
+    // Handle CCR/GLM command
+    try {
+      const { runCCR } = await import('@/ccr/runCCR');
+
+      // Parse startedBy argument
+      let startedBy: 'daemon' | 'terminal' | undefined = undefined;
+      for (let i = 1; i < args.length; i++) {
+        if (args[i] === '--started-by') {
+          startedBy = args[++i] as 'daemon' | 'terminal';
+        }
+      }
+
+      const {
+        credentials
+      } = await authAndSetupMachineIfNeeded();
+      await runCCR({credentials, startedBy});
       // Do not force exit here; allow instrumentation to show lingering handles
     } catch (error) {
       console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error')
