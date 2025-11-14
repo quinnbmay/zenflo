@@ -83,6 +83,7 @@ interface StorageState {
     feedLoaded: boolean;  // True after initial feed fetch
     friendsLoaded: boolean;  // True after initial friends fetch
     realtimeStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
+    deepgramStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
     socketStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
     socketLastConnectedAt: number | null;
     socketLastDisconnectedAt: number | null;
@@ -106,6 +107,7 @@ interface StorageState {
     applyNativeUpdateStatus: (status: { available: boolean; updateUrl?: string } | null) => void;
     isMutableToolCall: (sessionId: string, callId: string) => boolean;
     setRealtimeStatus: (status: 'disconnected' | 'connecting' | 'connected' | 'error') => void;
+    setDeepgramStatus: (status: 'disconnected' | 'connecting' | 'connected' | 'error') => void;
     setSocketStatus: (status: 'disconnected' | 'connecting' | 'connected' | 'error') => void;
     getActiveSessions: () => Session[];
     updateSessionDraft: (sessionId: string, draft: string | null) => void;
@@ -267,6 +269,7 @@ export const storage = create<StorageState>()((set, get) => {
         sessionMessages: {},
         sessionGitStatus: {},
         realtimeStatus: 'disconnected',
+        deepgramStatus: 'disconnected',
         socketStatus: 'disconnected',
         socketLastConnectedAt: null,
         socketLastDisconnectedAt: null,
@@ -724,6 +727,10 @@ export const storage = create<StorageState>()((set, get) => {
         setRealtimeStatus: (status: 'disconnected' | 'connecting' | 'connected' | 'error') => set((state) => ({
             ...state,
             realtimeStatus: status
+        })),
+        setDeepgramStatus: (status: 'disconnected' | 'connecting' | 'connected' | 'error') => set((state) => ({
+            ...state,
+            deepgramStatus: status
         })),
         setSocketStatus: (status: 'disconnected' | 'connecting' | 'connected' | 'error') => set((state) => {
             const now = Date.now();
@@ -1232,6 +1239,10 @@ export function useEntitlement(id: KnownEntitlements): boolean {
 
 export function useRealtimeStatus(): 'disconnected' | 'connecting' | 'connected' | 'error' {
     return storage(useShallow((state) => state.realtimeStatus));
+}
+
+export function useDeepgramStatus(): 'disconnected' | 'connecting' | 'connected' | 'error' {
+    return storage(useShallow((state) => state.deepgramStatus));
 }
 
 export function useSocketStatus() {

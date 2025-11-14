@@ -33,6 +33,8 @@ interface AgentInputProps {
     sendIcon?: React.ReactNode;
     onMicPress?: () => void;
     isMicActive?: boolean;
+    onDeepgramPress?: () => void;
+    isDeepgramActive?: boolean;
     permissionMode?: PermissionMode;
     onPermissionModeChange?: (mode: PermissionMode) => void;
     modelMode?: ModelMode;
@@ -951,8 +953,40 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                             <GitStatusButton sessionId={props.sessionId} onPress={props.onFileViewerPress} />
                         </View>
 
-                        {/* TTS Microphone button */}
-                        <TTSMicrophoneButton sessionId={props.sessionId} />
+                        {/* Deepgram Voice button */}
+                        {props.onDeepgramPress && (
+                            <View
+                                style={[
+                                    styles.sendButton,
+                                    {
+                                        backgroundColor: props.isDeepgramActive
+                                            ? '#FFFFFF' // White when active (inverse of Max's black)
+                                            : theme.colors.button.primary.background // Same as Max when inactive
+                                    }
+                                ]}
+                            >
+                                <RNPressable
+                                    style={(p) => ({
+                                        width: '100%',
+                                        height: '100%',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        opacity: p.pressed ? 0.7 : 1,
+                                    })}
+                                    hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                                    onPress={() => {
+                                        hapticsLight();
+                                        props.onDeepgramPress?.();
+                                    }}
+                                >
+                                    <Ionicons
+                                        name="mic"
+                                        size={20}
+                                        color={props.isDeepgramActive ? '#000000' : theme.colors.button.primary.tint}
+                                    />
+                                </RNPressable>
+                            </View>
+                        )}
 
                         {/* Send/Voice button */}
                         <View

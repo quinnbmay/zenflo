@@ -11,9 +11,10 @@ import { useDraft } from '@/hooks/useDraft';
 import { Modal } from '@/modal';
 import { voiceHooks } from '@/realtime/hooks/voiceHooks';
 import { startRealtimeSession, stopRealtimeSession, updateCurrentSessionId } from '@/realtime/RealtimeSession';
+import { startDeepgramSession, stopDeepgramSession } from '@/realtime/DeepgramRealtimeSession';
 import { gitStatusSync } from '@/sync/gitStatusSync';
 import { sessionAbort } from '@/sync/ops';
-import { storage, useIsDataReady, useLocalSetting, useRealtimeStatus, useSessionMessages, useSessionUsage, useSetting } from '@/sync/storage';
+import { storage, useDeepgramStatus, useIsDataReady, useLocalSetting, useRealtimeStatus, useSessionMessages, useSessionUsage, useSetting } from '@/sync/storage';
 import { useSession } from '@/sync/storage';
 import { Session } from '@/sync/storageTypes';
 import { sync } from '@/sync/sync';
@@ -154,6 +155,7 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
     const headerHeight = useHeaderHeight();
     const [message, setMessage] = React.useState('');
     const realtimeStatus = useRealtimeStatus();
+    const deepgramStatus = useDeepgramStatus();
     const { messages, isLoaded } = useSessionMessages(sessionId);
     const acknowledgedCliVersions = useLocalSetting('acknowledgedCliVersions');
 
@@ -238,6 +240,42 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
         isMicActive: realtimeStatus === 'connected' || realtimeStatus === 'connecting'
     }), [handleMicrophonePress, realtimeStatus]);
 
+    // Handle Deepgram button press - hands-free voice conversation
+    const handleDeepgramPress = React.useCallback(async () => {
+        console.log('[Deepgram] 🎤 Button pressed, status:', deepgramStatus);
+
+        if (deepgramStatus === 'connecting') {
+            console.log('[Deepgram] ⏸️  Preventing action - already connecting');
+            return; // Prevent actions during transitions
+        }
+        if (deepgramStatus === 'disconnected' || deepgramStatus === 'error') {
+            console.log('[Deepgram] ▶️  Starting session...');
+            try {
+                const initialPrompt = voiceHooks.onVoiceStarted(sessionId);
+                console.log('[Deepgram] Initial prompt:', initialPrompt);
+                await startDeepgramSession(sessionId, initialPrompt);
+                console.log('[Deepgram] ✅ Session started successfully');
+                tracking?.capture('deepgram_session_started', { sessionId });
+            } catch (error) {
+                console.error('[Deepgram] ❌ Failed to start session:', error);
+                Modal.alert(t('common.error'), 'Failed to start Deepgram voice session');
+                tracking?.capture('deepgram_session_error', { error: error instanceof Error ? error.message : 'Unknown error' });
+            }
+        } else if (deepgramStatus === 'connected') {
+            console.log('[Deepgram] ⏹️  Stopping session...');
+            await stopDeepgramSession();
+            console.log('[Deepgram] ✅ Session stopped successfully');
+            tracking?.capture('deepgram_session_stopped');
+            voiceHooks.onVoiceStopped();
+        }
+    }, [deepgramStatus, sessionId]);
+
+    // Memoize Deepgram button state
+    const deepgramButtonState = useMemo(() => ({
+        onPress: handleDeepgramPress,
+        isActive: deepgramStatus === 'connected' || deepgramStatus === 'connecting'
+    }), [handleDeepgramPress, deepgramStatus]);
+
     // Trigger session visibility and initialize git status sync
     React.useLayoutEffect(() => {
 
@@ -299,6 +337,8 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
             }}
             onMicPress={micButtonState.onMicPress}
             isMicActive={micButtonState.isMicActive}
+            onDeepgramPress={deepgramButtonState.onPress}
+            isDeepgramActive={deepgramButtonState.isActive}
             onAbort={() => sessionAbort(sessionId)}
             showAbortButton={sessionStatus.state === 'thinking' || sessionStatus.state === 'waiting'}
             onFileViewerPress={experiments ? () => router.push(`/session/${sessionId}/files`) : undefined}

@@ -29,6 +29,8 @@ export const SettingsSchema = z.object({
     lastUsedAgent: z.string().nullable().describe('Last selected agent type for new sessions'),
     lastUsedPermissionMode: z.string().nullable().describe('Last selected permission mode for new sessions'),
     lastUsedModelMode: z.string().nullable().describe('Last selected model mode for new sessions'),
+    deepgramVoice: z.string().describe('Deepgram voice model (aura-asteria-en, aura-luna-en, etc.)'),
+    deepgramLanguage: z.string().describe('Deepgram language code (en, es, fr, etc.)'),
 });
 
 //
@@ -72,6 +74,8 @@ export const settingsDefaults: Settings = {
     lastUsedAgent: null,
     lastUsedPermissionMode: null,
     lastUsedModelMode: null,
+    deepgramVoice: 'aura-asteria-en', // Natural, warm female voice
+    deepgramLanguage: 'en', // English
 };
 Object.freeze(settingsDefaults);
 
