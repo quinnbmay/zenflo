@@ -13,15 +13,15 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-        <title>ZenFlo - AI-Powered Voice Coding Platform</title>
-        <meta name="description" content="Code with Claude using voice intelligence. Real-time collaboration, multi-device sync, and conversational AI for developers." />
+        <title>ZenFlo</title>
+        <meta name="description" content="AI-powered voice coding platform. Code with Claude using voice intelligence, real-time collaboration, and multi-device sync." />
 
         {/* Apple Touch Icon */}
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
         {/* Open Graph */}
-        <meta property="og:title" content="ZenFlo - AI-Powered Voice Coding Platform" />
-        <meta property="og:description" content="Code with Claude using voice intelligence. Real-time collaboration, multi-device sync, and conversational AI for developers." />
+        <meta property="og:title" content="ZenFlo" />
+        <meta property="og:description" content="AI-powered voice coding platform. Code with Claude using voice intelligence, real-time collaboration, and multi-device sync." />
         <meta property="og:image" content="https://app.zenflo.dev/og-image.png" />
         <meta property="og:url" content="https://app.zenflo.dev" />
         <meta property="og:type" content="website" />
@@ -29,8 +29,8 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="ZenFlo - AI-Powered Voice Coding Platform" />
-        <meta name="twitter:description" content="Code with Claude using voice intelligence. Real-time collaboration, multi-device sync, and conversational AI for developers." />
+        <meta name="twitter:title" content="ZenFlo" />
+        <meta name="twitter:description" content="AI-powered voice coding platform. Code with Claude using voice intelligence, real-time collaboration, and multi-device sync." />
         <meta name="twitter:image" content="https://app.zenflo.dev/og-image.png" />
 
         {/* Theme Color */}
