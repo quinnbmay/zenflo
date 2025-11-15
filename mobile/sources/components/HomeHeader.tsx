@@ -28,7 +28,6 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         height: 32,
         alignItems: 'center',
         justifyContent: 'center',
-        tintColor: theme.colors.header.tint,
     },
     titleContainer: {
         flex: 1,
@@ -153,7 +152,7 @@ function HeaderLeft() {
     return (
         <View style={styles.logoContainer}>
             <Image
-                source={require('@/assets/images/logotype-dark.png')}
+                source={require('@/assets/images/icon.png')}
                 contentFit="contain"
                 style={[{ width: 24, height: 24 }]}
             />

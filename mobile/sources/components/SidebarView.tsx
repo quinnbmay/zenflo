@@ -12,6 +12,7 @@ import { useRealtimeStatus } from '@/sync/storage';
 import { MainView } from './MainView';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
+import { Platform } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@/text';
 import { useAgentsHasContent } from '@/hooks/useAgentsHasContent';
@@ -186,7 +187,7 @@ export const SidebarView = React.memo(() => {
                 <View style={[styles.header, { height: headerHeight }]}>
                     <View style={styles.logoContainer}>
                         <Image
-                            source={require('@/assets/images/logotype-dark.png')}
+                            source={require('@/assets/images/icon.png')}
                             contentFit="contain"
                             style={[styles.logo, { height: 24, width: 24 }]}
                         />
@@ -198,8 +199,8 @@ export const SidebarView = React.memo(() => {
                                 hitSlop={15}
                             >
                                 <Ionicons
-                                    name="leaf-outline"
-                                    size={28}
+                                    name="checkmark-circle-outline"
+                                    size={Platform.OS === 'web' ? 20 : 28}
                                     color={theme.colors.header.tint}
                                 />
                             </Pressable>
@@ -211,7 +212,7 @@ export const SidebarView = React.memo(() => {
                         >
                             <Ionicons
                                 name="grid-outline"
-                                size={28}
+                                size={Platform.OS === 'web' ? 20 : 28}
                                 color={theme.colors.header.tint}
                             />
                             {friendRequests.length > 0 && (
@@ -231,13 +232,15 @@ export const SidebarView = React.memo(() => {
                         >
                             <Ionicons
                                 name="settings-outline"
-                                size={28}
+                                size={Platform.OS === 'web' ? 20 : 28}
                                 color={theme.colors.header.tint}
                             />
                         </Pressable>
                     </View>
                     <View style={styles.titleContainer}>
-                        <Text style={styles.titleText}>{t('sidebar.sessionsTitle')}</Text>
+                        <Text style={styles.titleText}>
+                            {t('sidebar.sessionsTitle')}
+                        </Text>
                         {getConnectionStatus().text && (
                             <View style={styles.statusContainer}>
                                 <StatusDot

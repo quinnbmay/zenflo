@@ -3,6 +3,7 @@ import { View, Pressable, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Ionicons } from '@expo/vector-icons';
+import { Platform } from 'react-native';
 import { t } from '@/text';
 import { Typography } from '@/constants/Typography';
 import { layout } from '@/components/layout';
@@ -98,7 +99,7 @@ export const TabBar = React.memo(({ activeTab, onTabPress, agentsBadgeCount = 0 
 
         // Add Zen tab first if experiments are enabled
         if (settings.experiments) {
-            baseTabs.push({ key: 'zen', iconName: 'leaf-outline', label: 'Zen' });
+            baseTabs.push({ key: 'zen', iconName: 'checkmark-circle-outline', label: 'Zen' });
         }
 
         // Add regular tabs
@@ -127,7 +128,7 @@ export const TabBar = React.memo(({ activeTab, onTabPress, agentsBadgeCount = 0 
                             <View style={styles.tabContent}>
                                 <Ionicons
                                     name={tab.iconName}
-                                    size={24}
+                                    size={Platform.OS === 'web' ? 16 : 22}
                                     color={isActive ? theme.colors.text : theme.colors.textSecondary}
                                 />
                                 {tab.key === 'agents' && agentsBadgeCount > 0 && (
