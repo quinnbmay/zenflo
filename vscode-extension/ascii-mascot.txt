@@ -1,0 +1,73 @@
+ZenFlo ASCII Robot Mascot Designs
+===================================
+
+SMALL (for tight spaces):
+    _._
+   (o.o)
+   (::)
+   _||_
+
+MEDIUM (for avatars):
+    .---.
+   /o   o\
+  |   ^   |
+  |  \_/  |
+   \  ~  /
+    '---'
+    |   |
+   _|   |_
+
+
+LARGE (for headers/empty states):
+     ___
+    /   \
+   | o o |
+   |  ^  |
+   | \_/ |
+    \___/
+      |
+    __|__
+   |     |
+   |     |
+    |   |
+    _| |_
+
+
+ZEN MEDITATION POSE:
+      _._
+     (°·°)
+    / ___ \
+   | |   | |
+   | |___| |
+    \_____/
+      | |
+     _| |_
+
+
+FRIENDLY WAVE:
+    .---.
+   /o   o\
+  |   ^   |  \o/
+  |  \_/  |
+   \  ~  /
+    '---'
+    |   |
+   _|   |_
+
+
+THINKING POSE:
+     ___
+    /   \
+   | °·° |  ?
+   |  ^  |
+   | \_/ |
+    \___/
+    __|__
+   |     |
+
+
+COMPACT CUTE:
+   (◕‿◕)
+    >-<
+    | |
+   _|||_

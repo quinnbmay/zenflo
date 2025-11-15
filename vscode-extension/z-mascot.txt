@@ -1,0 +1,68 @@
+ZenFlo "Z with Eyes" Mascot Designs
+====================================
+
+TINY (for icons):
+ ___
+|o o|
+ \_/
+/
+
+SMALL (for header):
+  ____
+ |o  o|
+  \__/
+  /
+ /__
+
+MEDIUM (for avatars):
+   _____
+  |o   o|
+   \___/
+    /
+   /
+  /____
+
+LARGE (block style):
+ ███████╗
+ ╚══o══o╝
+    ███╔╝
+   ███╔╝
+  ███╔╝
+ ███████╗
+
+FRIENDLY (rounded):
+  .-----.
+ ( o   o )
+  '-----'
+    /
+   /
+  '-----'
+
+CUTE VARIANT:
+   _____
+  | • • |
+   \_-_/
+    /
+   /___
+
+3D STYLE:
+  ╔═════╗
+  ║ o o ║
+  ╚═════╝
+    ╱╱
+   ╱╱
+  ╱═════╗
+
+WINKING:
+  _____
+ |o  ^|
+  \__/
+  /
+ /__
+
+SLEEPY:
+  _____
+ |- - |
+  \__/
+  /
+ /__
