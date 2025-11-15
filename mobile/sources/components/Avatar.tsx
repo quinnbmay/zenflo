@@ -2,8 +2,6 @@ import * as React from "react";
 import { View } from "react-native";
 import { Image } from "expo-image";
 import { AvatarSkia } from "./AvatarSkia";
-import { AvatarGradient } from "./AvatarGradient";
-import { AvatarBrutalist } from "./AvatarBrutalist";
 import { AvatarIcon } from "./AvatarIcon";
 import { useSetting } from '@/sync/storage';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -22,6 +20,7 @@ interface AvatarProps {
 const flavorIcons = {
     claude: require('@/assets/images/icon-claude.png'),
     codex: require('@/assets/images/icon-gpt.png'),
+    ccr: require('@/assets/images/icon-zai.png'),
     gemini: require('@/assets/images/icon-gemini.png'),
     qwen: require('@/assets/images/Q-Logo.png'),
 };
@@ -102,16 +101,7 @@ export const Avatar = React.memo((props: AvatarProps) => {
 
     // Original generated avatar logic
     // Determine which avatar variant to render
-    let AvatarComponent: React.ComponentType<any>;
-    if (avatarStyle === 'pixelated') {
-        AvatarComponent = AvatarSkia;
-    } else if (avatarStyle === 'brutalist') {
-        AvatarComponent = AvatarBrutalist;
-    } else if (avatarStyle === 'icon') {
-        AvatarComponent = AvatarIcon;
-    } else {
-        AvatarComponent = AvatarGradient;
-    }
+    const AvatarComponent = avatarStyle === 'icon' ? AvatarIcon : AvatarSkia;
 
     // Determine flavor icon for generated avatars
     const effectiveFlavor = flavor || 'claude';

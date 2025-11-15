@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, Pressable, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import { t } from '@/text';
 import { Typography } from '@/constants/Typography';
 import { layout } from '@/components/layout';
@@ -10,6 +10,12 @@ import { useAgentsHasContent } from '@/hooks/useAgentsHasContent';
 import { useSettings } from '@/sync/storage';
 
 export type TabType = 'zen' | 'agents' | 'sessions' | 'settings';
+
+interface Tab {
+    key: TabType;
+    iconName: keyof typeof Ionicons.glyphMap;
+    label: string;
+}
 
 interface TabBarProps {
     activeTab: TabType;
@@ -87,21 +93,21 @@ export const TabBar = React.memo(({ activeTab, onTabPress, agentsBadgeCount = 0 
     const agentsHasContent = useAgentsHasContent();
     const settings = useSettings();
 
-    const tabs: { key: TabType; icon: any; label: string }[] = React.useMemo(() => {
-        const baseTabs: { key: TabType; icon: any; label: string }[] = [];
-        
+    const tabs: Tab[] = React.useMemo(() => {
+        const baseTabs: Tab[] = [];
+
         // Add Zen tab first if experiments are enabled
         if (settings.experiments) {
-            baseTabs.push({ key: 'zen', icon: require('@/assets/images/brutalist/Brutalism 3.png'), label: 'Zen' });
+            baseTabs.push({ key: 'zen', iconName: 'leaf-outline', label: 'Zen' });
         }
-        
+
         // Add regular tabs
         baseTabs.push(
-            { key: 'agents', icon: require('@/assets/images/brutalist/Brutalism 24.png'), label: t('tabs.agents') },
-            { key: 'sessions', icon: require('@/assets/images/brutalist/Brutalism 15.png'), label: t('tabs.sessions') },
-            { key: 'settings', icon: require('@/assets/images/brutalist/Brutalism 9.png'), label: t('tabs.settings') },
+            { key: 'agents', iconName: 'grid-outline', label: t('tabs.agents') },
+            { key: 'sessions', iconName: 'chatbubbles-outline', label: t('tabs.sessions') },
+            { key: 'settings', iconName: 'settings-outline', label: t('tabs.settings') },
         );
-        
+
         return baseTabs;
     }, [settings.experiments]);
 
@@ -119,11 +125,10 @@ export const TabBar = React.memo(({ activeTab, onTabPress, agentsBadgeCount = 0 
                             hitSlop={8}
                         >
                             <View style={styles.tabContent}>
-                                <Image
-                                    source={tab.icon}
-                                    contentFit="contain"
-                                    style={[{ width: 24, height: 24 }]}
-                                    tintColor={isActive ? theme.colors.text : theme.colors.textSecondary}
+                                <Ionicons
+                                    name={tab.iconName}
+                                    size={24}
+                                    color={isActive ? theme.colors.text : theme.colors.textSecondary}
                                 />
                                 {tab.key === 'agents' && agentsBadgeCount > 0 && (
                                     <View style={styles.badge}>

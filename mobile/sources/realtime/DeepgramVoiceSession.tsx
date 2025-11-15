@@ -37,55 +37,53 @@ export class DeepgramVoiceSessionImpl implements VoiceSession {
     }
 
     async startSession(config: VoiceSessionConfig): Promise<void> {
+        console.log('[DeepgramVoice] 🚀 Starting session...');
+
         if (!this.connectFn) {
-            throw new Error('Deepgram voice agent hooks not initialized');
+            const error = new Error('Deepgram voice agent hooks not initialized');
+            console.error('[DeepgramVoice] ❌ Fatal:', error.message);
+            throw error;
         }
 
         this.sessionId = config.sessionId;
         storage.getState().setDeepgramStatus('connecting');
 
         try {
-            // Get user settings
+            // Get user preferences for voice and language
             const settings = storage.getState().settings;
             const voice = settings.deepgramVoice || 'aura-asteria-en';
             const language = settings.deepgramLanguage || 'en';
 
-            // Start Deepgram voice agent with best practices + user settings
-            // autoStartMicrophone: true (default) enables hands-free conversation
+            console.log('[DeepgramVoice] 🔌 Connecting with user preferences:', { voice, language });
+
+            // Connect with user preferences
+            // Note: defaultSettings in useDeepgramVoiceAgent hook already configured:
+            // - endpointing: 2000 (CRITICAL for preventing mic from turning off)
+            // - audio settings (input/output encoding)
+            // - default model and temperature
+            // We only override language, voice, and prompt here
             await this.connectFn({
-                audio: {
-                    input: { encoding: 'linear16', sample_rate: 16000 }, // Best practice for mobile
-                    output: { encoding: 'linear16', sample_rate: 24000, container: 'none' }, // High quality output
-                },
                 agent: {
-                    language,
-                    listen: {
-                        provider: {
-                            type: 'deepgram',
-                            model: 'nova-3', // Latest, most accurate model
-                            smart_format: true, // Automatic formatting
-                            endpointing: 2000 // Wait 2 seconds of silence before considering user done speaking (default is 10ms which is too aggressive)
-                        },
-                    },
+                    language, // Override default language
                     think: {
-                        provider: {
-                            type: 'open_ai',
-                            model: 'gpt-4o-mini', // Cost-effective and fast
-                            temperature: 0.7 // Balanced creativity
-                        },
                         prompt: config.initialContext || 'You are a helpful AI coding assistant. You assist with programming tasks through natural voice conversation. Be concise and helpful.',
-                        functions: [], // Enable client-side tool calling (empty = auto-discover)
-                        first_message: "Hey! I'm ready to help you code. What are you working on?", // Welcome message when session starts
+                        first_message: "Hey! I'm ready to help you code. What are you working on?",
                     },
                     speak: {
-                        provider: { type: 'deepgram', model: voice },
+                        provider: { type: 'deepgram', model: voice }, // Override default voice
                     },
                 },
             });
 
+            console.log('[DeepgramVoice] ✅ Connected successfully');
             storage.getState().setDeepgramStatus('connected');
         } catch (error) {
-            console.error('[DeepgramVoice] Failed to start session:', error);
+            console.error('[DeepgramVoice] ❌ Connection failed:', error);
+            console.error('[DeepgramVoice] Error details:', {
+                type: typeof error,
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined
+            });
             storage.getState().setDeepgramStatus('error');
             throw error;
         }
@@ -149,6 +147,35 @@ export const DeepgramVoiceSession: React.FC = () => {
 
     const voiceAgent = useDeepgramVoiceAgent({
         autoStartMicrophone: true, // 🎤 Enables hands-free conversation
+        defaultSettings: {
+            audio: {
+                input: { encoding: 'linear16', sample_rate: 16000 }, // Best practice for mobile
+                output: { encoding: 'linear16', sample_rate: 24000, container: 'none' }, // High quality output
+            },
+            agent: {
+                language: 'en', // Default language (will be overridden in connect() if user has preference)
+                listen: {
+                    provider: {
+                        type: 'deepgram',
+                        model: 'nova-3', // Latest, most accurate model
+                        smart_format: true, // Automatic formatting
+                        endpointing: 2000 // CRITICAL: Wait 2 seconds of silence before considering user done speaking (default is 10ms which causes mic to turn off immediately)
+                    },
+                },
+                think: {
+                    provider: {
+                        type: 'open_ai',
+                        model: 'gpt-4o-mini', // Cost-effective and fast
+                        temperature: 0.7 // Balanced creativity
+                    },
+                    prompt: 'You are a helpful AI coding assistant. You assist with programming tasks through natural voice conversation. Be concise and helpful.',
+                    functions: [], // Enable client-side tool calling (empty = auto-discover)
+                },
+                speak: {
+                    provider: { type: 'deepgram', model: 'aura-asteria-en' }, // Default voice (will be overridden in connect() if user has preference)
+                },
+            },
+        },
         onConversationText: (msg) => {
             console.log('[DeepgramVoice] 💬', msg.role + ':', msg.content);
         },

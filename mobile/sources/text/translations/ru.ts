@@ -402,6 +402,7 @@ export const ru: TranslationStructure = {
         agent: {
             claude: 'Claude',
             codex: 'Codex',
+            ccr: 'CCR (GLM)',
             qwen: 'Qwen',
             gemini: 'Gemini',
         },
@@ -431,6 +432,11 @@ export const ru: TranslationStructure = {
             gpt5Low: 'GPT-5 Низкая',
             gpt5Medium: 'GPT-5 Средняя',
             gpt5High: 'GPT-5 Высокая',
+        },
+        ccrModel: {
+            title: 'МОДЕЛЬ CCR',
+            glm46: 'GLM-4.6 (По умолчанию)',
+            glm45Air: 'GLM-4.5 Air (Фоновый)',
         },
         context: {
             remaining: ({ percent }: { percent: number }) => `Осталось ${percent}%`,

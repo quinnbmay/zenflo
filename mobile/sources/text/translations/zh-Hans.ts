@@ -394,6 +394,7 @@ export const zhHans: TranslationStructure = {
         agent: {
             claude: 'Claude',
             codex: 'Codex',
+            ccr: 'CCR (GLM)',
             qwen: 'Qwen',
             gemini: 'Gemini',
         },
@@ -423,6 +424,11 @@ export const zhHans: TranslationStructure = {
             gpt5Low: 'GPT-5 低',
             gpt5Medium: 'GPT-5 中',
             gpt5High: 'GPT-5 高',
+        },
+        ccrModel: {
+            title: 'CCR 模型',
+            glm46: 'GLM-4.6 (默认)',
+            glm45Air: 'GLM-4.5 Air (后台)',
         },
         context: {
             remaining: ({ percent }: { percent: number }) => `剩余 ${percent}%`,

@@ -392,6 +392,7 @@ export const en = {
         agent: {
             claude: 'Claude',
             codex: 'Codex',
+            ccr: 'CCR (GLM)',
             qwen: 'Qwen',
             gemini: 'Gemini',
         },
@@ -421,6 +422,11 @@ export const en = {
             gpt5Low: 'GPT-5 Low',
             gpt5Medium: 'GPT-5 Medium',
             gpt5High: 'GPT-5 High',
+        },
+        ccrModel: {
+            title: 'CCR MODEL',
+            glm46: 'GLM-4.6 (Default)',
+            glm45Air: 'GLM-4.5 Air (Background)',
         },
         context: {
             remaining: ({ percent }: { percent: number }) => `${percent}% left`,

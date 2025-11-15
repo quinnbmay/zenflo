@@ -13,10 +13,10 @@ import { darkTheme, lightTheme } from '@/theme';
 import { t, getLanguageNativeName, SUPPORTED_LANGUAGES } from '@/text';
 
 // Define known avatar styles for this version of the app
-type KnownAvatarStyle = 'pixelated' | 'gradient' | 'brutalist' | 'icon';
+type KnownAvatarStyle = 'pixelated' | 'icon';
 
 const isKnownAvatarStyle = (style: string): style is KnownAvatarStyle => {
-    return style === 'pixelated' || style === 'gradient' || style === 'brutalist' || style === 'icon';
+    return style === 'pixelated' || style === 'icon';
 };
 
 export default function AppearanceSettingsScreen() {
@@ -34,8 +34,8 @@ export default function AppearanceSettingsScreen() {
     const [themePreference, setThemePreference] = useLocalSettingMutable('themePreference');
     const [preferredLanguage] = useSettingMutable('preferredLanguage');
     
-    // Ensure we have a valid style for display, defaulting to gradient for unknown values
-    const displayStyle: KnownAvatarStyle = isKnownAvatarStyle(avatarStyle) ? avatarStyle : 'gradient';
+    // Ensure we have a valid style for display, defaulting to icon for unknown values
+    const displayStyle: KnownAvatarStyle = isKnownAvatarStyle(avatarStyle) ? avatarStyle : 'icon';
     
     // Language display
     const getLanguageDisplayText = () => {
@@ -202,11 +202,9 @@ export default function AppearanceSettingsScreen() {
                     title={t('settingsAppearance.avatarStyle')}
                     subtitle={t('settingsAppearance.avatarStyleDescription')}
                     icon={<Ionicons name="person-circle-outline" size={29} color="#5856D6" />}
-                    detail={displayStyle === 'pixelated' ? t('settingsAppearance.avatarOptions.pixelated') : displayStyle === 'brutalist' ? t('settingsAppearance.avatarOptions.brutalist') : displayStyle === 'icon' ? t('settingsAppearance.avatarOptions.icon') : t('settingsAppearance.avatarOptions.gradient')}
+                    detail={displayStyle === 'pixelated' ? t('settingsAppearance.avatarOptions.pixelated') : t('settingsAppearance.avatarOptions.icon')}
                     onPress={() => {
-                        const currentIndex = displayStyle === 'pixelated' ? 0 : displayStyle === 'gradient' ? 1 : displayStyle === 'brutalist' ? 2 : 3;
-                        const nextIndex = (currentIndex + 1) % 4;
-                        const nextStyle = nextIndex === 0 ? 'pixelated' : nextIndex === 1 ? 'gradient' : nextIndex === 2 ? 'brutalist' : 'icon';
+                        const nextStyle = displayStyle === 'pixelated' ? 'icon' : 'pixelated';
                         setAvatarStyle(nextStyle);
                     }}
                 />

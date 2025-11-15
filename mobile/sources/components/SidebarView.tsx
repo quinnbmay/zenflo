@@ -11,6 +11,7 @@ import { VoiceAssistantStatusBar } from './VoiceAssistantStatusBar';
 import { useRealtimeStatus } from '@/sync/storage';
 import { MainView } from './MainView';
 import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@/text';
 import { useAgentsHasContent } from '@/hooks/useAgentsHasContent';
@@ -196,11 +197,10 @@ export const SidebarView = React.memo(() => {
                                 onPress={() => router.push('/(app)/zen')}
                                 hitSlop={15}
                             >
-                                <Image
-                                    source={require('@/assets/images/brutalist/Brutalism 3.png')}
-                                    contentFit="contain"
-                                    style={[{ width: 32, height: 32 }]}
-                                    tintColor={theme.colors.header.tint}
+                                <Ionicons
+                                    name="leaf-outline"
+                                    size={28}
+                                    color={theme.colors.header.tint}
                                 />
                             </Pressable>
                         )}
@@ -209,11 +209,10 @@ export const SidebarView = React.memo(() => {
                             hitSlop={15}
                             style={styles.notificationButton}
                         >
-                            <Image
-                                source={require('@/assets/images/brutalist/Brutalism 27.png')}
-                                contentFit="contain"
-                                style={[{ width: 32, height: 32 }]}
-                                tintColor={theme.colors.header.tint}
+                            <Ionicons
+                                name="grid-outline"
+                                size={28}
+                                color={theme.colors.header.tint}
                             />
                             {friendRequests.length > 0 && (
                                 <View style={styles.badge}>
@@ -230,11 +229,10 @@ export const SidebarView = React.memo(() => {
                             onPress={() => router.push('/settings')}
                             hitSlop={15}
                         >
-                            <Image
-                                source={require('@/assets/images/brutalist/Brutalism 9.png')}
-                                contentFit="contain"
-                                style={[{ width: 32, height: 32 }]}
-                                tintColor={theme.colors.header.tint}
+                            <Ionicons
+                                name="settings-outline"
+                                size={28}
+                                color={theme.colors.header.tint}
                             />
                         </Pressable>
                     </View>

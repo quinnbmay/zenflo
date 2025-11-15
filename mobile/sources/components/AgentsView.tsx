@@ -326,11 +326,11 @@ export const AgentsView = React.memo(({}: AgentsViewProps) => {
                 </View>
                 <UpdateBanner />
                 <View style={styles.emptyContainer}>
-                    <Image
-                        source={require('@/assets/images/brutalist/Brutalism 10.png')}
-                        contentFit="contain"
-                        style={[{ width: 64, height: 64 }, styles.emptyIcon]}
-                        tintColor={theme.colors.status.error}
+                    <Ionicons
+                        name="alert-circle-outline"
+                        size={64}
+                        color={theme.colors.status.error}
+                        style={styles.emptyIcon}
                     />
                     <Text style={[styles.emptyTitle, { color: theme.colors.status.error }]}>
                         Error Loading Agents
@@ -355,11 +355,11 @@ export const AgentsView = React.memo(({}: AgentsViewProps) => {
                 </View>
                 <UpdateBanner />
                 <View style={styles.emptyContainer}>
-                    <Image
-                        source={require('@/assets/images/brutalist/Brutalism 24.png')}
-                        contentFit="contain"
-                        style={[{ width: 64, height: 64 }, styles.emptyIcon]}
-                        tintColor={theme.colors.textSecondary}
+                    <Ionicons
+                        name="grid-outline"
+                        size={64}
+                        color={theme.colors.textSecondary}
+                        style={styles.emptyIcon}
                     />
                     <Text style={styles.emptyTitle}>No Agents Yet</Text>
                     <Text style={styles.emptyDescription}>

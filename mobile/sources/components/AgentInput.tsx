@@ -59,7 +59,7 @@ interface AgentInputProps {
     };
     alwaysShowContextSize?: boolean;
     onFileViewerPress?: () => void;
-    agentType?: 'claude' | 'codex' | 'qwen' | 'gemini';
+    agentType?: 'claude' | 'codex' | 'ccr' | 'qwen' | 'gemini';
     onAgentClick?: () => void;
     machineName?: string | null;
     onMachineClick?: () => void;
@@ -296,6 +296,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
     
     // Check if this is a Codex session
     const isCodex = props.metadata?.flavor === 'codex';
+    const isCCR = props.agentType === 'ccr';
     const isQwen = props.metadata?.flavor === 'qwen';
 
     // Calculate context warning
@@ -458,7 +459,9 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
             if (event.key === 'Tab' && event.shiftKey && props.onPermissionModeChange) {
                 const modeOrder: PermissionMode[] = isCodex
                     ? ['default', 'read-only', 'safe-yolo', 'yolo']
-                    : ['default', 'acceptEdits', 'plan', 'bypassPermissions'];
+                    : isCCR
+                        ? ['default', 'acceptEdits', 'plan', 'bypassPermissions']
+                        : ['default', 'acceptEdits', 'plan', 'bypassPermissions'];
                 const currentIndex = modeOrder.indexOf(props.permissionMode || 'default');
                 const nextIndex = (currentIndex + 1) % modeOrder.length;
                 props.onPermissionModeChange(modeOrder[nextIndex]);
@@ -478,10 +481,12 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
             // Handle Cmd/Ctrl+M for model mode switching
             if (e.key === 'm' && (e.metaKey || e.ctrlKey) && props.onModelModeChange) {
                 e.preventDefault();
-                const modelOrder: ModelMode[] = isCodex
-                    ? ['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default']
-                    : ['default', 'adaptiveUsage', 'sonnet', 'opus'];
-                const currentIndex = modelOrder.indexOf(props.modelMode || (isCodex ? 'gpt-5-codex-high' : 'default'));
+                const modelOrder: ModelMode[] = isCCR
+                    ? ['glm-4.6', 'glm-4.5-air']
+                    : isCodex
+                        ? ['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default']
+                        : ['default', 'adaptiveUsage', 'sonnet', 'opus'];
+                const currentIndex = modelOrder.indexOf(props.modelMode || (isCCR ? 'glm-4.6' : isCodex ? 'gpt-5-codex-high' : 'default'));
                 const nextIndex = (currentIndex + 1) % modelOrder.length;
                 props.onModelModeChange(modelOrder[nextIndex]);
                 hapticsLight();
@@ -492,7 +497,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isCodex, isQwen, props.modelMode, props.onModelModeChange]);
+    }, [isCCR, isCodex, isQwen, props.modelMode, props.onModelModeChange]);
 
 
 
@@ -537,11 +542,13 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                 {/* Permission Mode Section */}
                                 <View style={styles.overlaySection}>
                                     <Text style={styles.overlaySectionTitle}>
-                                        {isCodex ? t('agentInput.codexPermissionMode.title') : t('agentInput.permissionMode.title')}
+                                        {isCodex ? t('agentInput.codexPermissionMode.title') : isCCR ? t('agentInput.permissionMode.title') : t('agentInput.permissionMode.title')}
                                     </Text>
-                                    {(isCodex 
+                                    {(isCodex
                                         ? (['default', 'read-only', 'safe-yolo', 'yolo'] as const)
-                                        : (['default', 'acceptEdits', 'plan', 'bypassPermissions'] as const)
+                                        : isCCR
+                                            ? (['default', 'acceptEdits', 'plan', 'bypassPermissions'] as const)
+                                            : (['default', 'acceptEdits', 'plan', 'bypassPermissions'] as const)
                                     ).map((mode) => {
                                         const modeConfig = isCodex ? {
                                             'default': { label: t('agentInput.codexPermissionMode.default') },
@@ -618,13 +625,18 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         paddingBottom: 4,
                                         ...Typography.default('semiBold')
                                     }}>
-                                        {isCodex ? t('agentInput.codexModel.title') : t('agentInput.model.title')}
+                                        {isCodex ? t('agentInput.codexModel.title') : isCCR ? t('agentInput.ccrModel.title') : t('agentInput.model.title')}
                                     </Text>
-                                    {(isCodex 
-                                        ? (['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default', 'gpt-5-minimal', 'gpt-5-low', 'gpt-5-medium', 'gpt-5-high'] as const)
-                                        : (['default', 'adaptiveUsage', 'sonnet', 'opus'] as const)
+                                    {(isCCR
+                                        ? (['glm-4.6', 'glm-4.5-air'] as const)
+                                        : isCodex
+                                            ? (['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default', 'gpt-5-minimal', 'gpt-5-low', 'gpt-5-medium', 'gpt-5-high'] as const)
+                                            : (['default', 'adaptiveUsage', 'sonnet', 'opus'] as const)
                                     ).map((model) => {
-                                        const modelConfig = isCodex ? {
+                                        const modelConfig = isCCR ? {
+                                            'glm-4.6': { label: t('agentInput.ccrModel.glm46') },
+                                            'glm-4.5-air': { label: t('agentInput.ccrModel.glm45Air') },
+                                        } : isCodex ? {
                                             'gpt-5-codex-high': { label: t('agentInput.codexModel.gpt5CodexHigh') },
                                             'gpt-5-codex-medium': { label: t('agentInput.codexModel.gpt5CodexMedium') },
                                             'gpt-5-codex-low': { label: t('agentInput.codexModel.gpt5CodexLow') },
@@ -641,7 +653,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         };
                                         const config = modelConfig[model as keyof typeof modelConfig];
                                         if (!config) return null;
-                                        const isSelected = props.modelMode === model || (isCodex && model === 'gpt-5-codex-high' && !props.modelMode) || (!isCodex && model === 'default' && !props.modelMode);
+                                        const isSelected = props.modelMode === model || (isCCR && model === 'glm-4.6' && !props.modelMode) || (isCodex && model === 'gpt-5-codex-high' && !props.modelMode) || (!isCodex && !isCCR && model === 'default' && !props.modelMode);
 
                                         return (
                                             <Pressable
@@ -838,7 +850,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         fontWeight: '600',
                                         ...Typography.default('semiBold'),
                                     }}>
-                                        {props.agentType === 'claude' ? t('agentInput.agent.claude') : props.agentType === 'codex' ? t('agentInput.agent.codex') : props.agentType === 'qwen' ? t('agentInput.agent.qwen') : t('agentInput.agent.gemini')}
+                                        {props.agentType === 'claude' ? t('agentInput.agent.claude') : props.agentType === 'codex' ? t('agentInput.agent.codex') : props.agentType === 'ccr' ? t('agentInput.agent.ccr') : props.agentType === 'qwen' ? t('agentInput.agent.qwen') : t('agentInput.agent.gemini')}
                                     </Text>
                                 </Pressable>
                             )}

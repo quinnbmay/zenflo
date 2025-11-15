@@ -223,13 +223,13 @@ function NewSessionScreen() {
     // Agent selection
     //
 
-    const [agentType, setAgentType] = React.useState<'claude' | 'codex' | 'qwen' | 'gemini'>(() => {
+    const [agentType, setAgentType] = React.useState<'claude' | 'codex' | 'ccr' | 'qwen' | 'gemini'>(() => {
         // Check if agent type was provided in temp data
         if (tempSessionData?.agentType) {
             return tempSessionData.agentType;
         }
         // Initialize with last used agent if valid, otherwise default to 'claude'
-        if (lastUsedAgent === 'claude' || lastUsedAgent === 'codex' || lastUsedAgent === 'qwen' || lastUsedAgent === 'gemini') {
+        if (lastUsedAgent === 'claude' || lastUsedAgent === 'codex' || lastUsedAgent === 'ccr' || lastUsedAgent === 'qwen' || lastUsedAgent === 'gemini') {
             return lastUsedAgent;
         }
         return 'claude';
@@ -237,9 +237,10 @@ function NewSessionScreen() {
 
     const handleAgentClick = React.useCallback(() => {
         setAgentType(prev => {
-            let newAgent: 'claude' | 'codex' | 'qwen' | 'gemini';
+            let newAgent: 'claude' | 'codex' | 'ccr' | 'qwen' | 'gemini';
             if (prev === 'claude') newAgent = 'codex';
-            else if (prev === 'codex') newAgent = 'qwen';
+            else if (prev === 'codex') newAgent = 'ccr';
+            else if (prev === 'ccr') newAgent = 'qwen';
             else if (prev === 'qwen') newAgent = 'gemini';
             else newAgent = 'claude';
             // Save the new selection immediately
@@ -271,15 +272,21 @@ function NewSessionScreen() {
         // Initialize with last used model mode if valid, otherwise default
         const validClaudeModes: ModelMode[] = ['default', 'adaptiveUsage', 'sonnet', 'opus'];
         const validCodexModes: ModelMode[] = ['gpt-5-codex-high', 'gpt-5-codex-medium', 'gpt-5-codex-low', 'default', 'gpt-5-minimal', 'gpt-5-low', 'gpt-5-medium', 'gpt-5-high'];
+        const validCCRModes: ModelMode[] = ['glm-4.6', 'glm-4.5-air'];
 
         if (lastUsedModelMode) {
             if (agentType === 'codex' && validCodexModes.includes(lastUsedModelMode as ModelMode)) {
+                return lastUsedModelMode as ModelMode;
+            } else if (agentType === 'ccr' && validCCRModes.includes(lastUsedModelMode as ModelMode)) {
                 return lastUsedModelMode as ModelMode;
             } else if (agentType === 'claude' && validClaudeModes.includes(lastUsedModelMode as ModelMode)) {
                 return lastUsedModelMode as ModelMode;
             }
         }
-        return agentType === 'codex' ? 'gpt-5-codex-high' : 'default';
+        // Default based on agent type
+        if (agentType === 'codex') return 'gpt-5-codex-high';
+        if (agentType === 'ccr') return 'glm-4.6';
+        return 'default';
     });
 
     // Reset permission and model modes when agent type changes
@@ -288,6 +295,10 @@ function NewSessionScreen() {
             // Switch to codex-compatible modes
             setPermissionMode('default');
             setModelMode('gpt-5-codex-high');
+        } else if (agentType === 'ccr') {
+            // Switch to CCR-compatible modes (GLM via claude-code-router)
+            setPermissionMode('default');
+            setModelMode('glm-4.6');
         } else {
             // Switch to claude-compatible modes
             setPermissionMode('default');
