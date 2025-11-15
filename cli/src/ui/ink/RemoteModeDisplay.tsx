@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Box, Text, useStdout, useInput } from 'ink'
-import BigText from 'ink-big-text'
 import { MessageBuffer, type BufferedMessage } from './messageBuffer'
 
 interface RemoteModeDisplayProps {
@@ -14,20 +13,10 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
     const [messages, setMessages] = useState<BufferedMessage[]>([])
     const [confirmationMode, setConfirmationMode] = useState<'exit' | 'switch' | null>(null)
     const [actionInProgress, setActionInProgress] = useState<'exiting' | 'switching' | null>(null)
-    const [bannerPulse, setBannerPulse] = useState(true)
     const confirmationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
     const { stdout } = useStdout()
     const terminalWidth = stdout.columns || 80
     const terminalHeight = stdout.rows || 24
-
-    // Pulsing glow effect for banner
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setBannerPulse(prev => !prev)
-        }, 1500) // Pulse every 1.5 seconds
-
-        return () => clearInterval(interval)
-    }, [])
 
     useEffect(() => {
         setMessages(messageBuffer.getMessages())
@@ -129,16 +118,58 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
         }).join('\n')
     }
 
+    // Generate dynamic banner that scales to terminal width
+    const generateBanner = (): string[] => {
+        // The ASCII art itself (without borders)
+        const asciiArt = [
+            '  ███████╗███████╗███╗   ██╗███████╗██╗      ██████╗  ',
+            '  ╚══███╔╝██╔════╝████╗  ██║██╔════╝██║     ██╔═══██╗ ',
+            '    ███╔╝ █████╗  ██╔██╗ ██║█████╗  ██║     ██║   ██║ ',
+            '   ███╔╝  ██╔══╝  ██║╚██╗██║██╔══╝  ██║     ██║   ██║ ',
+            '  ███████╗███████╗██║ ╚████║██║     ███████╗╚██████╔╝ ',
+            '  ╚══════╝╚══════╝╚═╝  ╚═══╝╚═╝     ╚══════╝ ╚═════╝  ',
+        ]
+
+        // Minimum width needed for the ASCII art
+        const minWidth = 60
+        const width = Math.max(terminalWidth, minWidth)
+
+        // Calculate padding to center the ASCII art
+        const contentWidth = width - 2 // Account for borders (║ on each side)
+
+        // Build the banner
+        const banner: string[] = []
+
+        // Top border
+        banner.push('╔' + '═'.repeat(width - 2) + '╗')
+
+        // ASCII art lines with dynamic padding
+        for (const line of asciiArt) {
+            const trimmedLine = line.trimEnd()
+            const paddingNeeded = contentWidth - trimmedLine.length
+            const leftPad = Math.floor(paddingNeeded / 2)
+            const rightPad = paddingNeeded - leftPad
+
+            banner.push('║' + ' '.repeat(leftPad) + trimmedLine + ' '.repeat(rightPad) + '║')
+        }
+
+        // Bottom border
+        banner.push('╚' + '═'.repeat(width - 2) + '╝')
+
+        return banner
+    }
+
+    const banner = generateBanner()
 
     return (
         <Box flexDirection="column" width={terminalWidth} height={terminalHeight}>
-            {/* Big Text Banner with Pulsing Glow */}
+            {/* ASCII Art Banner */}
             <Box flexDirection="column" marginBottom={1}>
-                <BigText
-                    text="ZENFLO"
-                    font="chrome"
-                    colors={bannerPulse ? ['yellow'] : ['#ff8c00']}
-                />
+                {banner.map((line, i) => (
+                    <Text key={i} color="cyan" bold>
+                        {line}
+                    </Text>
+                ))}
             </Box>
 
             {/* Main content area with logs */}
