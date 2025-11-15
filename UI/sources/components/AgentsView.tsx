@@ -210,9 +210,12 @@ function HeaderLeft() {
             justifyContent: 'center',
         }}>
             <Image
-                source={require('@/assets/images/logotype-dark.png')}
+                source={theme.dark
+                    ? require('@/assets/images/logo-horizontal-white.svg')
+                    : require('@/assets/images/logo-horizontal-black.svg')
+                }
                 contentFit="contain"
-                style={[{ width: 24, height: 24 }]}
+                style={[{ width: 60, height: 16 }]}
             />
         </View>
     );
