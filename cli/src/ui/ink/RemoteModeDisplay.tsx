@@ -118,23 +118,55 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
         }).join('\n')
     }
 
-    const banner = [
-        '╔══════════════════════════════════════════════════════════════════════════════╗',
-        '║  ███████╗███████╗███╗   ██╗███████╗██╗      ██████╗                         ║',
-        '║  ╚══███╔╝██╔════╝████╗  ██║██╔════╝██║     ██╔═══██╗                        ║',
-        '║    ███╔╝ █████╗  ██╔██╗ ██║█████╗  ██║     ██║   ██║                        ║',
-        '║   ███╔╝  ██╔══╝  ██║╚██╗██║██╔══╝  ██║     ██║   ██║                        ║',
-        '║  ███████╗███████╗██║ ╚████║██║     ███████╗╚██████╔╝                        ║',
-        '║  ╚══════╝╚══════╝╚═╝  ╚═══╝╚═╝     ╚══════╝ ╚═════╝                         ║',
-        '╚══════════════════════════════════════════════════════════════════════════════╝',
-    ]
+    // Generate dynamic banner that scales to terminal width
+    const generateBanner = (): string[] => {
+        // The ASCII art itself (without borders)
+        const asciiArt = [
+            '  ███████╗███████╗███╗   ██╗███████╗██╗      ██████╗  ',
+            '  ╚══███╔╝██╔════╝████╗  ██║██╔════╝██║     ██╔═══██╗ ',
+            '    ███╔╝ █████╗  ██╔██╗ ██║█████╗  ██║     ██║   ██║ ',
+            '   ███╔╝  ██╔══╝  ██║╚██╗██║██╔══╝  ██║     ██║   ██║ ',
+            '  ███████╗███████╗██║ ╚████║██║     ███████╗╚██████╔╝ ',
+            '  ╚══════╝╚══════╝╚═╝  ╚═══╝╚═╝     ╚══════╝ ╚═════╝  ',
+        ]
+
+        // Minimum width needed for the ASCII art
+        const minWidth = 60
+        const width = Math.max(terminalWidth, minWidth)
+
+        // Calculate padding to center the ASCII art
+        const contentWidth = width - 2 // Account for borders (║ on each side)
+
+        // Build the banner
+        const banner: string[] = []
+
+        // Top border
+        banner.push('╔' + '═'.repeat(width - 2) + '╗')
+
+        // ASCII art lines with dynamic padding
+        for (const line of asciiArt) {
+            const trimmedLine = line.trimEnd()
+            const paddingNeeded = contentWidth - trimmedLine.length
+            const leftPad = Math.floor(paddingNeeded / 2)
+            const rightPad = paddingNeeded - leftPad
+
+            banner.push('║' + ' '.repeat(leftPad) + trimmedLine + ' '.repeat(rightPad) + '║')
+        }
+
+        // Bottom border
+        banner.push('╚' + '═'.repeat(width - 2) + '╝')
+
+        return banner
+    }
+
+    const banner = generateBanner()
 
     return (
         <Box flexDirection="column" width={terminalWidth} height={terminalHeight}>
             {/* ASCII Art Banner */}
             <Box flexDirection="column" marginBottom={1}>
                 {banner.map((line, i) => (
-                    <Text key={i} color="cyan" bold>
+                    <Text key={i} color="yellow" bold>
                         {line}
                     </Text>
                 ))}
