@@ -329,9 +329,20 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
             }}
             onSend={() => {
                 if (message.trim()) {
+                    const trimmedMessage = message.trim();
                     setMessage('');
                     clearDraft();
-                    sync.sendMessage(sessionId, message);
+
+                    // Convert # syntax to /memory command
+                    if (trimmedMessage.startsWith('#')) {
+                        const memoryContent = trimmedMessage.slice(1).trim();
+                        if (memoryContent) {
+                            sync.sendMessage(sessionId, `/memory ${memoryContent}`);
+                        }
+                    } else {
+                        sync.sendMessage(sessionId, trimmedMessage);
+                    }
+
                     trackMessageSent();
                 }
             }}
@@ -343,7 +354,7 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
             showAbortButton={sessionStatus.state === 'thinking' || sessionStatus.state === 'waiting'}
             onFileViewerPress={experiments ? () => router.push(`/session/${sessionId}/files`) : undefined}
             // Autocomplete configuration
-            autocompletePrefixes={['@', '/']}
+            autocompletePrefixes={['@', '/', '#']}
             autocompleteSuggestions={(query) => getSuggestions(sessionId, query)}
             usageData={sessionUsage ? {
                 inputTokens: sessionUsage.inputTokens,

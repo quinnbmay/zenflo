@@ -57,20 +57,35 @@ export class DeepgramVoiceSessionImpl implements VoiceSession {
             console.log('[DeepgramVoice] 🔌 Connecting with user preferences:', { voice, language });
 
             // Connect with user preferences
-            // Note: defaultSettings in useDeepgramVoiceAgent hook already configured:
-            // - endpointing: 2000 (CRITICAL for preventing mic from turning off)
-            // - audio settings (input/output encoding)
-            // - default model and temperature
-            // We only override language, voice, and prompt here
+            // IMPORTANT: Must include ALL required fields, not just overrides
+            // The connect function expects a complete settings object
             await this.connectFn({
+                audio: {
+                    input: { encoding: 'linear16', sample_rate: 16000 },
+                    output: { encoding: 'linear16', sample_rate: 24000, container: 'none' },
+                },
                 agent: {
-                    language, // Override default language
+                    language,
+                    listen: {
+                        provider: {
+                            type: 'deepgram',
+                            model: 'nova-3',
+                            smart_format: true,
+                            endpointing: 2000 // CRITICAL: 2 second silence threshold
+                        },
+                    },
                     think: {
+                        provider: {
+                            type: 'open_ai',
+                            model: 'gpt-4o-mini',
+                            temperature: 0.7
+                        },
                         prompt: config.initialContext || 'You are a helpful AI coding assistant. You assist with programming tasks through natural voice conversation. Be concise and helpful.',
                         first_message: "Hey! I'm ready to help you code. What are you working on?",
+                        functions: [],
                     },
                     speak: {
-                        provider: { type: 'deepgram', model: voice }, // Override default voice
+                        provider: { type: 'deepgram', model: voice },
                     },
                 },
             });
