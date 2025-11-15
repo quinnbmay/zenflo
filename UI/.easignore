@@ -1,0 +1,39 @@
+# Build outputs
+dist/
+dist-web/
+.expo/
+.expo-shared/
+
+# Dependencies
+node_modules/
+.yarn/
+.pnp.*
+
+# Development files
+.vscode/
+.idea/
+*.log
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Test files
+__tests__/
+*.test.ts
+*.test.tsx
+
+# Temporary files
+*.tmp
+*.cache
+.cache/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
