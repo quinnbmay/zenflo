@@ -76,8 +76,8 @@ export class DeepgramVoiceSessionImpl implements VoiceSession {
                     },
                     think: {
                         provider: {
-                            type: 'open_ai',
-                            model: 'gpt-4o-mini',
+                            type: 'anthropic',
+                            model: 'claude-3-5-sonnet-20241022',
                             temperature: 0.7
                         },
                         prompt: config.initialContext || 'You are a helpful AI coding assistant. You assist with programming tasks through natural voice conversation. Be concise and helpful.',
@@ -179,8 +179,8 @@ export const DeepgramVoiceSession: React.FC = () => {
                 },
                 think: {
                     provider: {
-                        type: 'open_ai',
-                        model: 'gpt-4o-mini', // Cost-effective and fast
+                        type: 'anthropic',
+                        model: 'claude-3-5-sonnet-20241022', // Use Claude instead of OpenAI
                         temperature: 0.7 // Balanced creativity
                     },
                     prompt: 'You are a helpful AI coding assistant. You assist with programming tasks through natural voice conversation. Be concise and helpful.',
