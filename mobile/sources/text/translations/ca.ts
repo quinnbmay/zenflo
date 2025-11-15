@@ -172,8 +172,6 @@ export const ca: TranslationStructure = {
         avatarStyleDescription: 'Tria l\'aparença de l\'avatar de la sessió',
         avatarOptions: {
             pixelated: 'Pixelat',
-            gradient: 'Gradient',
-            brutalist: 'Brutalista',
             icon: 'Icona ZenFlo',
         },
         showFlavorIcons: "Mostrar icones de proveïdors d'IA",

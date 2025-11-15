@@ -174,8 +174,6 @@ export const zhHans: TranslationStructure = {
         avatarStyleDescription: '选择会话头像外观',
         avatarOptions: {
             pixelated: '像素化',
-            gradient: '渐变',
-            brutalist: '粗糙风格',
             icon: 'ZenFlo 图标',
         },
         showFlavorIcons: '显示 AI 提供商图标',

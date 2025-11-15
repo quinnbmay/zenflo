@@ -155,8 +155,6 @@ export const ru: TranslationStructure = {
         avatarStyleDescription: 'Выберите внешний вид аватара сессии',
         avatarOptions: {
             pixelated: 'Пиксельная',
-            gradient: 'Градиентная',
-            brutalist: 'Бруталистская',
             icon: 'Иконка ZenFlo',
         },
         showFlavorIcons: 'Показывать иконки провайдеров ИИ',

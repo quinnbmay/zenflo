@@ -183,8 +183,6 @@ export const pl: TranslationStructure = {
         avatarStyleDescription: 'Wybierz wygląd awatara sesji',
         avatarOptions: {
             pixelated: 'Pikselowy',
-            gradient: 'Gradientowy',
-            brutalist: 'Brutalistyczny',
             icon: 'Ikona ZenFlo',
         },
         showFlavorIcons: 'Pokaż ikony dostawcy AI',

@@ -172,8 +172,6 @@ export const en = {
         avatarStyleDescription: 'Choose session avatar appearance',
         avatarOptions: {
             pixelated: 'Pixelated',
-            gradient: 'Gradient',
-            brutalist: 'Brutalist',
             icon: 'ZenFlo Icon',
         },
         showFlavorIcons: 'Show AI Provider Icons',
