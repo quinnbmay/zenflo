@@ -221,15 +221,14 @@ export const darkTheme = {
         warningCritical: '#FF453A',
         warning: '#8E8E93',
         success: '#32D74B',
-        surface: Platform.select({ ios: '#18171C', default: '#212121' }),
+        surface: '#000000',
         surfaceRipple: 'rgba(255, 255, 255, 0.08)',
-        surfacePressed: '#2C2C2E',
-        surfaceSelected: '#2C2C2E',
-        surfacePressedOverlay: Platform.select({ ios: '#2C2C2E', default: 'transparent' }),
-        // iOS dark theme is #1c1c1e for items, and #000 for the background
-        surfaceHigh: Platform.select({ ios: '#2C2C2E', default: '#171717' }),
-        surfaceHighest: Platform.select({ ios: '#38383A', default: '#292929' }),
-        divider: Platform.select({ ios: '#38383A', default: '#292929' }),
+        surfacePressed: '#1a1a1a',
+        surfaceSelected: '#1a1a1a',
+        surfacePressedOverlay: Platform.select({ ios: '#1a1a1a', default: 'transparent' }),
+        surfaceHigh: '#0a0a0a',
+        surfaceHighest: '#1a1a1a',
+        divider: '#1a1a1a',
         shadow: {
             color: Platform.select({ default: '#000000', web: 'rgba(0, 0, 0, 0.1)' }),
             opacity: 0.1,
@@ -240,7 +239,7 @@ export const darkTheme = {
         //
 
         header: {
-            background: Platform.select({ ios: '#18171C', default: '#212121' }),
+            background: '#000000',
             tint: '#ffffff'
         },
         switch: {
@@ -254,7 +253,7 @@ export const darkTheme = {
             },
         },
         groupped: {
-            background: Platform.select({ ios: '#1C1C1E', default: '#1e1e1e' }),
+            background: '#000000',
             chevron: Platform.select({ ios: '#48484A', default: '#CAC4D0' }),
             sectionTitle: Platform.select({ ios: '#8E8E93', default: '#CAC4D0' }),
         },
@@ -282,7 +281,7 @@ export const darkTheme = {
             }
         },
         input: {
-            background: Platform.select({ ios: '#1C1C1E', default: '#303030' }),
+            background: '#0a0a0a',
             text: '#FFFFFF',
             placeholder: '#8E8E93',
         },
@@ -337,13 +336,13 @@ export const darkTheme = {
                 text: '#FFFFFF',
             },
             inactive: {
-                background: '#2C2C2E',
-                border: '#38383A',
+                background: '#0a0a0a',
+                border: '#1a1a1a',
                 text: '#8E8E93',
             },
             selected: {
-                background: '#1C1C1E',
-                border: '#38383A',
+                background: '#000000',
+                border: '#1a1a1a',
                 text: '#FFFFFF',
             },
         },
@@ -375,7 +374,7 @@ export const darkTheme = {
         },
 
         // Message View colors
-        userMessageBackground: '#2C2C2E',
+        userMessageBackground: '#0a0a0a',
         userMessageText: '#FFFFFF',
         agentMessageText: '#FFFFFF',
         agentEventText: '#8E8E93',
