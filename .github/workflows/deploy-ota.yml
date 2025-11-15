@@ -1,23 +1,20 @@
-name: Deploy iOS (Native Build)
+name: Deploy OTA Update
 
 on:
-  # Manual trigger only - native builds cost credits
-  workflow_dispatch:
-
-  # Auto-trigger only for native code changes
+  # Auto-trigger for JS/TS/asset changes (free, no build credits)
   push:
     branches:
       - main
     paths:
-      - 'UI/app.config.js'
-      - 'UI/eas.json'
-      - 'UI/package.json'
-      - 'UI/plugins/**'
-      - 'UI/ios/**'
+      - 'UI/sources/**'
+      - 'UI/assets/**'
+
+  # Manual trigger
+  workflow_dispatch:
 
 jobs:
-  build:
-    name: EAS Build iOS Production
+  ota-update:
+    name: EAS OTA Update Production
     runs-on: ubuntu-latest
     steps:
       - name: Check for EXPO_TOKEN
@@ -47,6 +44,12 @@ jobs:
         working-directory: UI
         run: yarn install --frozen-lockfile
 
-      - name: Trigger EAS Build
+      - name: Deploy OTA Update
         working-directory: UI
-        run: eas build --platform ios --profile production --non-interactive --no-wait
+        env:
+          APP_ENV: production
+          NODE_ENV: production
+        run: |
+          echo "📱 Deploying OTA update to production..."
+          eas update --branch production --message "Auto-deploy: ${{ github.event.head_commit.message }}" --non-interactive
+          echo "✅ OTA update deployed successfully"

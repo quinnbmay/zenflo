@@ -1,12 +1,19 @@
-name: Deploy Android
+name: Deploy Android (Native Build)
 
 on:
+  # Manual trigger only - native builds cost credits
+  workflow_dispatch:
+
+  # Auto-trigger only for native code changes
   push:
     branches:
       - main
     paths:
-      - 'UI/**'
-  workflow_dispatch:
+      - 'UI/app.config.js'
+      - 'UI/eas.json'
+      - 'UI/package.json'
+      - 'UI/plugins/**'
+      - 'UI/android/**'
 
 jobs:
   build:
