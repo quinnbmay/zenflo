@@ -4,6 +4,15 @@
   "description": "Multi-provider AI coding assistant with Claude Code integration",
   "version": "0.1.0",
   "publisher": "zenflo",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zenflo/zenflo"
+  },
+  "homepage": "https://zenflo.dev",
+  "bugs": {
+    "url": "https://github.com/zenflo/zenflo/issues"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },

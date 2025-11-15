@@ -2,6 +2,9 @@
 
 AI-powered coding assistant with multi-provider support for Visual Studio Code.
 
+**Website:** [zenflo.dev](https://zenflo.dev)
+**Repository:** [github.com/zenflo/zenflo](https://github.com/zenflo/zenflo)
+
 ## Features
 
 - 🤖 **Multi-Provider AI Support**: Switch between Anthropic Claude, OpenAI GPT, or custom endpoints
@@ -146,6 +149,12 @@ The chat participant:
 | `zenflo.custom.model` | Custom endpoint model name | `""` |
 | `zenflo.fileContext.maxFiles` | Max files in context | `10` |
 | `zenflo.fileContext.maxTokens` | Max tokens for file context | `50000` |
+
+## Support
+
+- **Website:** [zenflo.dev](https://zenflo.dev)
+- **Issues:** [github.com/zenflo/zenflo/issues](https://github.com/zenflo/zenflo/issues)
+- **Documentation:** [zenflo.dev/docs](https://zenflo.dev/docs)
 
 ## License
 
