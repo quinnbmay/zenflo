@@ -181,7 +181,7 @@ class HappyApiClient {
     const encoded = btoa(itemJson);
 
     // Save with proper key: todo.{uuid}
-    await fetch('https://zenflo.combinedmemory.com/v1/kv', {
+    await fetch('https://api.zenflo.dev/v1/kv', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.token}`,
@@ -223,7 +223,7 @@ class HappyApiClient {
     const itemJson = JSON.stringify(updatedItem);
     const encoded = btoa(itemJson);
 
-    await fetch('https://zenflo.combinedmemory.com/v1/kv', {
+    await fetch('https://api.zenflo.dev/v1/kv', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.token}`,
@@ -240,7 +240,7 @@ class HappyApiClient {
 
   async deleteTodo(taskId: string): Promise<void> {
     // Delete item with proper key format
-    await fetch(`https://zenflo.combinedmemory.com/v1/kv/todo.${taskId}`, {
+    await fetch(`https://api.zenflo.dev/v1/kv/todo.${taskId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${this.token}`,

@@ -46,7 +46,7 @@ Claude Code (MCP client)
   ↓
 Zen Mode MCP Server (stdio protocol)
   ↓
-Happy Backend API (happy.combinedmemory.com)
+Happy Backend API (api.zenflo.dev)
   ↓
 KV Storage (encrypted)
   ↓
@@ -292,7 +292,7 @@ await mcp__zen_mode__update_task({
 
 **Option 2: API Login**
 ```bash
-curl -X POST https://happy.combinedmemory.com/api/auth/login \
+curl -X POST https://api.zenflo.dev/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email": "your-email", "password": "your-password"}'
 ```
@@ -534,7 +534,7 @@ await mcp__zen_mode__delete_task({ task_id: taskId });
 | **Sync** | MCP only | Happy app + MCP |
 | **UI** | iOS native | React Native (/zen route) |
 | **Features** | Basic task CRUD | + Session linking, AI integration |
-| **Storage** | Unknown backend | Happy NAS (happy.combinedmemory.com) |
+| **Storage** | Unknown backend | Happy NAS (api.zenflo.dev) |
 | **Encryption** | Unknown | Happy encryption API |
 | **Ordering** | No manual order | Manual drag-and-drop |
 | **Status States** | 4 (same) | 4 (TODO, IN_PROGRESS, DONE, CANCELLED) |
@@ -598,7 +598,7 @@ tail -f /var/log/zen-mode-mcp-server.log
 
 **External:**
 - [MCP Protocol Docs](https://modelcontextprotocol.io)
-- [Happy App Docs](https://docs.combinedmemory.com)
+- [ZenFlo Documentation](https://zenflo.dev/docs)
 - [ElevenLabs MCP](https://github.com/elevenlabs/elevenlabs-mcp) - Similar MCP server example
 
 ---

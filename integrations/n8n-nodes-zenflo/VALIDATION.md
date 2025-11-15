@@ -2,7 +2,7 @@
 
 **Date:** 2025-11-13
 **Package:** n8n-nodes-zenflo@1.0.0
-**n8n Instance:** https://n8n.combinedmemory.com
+**n8n Instance:** https://n8n.zenflo.dev
 
 ---
 
@@ -22,7 +22,7 @@ Before testing the n8n node, ensure:
 ### 1. Verify Package Installation
 
 **In n8n UI:**
-1. Log into https://n8n.combinedmemory.com
+1. Log into https://n8n.zenflo.dev
 2. Go to **Settings** → **Community Nodes**
 3. Look for **n8n-nodes-zenflo** in the installed packages list
 4. Check version is `1.0.0`
@@ -46,7 +46,7 @@ railway logs --tail 200 | grep -i "zenflo\|community"
 1. Go to **Settings** → **Credentials** → **Add Credential**
 2. Search for **"ZenFlo API"**
 3. Fill in:
-   - **API URL:** `https://zenflo.combinedmemory.com`
+   - **API URL:** `https://api.zenflo.dev`
    - **API Key:** `test-api-key-from-agent-config`
 4. Click **Test**
 5. Click **Save**

@@ -16,7 +16,7 @@ The ZenFlo notification service is fully configured and running as a PM2 daemon,
 - **Logs:** `./logs/zen-notifications-*.log`
 
 ### ❌ Backend WebSocket Endpoint (Server-side)
-- **Expected URL:** `wss://happy.combinedmemory.com/v1/kv/watch`
+- **Expected URL:** `wss://api.zenflo.dev/v1/kv/watch`
 - **Current Status:** 502 Bad Gateway
 - **Error:** "Unexpected server response: 502"
 - **Backend Location:** NAS at `nas-1`, access via `ssh nas@nas-1`
@@ -67,7 +67,7 @@ interface KVBatchUpdateMessage {
 
 The notification service client:
 
-1. **Connects** to `wss://happy.combinedmemory.com/v1/kv/watch`
+1. **Connects** to `wss://api.zenflo.dev/v1/kv/watch`
 2. **Sends** `Authorization: Bearer <token>` header
 3. **Receives** `kv-batch-update` messages when todo.* keys change
 4. **Filters** for `todo.*` keys (excluding `todo.index`)
@@ -150,7 +150,7 @@ Once the endpoint is implemented:
 - **Access:** `ssh nas@nas-1`
 - **Location:** `/home/nas/developer/Happy Server/`
 - **Docker:** Backend runs in containers
-- **URL:** https://happy.combinedmemory.com
+- **URL:** https://api.zenflo.dev
 
 ## Next Steps
 
@@ -193,7 +193,7 @@ Once the endpoint is implemented:
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
 │ Happy Backend (NAS - Docker)                                 │
-│ https://happy.combinedmemory.com                            │
+│ https://api.zenflo.dev                            │
 │                                                              │
 │ ┌──────────────────────────────────────────────────────┐   │
 │ │ KV Store (PostgreSQL + Encryption)                    │   │

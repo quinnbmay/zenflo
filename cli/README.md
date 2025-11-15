@@ -120,8 +120,9 @@ zenflo connect gemini          # Store Gemini API key
 
 ```bash
 # Server Configuration
-ZENFLO_SERVER_URL=https://api.zenflo.dev
-ZENFLO_WEBAPP_URL=https://app.zenflo.dev
+ZENFLO_SERVER_URL=https://api.zenflo.dev           # REST API endpoint
+ZENFLO_WEBSOCKET_URL=wss://api.zenflo.dev          # WebSocket endpoint (auto-derived if not set)
+ZENFLO_WEBAPP_URL=https://app.zenflo.dev           # Web interface
 
 # Local Development
 ZENFLO_HOME_DIR=~/.zenflo
@@ -140,6 +141,7 @@ Create `~/.zenflo/config.json` for persistent settings:
   "defaultModel": "sonnet",
   "permissionMode": "default",
   "serverUrl": "https://api.zenflo.dev",
+  "websocketUrl": "wss://api.zenflo.dev",
   "experimental": false
 }
 ```
@@ -352,8 +354,10 @@ claude auth login
          │
          ▼
 ┌─────────────────┐      ┌──────────────────┐
-│  ZenFlo Server  │◄────►│  Mobile App      │
-│ (Encrypted API) │      │  (iOS/Android)   │
+│  ZenFlo Server  │◄────►│  Mobile/Web App  │
+│ (Encrypted API) │      │ (iOS/Android/Web)│
+│ api.zenflo.dev  │      │                  │
+│ wss:// (sync)   │      │                  │
 └─────────────────┘      └──────────────────┘
 ```
 
@@ -372,8 +376,8 @@ claude auth login
 
 - [CLI Development Guide](./CLAUDE.md)
 - [Architecture Overview](../docs/ARCHITECTURE.md)
-- [API Documentation](../backend/README.md)
-- [Mobile App Guide](../mobile/README.md)
+- [API Documentation](../server/README.md)
+- [UI Guide (iOS/Android/Web)](../UI/README.md)
 
 ---
 

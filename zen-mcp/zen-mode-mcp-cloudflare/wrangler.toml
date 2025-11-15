@@ -4,8 +4,8 @@ compatibility_date = "2024-11-07"
 
 # Custom domain routes
 [[routes]]
-pattern = "zen.combinedmemory.com/*"
-zone_name = "combinedmemory.com"
+pattern = "zen.zenflo.dev/*"
+zone_name = "zenflo.dev"
 
 # No environment variables needed - auth is per-request via secret key
 

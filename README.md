@@ -39,22 +39,24 @@ ZenFlo is a next-generation AI-powered coding platform that combines the power o
 
 ```
 zenflo/
-├── 📱 mobile/         # React Native mobile app (iOS/Android)
-├── 🌐 webapp/         # Next.js web application
-├── ⚙️  backend/        # Fastify API server
-├── 🔧 zen-mcp/        # Zen Mode MCP servers for task management
-├── 🧪 experimental/   # Experimental features and prototypes
-└── 📚 docs/           # Documentation
+├── 📱 UI/             # React Native app (iOS/Android/Web)
+├── ⚙️  server/        # Fastify API server (reference copy)
+├── 🔧 cli/           # Command-line wrapper for Claude Code
+├── 🔧 zen-mcp/       # Zen Mode MCP servers for task management
+├── 🧪 experimental/  # Experimental features and prototypes
+└── 📚 docs/          # Documentation
 ```
 
 ### Monorepo Structure
 
 ZenFlo uses **Yarn Workspaces** for unified dependency management:
 
-- **`@zenflo/mobile`** - Cross-platform mobile app (React Native + Expo)
-- **`@zenflo/webapp`** - Web interface (Next.js + React)
-- **`@zenflo/backend`** - API server (Fastify + PostgreSQL)
+- **`@zenflo/ui`** - Cross-platform app (React Native + Expo - iOS/Android/Web)
+- **`@zenflo/server`** - API server (Fastify + PostgreSQL)
+- **`@zenflo/cli`** - CLI wrapper for Claude Code
 - **Zen MCP** - Task management servers with WebSocket sync
+
+**Note:** The server workspace is a reference copy. Production server runs on NAS at `https://api.zenflo.dev` (WebSocket: `wss://api.zenflo.dev`)
 
 ---
 
@@ -72,7 +74,7 @@ npm install -g zenflo
 npx zenflo
 ```
 
-**CLI Repository:** https://github.com/combinedmemory/zenflo
+**CLI Repository:** https://github.com/quinnbmay/zenflo
 **Current Version:** 0.11.6 (updated 2025-11-10)
 
 For publishing updates to the npm package, see [NPM_PUBLISHING.md](./NPM_PUBLISHING.md).
@@ -110,20 +112,20 @@ yarn test:all
 Each workspace can be run independently:
 
 ```bash
-# Mobile app (iOS/Android)
-cd mobile && yarn start
+# UI (iOS/Android/Web)
+cd UI && yarn start
 
-# Web app
-cd webapp && yarn dev
+# Backend server (reference - production on NAS)
+cd server && yarn dev
 
-# Backend server
-cd backend && yarn dev
+# CLI
+cd cli && yarn dev
 ```
 
 For detailed instructions, see each project's README:
-- 📱 [Mobile README](./mobile/README.md)
-- 🌐 [Webapp README](./webapp/README.md)
-- ⚙️ [Backend README](./backend/README.md)
+- 📱 [UI README](./UI/README.md)
+- ⚙️ [Server README](./server/README.md)
+- 🔧 [CLI README](./cli/README.md)
 
 ---
 
@@ -153,10 +155,11 @@ For detailed instructions, see each project's README:
 
 ### Deployment
 
-- **Mobile**: EAS Build (native) + OTA Updates (JS/assets)
-- **Webapp**: Railway auto-deploy (push to `main`)
-- **Backend**: Docker on NAS (self-hosted)
-- **Database**: PostgreSQL on Railway
+- **UI (iOS/Android)**: EAS Build (native) + OTA Updates (JS/assets)
+- **UI (Web)**: GitHub Actions auto-deploy to NAS
+- **Server**: Docker on NAS (self-hosted) at `https://api.zenflo.dev`
+- **Database**: PostgreSQL on NAS
+- **WebSocket**: Real-time sync via `wss://api.zenflo.dev`
 
 ---
 
@@ -226,9 +229,9 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ## 📖 Documentation
 
-- [Mobile App Guide](./mobile/README.md)
-- [Web App Guide](./webapp/README.md)
-- [Backend API](./backend/README.md)
+- [UI Guide (iOS/Android/Web)](./UI/README.md)
+- [Server API](./server/README.md)
+- [CLI Guide](./cli/README.md)
 - [Deployment Guide](./DEPLOYMENT.md)
 - [NPM Publishing Guide](./NPM_PUBLISHING.md) - How to update the `zenflo` npm package
 - [Architecture Overview](./docs/ARCHITECTURE.md)

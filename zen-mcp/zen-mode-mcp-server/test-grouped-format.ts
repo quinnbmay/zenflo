@@ -8,7 +8,7 @@ import { ApiClient } from './src/api/client';
 
 async function main() {
   const apiClient = new ApiClient(
-    process.env.API_URL || 'https://happy.combinedmemory.com',
+    process.env.API_URL || 'https://api.zenflo.dev',
     process.env.USER_ID || '',
     process.env.SECRET_KEY || ''
   );

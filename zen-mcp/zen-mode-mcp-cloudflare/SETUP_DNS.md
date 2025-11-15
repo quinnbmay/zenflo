@@ -6,7 +6,7 @@ The Worker is deployed and configured, but we need to add a DNS record manually.
 
 ### Option 1: Via Cloudflare Dashboard (Easiest)
 
-1. **Go to:** https://dash.cloudflare.com/4b339d9b82347caea48bbe42d4896bbd/combinedmemory.com/dns/records
+1. **Go to:** https://dash.cloudflare.com/4b339d9b82347caea48bbe42d4896bbd/zenflo.dev/dns/records
 
 2. **Click:** "Add record" button
 
@@ -21,7 +21,7 @@ The Worker is deployed and configured, but we need to add a DNS record manually.
 
 5. **Test (wait ~30 seconds):**
    ```bash
-   curl https://zen.combinedmemory.com/health
+   curl https://zen.zenflo.dev/health
    ```
 
    Should return:
@@ -52,28 +52,28 @@ curl -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records"
 
 ## What This Does:
 
-- Creates `zen.combinedmemory.com` subdomain
+- Creates `zen.zenflo.dev` subdomain
 - Points it to your Cloudflare Worker
 - Enables Cloudflare proxy (SSL, DDoS protection, caching)
-- Makes your MCP server accessible at: `https://zen.combinedmemory.com/mcp`
+- Makes your MCP server accessible at: `https://zen.zenflo.dev/mcp`
 
 ## Already Configured:
 
 ✅ Worker deployed with custom route
-✅ All 5 `.mcp.json` files updated to use `https://zen.combinedmemory.com/mcp`
+✅ All 5 `.mcp.json` files updated to use `https://zen.zenflo.dev/mcp`
 ✅ SSL will be automatically enabled by Cloudflare
 
 ## After DNS is Added:
 
 Your Zen Mode MCP will be accessible at:
-- Health: `https://zen.combinedmemory.com/health`
-- MCP endpoint: `https://zen.combinedmemory.com/mcp`
+- Health: `https://zen.zenflo.dev/health`
+- MCP endpoint: `https://zen.zenflo.dev/mcp`
 
 All your Claude Code sessions will automatically use it!
 
 ---
 
 **Zone ID:** `d19ff1e79dd2b5d7f5137779ad47a5e6`
-**Zone Name:** `combinedmemory.com`
+**Zone Name:** `zenflo.dev`
 **Worker:** `zen-mode-mcp`
 **Target:** `zen-mode-mcp.quinn-4b3.workers.dev`

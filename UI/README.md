@@ -55,7 +55,7 @@ ZenFlo Mobile brings the power of AI-assisted coding to your iOS and Android dev
 ### Project Structure
 
 ```
-mobile/
+UI/
 ├── sources/
 │   ├── app/              # Expo Router pages
 │   │   ├── (app)/        # Main app screens (auth-protected)
@@ -88,8 +88,8 @@ mobile/
 ### Installation
 
 ```bash
-# Navigate to mobile directory
-cd mobile
+# Navigate to UI directory
+cd UI
 
 # Install dependencies
 yarn install

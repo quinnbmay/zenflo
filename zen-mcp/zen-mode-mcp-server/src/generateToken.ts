@@ -63,7 +63,7 @@ function parseSecretKey(secretStr: string): Uint8Array {
 /**
  * Generate JWT token using Happy's challenge-response auth
  */
-async function generateToken(secretStr: string, serverUrl: string = 'https://zenflo.combinedmemory.com'): Promise<string> {
+async function generateToken(secretStr: string, serverUrl: string = 'https://api.zenflo.dev'): Promise<string> {
   // Parse secret key
   console.log('Parsing secret key...');
   const secret = parseSecretKey(secretStr);
@@ -102,7 +102,7 @@ async function generateToken(secretStr: string, serverUrl: string = 'https://zen
 
 // CLI interface
 const secretStr = process.argv[2] || process.env.ZENFLO_SECRET_KEY || process.env.HAPPY_SECRET;
-const serverUrl = process.argv[3] || process.env.ZENFLO_SERVER_URL || process.env.HAPPY_SERVER_URL || 'https://zenflo.combinedmemory.com';
+const serverUrl = process.argv[3] || process.env.ZENFLO_SERVER_URL || process.env.HAPPY_SERVER_URL || 'https://api.zenflo.dev';
 
 if (!secretStr) {
   console.error('Usage: tsx generateToken.ts <SECRET_KEY> [SERVER_URL]');

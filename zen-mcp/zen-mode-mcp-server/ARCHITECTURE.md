@@ -47,7 +47,7 @@ Zen Mode MCP provides AI-powered task management with intelligent task breakdown
                        │
 ┌──────────────────────▼──────────────────────────────────────┐
 │              Happy NAS Backend (KV Storage)                 │
-│         https://happy.combinedmemory.com                    │
+│         https://api.zenflo.dev                    │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │ Encrypted KV Store:                                    │ │
 │  │ • todo.<task-id> → Encrypted TodoItem                  │ │

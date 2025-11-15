@@ -21,7 +21,7 @@
 ```
 ┌──────────────────────────────────────────────────────────┐
 │  1. WebSocket Listener (Node.js service)                 │
-│     - Connects to happy.combinedmemory.com WebSocket     │
+│     - Connects to api.zenflo.dev WebSocket     │
 │     - Listens for kv-batch-update messages               │
 │     - Filters for todo.* changes                         │
 └──────────────┬───────────────────────────────────────────┘

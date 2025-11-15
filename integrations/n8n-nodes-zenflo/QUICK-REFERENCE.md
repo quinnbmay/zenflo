@@ -2,7 +2,7 @@
 
 **Package:** `n8n-nodes-zenflo@1.0.0`
 **npm:** https://www.npmjs.com/package/n8n-nodes-zenflo
-**n8n Instance:** https://n8n.combinedmemory.com
+**n8n Instance:** https://n8n.zenflo.dev
 
 ---
 
@@ -10,7 +10,7 @@
 
 1. **Configure Credentials**
    - Settings → Credentials → Add Credential → "ZenFlo API"
-   - API URL: `https://zenflo.combinedmemory.com`
+   - API URL: `https://api.zenflo.dev`
    - API Key: (from ZenFlo agent config)
 
 2. **Create Agent in Mobile**

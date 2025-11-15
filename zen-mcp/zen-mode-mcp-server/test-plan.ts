@@ -28,7 +28,7 @@ interface Plan {
 }
 
 const config = {
-  serverUrl: process.env.HAPPY_SERVER_URL || 'https://zenflo.combinedmemory.com',
+  serverUrl: process.env.HAPPY_SERVER_URL || 'https://api.zenflo.dev',
   authToken: process.env.HAPPY_AUTH_TOKEN || '',
   secretKey: process.env.HAPPY_SECRET_KEY || '',
 };

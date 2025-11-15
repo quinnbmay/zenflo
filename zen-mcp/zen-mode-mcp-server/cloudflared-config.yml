@@ -2,6 +2,6 @@ tunnel: 75d9735e-7ebb-4ca3-8e66-a0baed78a240
 credentials-file: /Users/quinnmay/.cloudflared/75d9735e-7ebb-4ca3-8e66-a0baed78a240.json
 
 ingress:
-  - hostname: zen.combinedmemory.com
+  - hostname: zen.zenflo.dev
     service: http://localhost:3000
   - service: http_status:404

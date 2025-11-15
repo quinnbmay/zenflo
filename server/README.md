@@ -53,7 +53,7 @@ ZenFlo Server is the backbone of the ZenFlo platform - a secure, end-to-end encr
 ### Project Structure
 
 ```
-backend/
+server/
 ├── sources/
 │   ├── app/
 │   │   ├── api/              # API routes
@@ -94,8 +94,8 @@ backend/
 ### Installation
 
 ```bash
-# Navigate to backend directory
-cd backend
+# Navigate to server directory
+cd server
 
 # Install dependencies
 yarn install
@@ -181,7 +181,8 @@ The backend is deployed to a NAS server at `nas-1`. Use the automated deployment
 - **Server:** NAS at `nas-1` (nas@nas-1)
 - **Location:** `developer/infrastructure/ZenFlo Server/zenflo-server`
 - **Container:** `zenflo-server`
-- **URL:** https://happy.zenflo.dev
+- **URL:** https://api.zenflo.dev
+- **WebSocket:** wss://api.zenflo.dev
 
 For detailed deployment documentation, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
