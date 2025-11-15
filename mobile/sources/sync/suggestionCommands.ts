@@ -29,15 +29,12 @@ export const IGNORED_COMMANDS = [
     "exit",
     "help",
     "ide",
-    "init",
     "install-github-app",
     "mcp",
-    "memory",
     "migrate-installer",
     "model",
     "pr-comments",
     "release-notes",
-    "resume",
     "status",
     "bug",
     "review",
@@ -62,10 +59,15 @@ const DEFAULT_COMMANDS: CommandItem[] = [
 const COMMAND_DESCRIPTIONS: Record<string, string> = {
     // Default commands
     compact: 'Compact the conversation history',
-    
+    clear: 'Clear the conversation',
+
+    // Project memory commands
+    memory: 'Edit project memory files',
+    init: 'Scan project and create CLAUDE.md',
+    resume: 'Resume a previous session',
+
     // Common tool commands
     help: 'Show available commands',
-    clear: 'Clear the conversation',
     reset: 'Reset the session',
     export: 'Export conversation',
     debug: 'Show debug information',
@@ -73,7 +75,7 @@ const COMMAND_DESCRIPTIONS: Record<string, string> = {
     stop: 'Stop current operation',
     abort: 'Abort current operation',
     cancel: 'Cancel current operation',
-    
+
     // Add more descriptions as needed
 };
 
