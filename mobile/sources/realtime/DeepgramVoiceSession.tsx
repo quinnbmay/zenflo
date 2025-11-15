@@ -17,6 +17,7 @@ import { registerDeepgramVoiceSession } from './DeepgramRealtimeSession';
 import type { VoiceSession, VoiceSessionConfig } from './types';
 import { TokenStorage } from '@/auth/tokenStorage';
 import { getServerUrl } from '@/sync/serverConfig';
+import Constants from 'expo-constants';
 
 // Cached OpenAI API key (fetched from backend)
 let cachedOpenAIApiKey: string | null = null;
@@ -187,15 +188,18 @@ export const DeepgramVoiceSession: React.FC = () => {
     const hasRegistered = useRef(false);
 
     // Configure Deepgram API key once
+    // Try config first, then fall back to hardcoded key (for OTA updates)
     useEffect(() => {
         if (!hasConfigured.current) {
-            const apiKey = process.env.EXPO_PUBLIC_DEEPGRAM_API_KEY;
+            const apiKey = Constants.expoConfig?.extra?.app?.deepgramApiKey
+                || '80947821dcae34d5a9a2412d87e0018d986f7923';
+
             if (apiKey) {
                 configure({ apiKey });
                 hasConfigured.current = true;
-                console.log('[DeepgramVoice] API key configured');
+                console.log('[DeepgramVoice] ✅ API key configured');
             } else {
-                console.warn('[DeepgramVoice] No API key found in environment');
+                console.error('[DeepgramVoice] ❌ No API key found');
             }
         }
     }, []);
