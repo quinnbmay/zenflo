@@ -1,6 +1,6 @@
 import { RoundButton } from "@/components/RoundButton";
 import { useAuth } from "@/auth/AuthContext";
-import { Text, View, Image, Platform } from "react-native";
+import { Text, View, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as React from 'react';
 import { encodeBase64 } from "@/encryption/base64";
@@ -51,11 +51,14 @@ function NotAuthenticated() {
 
     const portraitLayout = (
         <View style={styles.portraitContainer}>
-            <Image
-                source={require('@/assets/images/logotype-dark.png')}
-                resizeMode="contain"
-                style={styles.logo}
-            />
+            <Text style={styles.asciiLogo}>
+{`███████╗███████╗███╗   ██╗███████╗██╗      ██████╗
+╚══███╔╝██╔════╝████╗  ██║██╔════╝██║     ██╔═══██╗
+  ███╔╝ █████╗  ██╔██╗ ██║█████╗  ██║     ██║   ██║
+ ███╔╝  ██╔══╝  ██║╚██╗██║██╔══╝  ██║     ██║   ██║
+███████╗███████╗██║ ╚████║██║     ███████╗╚██████╔╝
+╚══════╝╚══════╝╚═╝  ╚═══╝╚═╝     ╚══════╝ ╚═════╝`}
+            </Text>
             <Text style={styles.title}>
                 {t('welcome.title')}
             </Text>
@@ -110,11 +113,14 @@ function NotAuthenticated() {
         <View style={[styles.landscapeContainer, { paddingBottom: insets.bottom + 24 }]}>
             <View style={styles.landscapeInner}>
                 <View style={styles.landscapeLogoSection}>
-                    <Image
-                        source={require('@/assets/images/logotype-dark.png')}
-                        resizeMode="contain"
-                        style={styles.logo}
-                    />
+                    <Text style={styles.asciiLogo}>
+{`███████╗███████╗███╗   ██╗███████╗██╗      ██████╗
+╚══███╔╝██╔════╝████╗  ██║██╔════╝██║     ██╔═══██╗
+  ███╔╝ █████╗  ██╔██╗ ██║█████╗  ██║     ██║   ██║
+ ███╔╝  ██╔══╝  ██║╚██╗██║██╔══╝  ██║     ██║   ██║
+███████╗███████╗██║ ╚████║██║     ███████╗╚██████╔╝
+╚══════╝╚══════╝╚═╝  ╚═══╝╚═╝     ╚══════╝ ╚═════╝`}
+                    </Text>
                 </View>
                 <View style={styles.landscapeContentSection}>
                     <Text style={styles.landscapeTitle}>
@@ -183,9 +189,13 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    logo: {
-        width: 300,
-        height: 90,
+    asciiLogo: {
+        fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+        fontSize: 10,
+        lineHeight: 12,
+        color: theme.colors.text,
+        textAlign: 'center',
+        marginBottom: 12,
     },
     title: {
         marginTop: 16,
