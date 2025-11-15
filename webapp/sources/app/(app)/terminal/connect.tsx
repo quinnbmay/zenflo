@@ -40,8 +40,7 @@ export default function TerminalConnectScreen() {
 
     const handleConnect = async () => {
         if (publicKey) {
-            // Convert the hash key format to the expected happy:// URL format
-            const authUrl = `happy://terminal?${publicKey}`;
+            const authUrl = `zenflo://terminal?${publicKey}`;
             await processAuthUrl(authUrl);
         }
     };

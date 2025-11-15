@@ -9,7 +9,7 @@ import { UsageChart } from './UsageChart';
 import { UsageBar } from './UsageBar';
 import { getUsageForPeriod, calculateTotals, UsageDataPoint } from '@/sync/apiUsage';
 import { Ionicons } from '@expo/vector-icons';
-import { HappyError } from '@/utils/errors';
+import { ZenfloError } from '@/utils/errors';
 import { t } from '@/text';
 
 type TimePeriod = 'today' | '7days' | '30days';
@@ -147,8 +147,8 @@ export const UsagePanel: React.FC<{ sessionId?: string }> = ({ sessionId }) => {
             setTotals(calculateTotals(response.usage || []));
         } catch (err) {
             console.error('Failed to load usage data:', err);
-            if (err instanceof HappyError) {
-                setError(err.message);
+            if (err instanceof ZenfloError) {
+                setError((err as ZenfloError).message);
             } else {
                 setError('Failed to load usage data');
             }

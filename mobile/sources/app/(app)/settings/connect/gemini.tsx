@@ -13,7 +13,7 @@ import { Platform } from 'react-native';
 export default function GeminiOAuth() {
     return (
         <>
-            <OAuthViewUnsupported name="Gemini" command="happy connect gemini" />
+            <OAuthViewUnsupported name="Gemini" command="zenflo connect gemini" />
         </>
     );
 }
@@ -22,7 +22,7 @@ const OAuthViewUnsupported = React.memo((props: {
     name: string;
     command?: string;
 }) => {
-    const command = props.command || `happy connect ${props.name.toLowerCase()}`;
+    const command = props.command || `zenflo connect ${props.name.toLowerCase()}`;
 
     return (
         <View style={styles.unsupportedContainer}>

@@ -18,8 +18,8 @@ import { t } from '@/text';
 import { isVersionSupported, MINIMUM_CLI_VERSION } from '@/utils/versionUtils';
 import { CodeView } from '@/components/CodeView';
 import { Session } from '@/sync/storageTypes';
-import { useHappyAction } from '@/hooks/useHappyAction';
-import { HappyError } from '@/utils/errors';
+import { useZenfloAction } from '@/hooks/useZenfloAction';
+import { ZenfloError } from '@/utils/errors';
 
 // Animated status dot component
 function StatusDot({ color, isPulsing, size = 8 }: { color: string; isPulsing?: boolean; size?: number }) {
@@ -91,7 +91,7 @@ function SessionInfoContent({ session }: { session: Session }) {
     }, [session]);
 
     // Use HappyAction for archiving - now deletes the session permanently
-    const [archivingSession, performArchive] = useHappyAction(async () => {
+    const [archivingSession, performArchive] = useZenfloAction(async () => {
         // First, kill the session if it's active
         const isGemini = session.metadata?.flavor === 'gemini';
 
@@ -101,7 +101,7 @@ function SessionInfoContent({ session }: { session: Session }) {
             } else {
                 const killResult = await sessionKill(session.id);
                 if (!killResult.success) {
-                    throw new HappyError(killResult.message || t('sessionInfo.failedToArchiveSession'), false);
+                    throw new ZenfloError(killResult.message || t('sessionInfo.failedToArchiveSession'), false);
                 }
             }
         }
@@ -109,7 +109,7 @@ function SessionInfoContent({ session }: { session: Session }) {
         // Then delete the session from the database
         const result = await sessionDelete(session.id);
         if (!result.success) {
-            throw new HappyError(result.message || t('sessionInfo.failedToDeleteSession'), false);
+            throw new ZenfloError(result.message || t('sessionInfo.failedToDeleteSession'), false);
         }
 
         // Success - navigate back
@@ -133,10 +133,10 @@ function SessionInfoContent({ session }: { session: Session }) {
     }, [performArchive]);
 
     // Use HappyAction for deletion - it handles errors automatically
-    const [deletingSession, performDelete] = useHappyAction(async () => {
+    const [deletingSession, performDelete] = useZenfloAction(async () => {
         const result = await sessionDelete(session.id);
         if (!result.success) {
-            throw new HappyError(result.message || t('sessionInfo.failedToDeleteSession'), false);
+            throw new ZenfloError(result.message || t('sessionInfo.failedToDeleteSession'), false);
         }
         // Success - no alert needed, UI will update to show deleted state
     });

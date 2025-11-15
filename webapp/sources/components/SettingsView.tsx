@@ -21,7 +21,7 @@ import { useAllMachines } from '@/sync/storage';
 import { isMachineOnline } from '@/utils/machineUtils';
 import { useUnistyles } from 'react-native-unistyles';
 import { layout } from '@/components/layout';
-import { useHappyAction } from '@/hooks/useHappyAction';
+import { useZenfloAction } from '@/hooks/useZenfloAction';
 import { getGitHubOAuthParams, disconnectGitHub } from '@/sync/apiGithub';
 import { disconnectService } from '@/sync/apiServices';
 import { useProfile } from '@/sync/storage';
@@ -55,7 +55,7 @@ function ManualAuthModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
                 }}
                 value={url}
                 onChangeText={setUrl}
-                placeholder={'happy://terminal?...'}
+                placeholder={'zenflo://terminal?...'}
                 placeholderTextColor={theme.colors.input.placeholder}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -148,13 +148,13 @@ export const SettingsView = React.memo(function SettingsView() {
     const isAnthropicConnected = profile.connectedServices?.includes('anthropic') || false;
 
     // GitHub connection
-    const [connectingGitHub, connectGitHub] = useHappyAction(async () => {
+    const [connectingGitHub, connectGitHub] = useZenfloAction(async () => {
         const params = await getGitHubOAuthParams(auth.credentials!);
         await Linking.openURL(params.url);
     });
 
     // GitHub disconnection
-    const [disconnectingGitHub, handleDisconnectGitHub] = useHappyAction(async () => {
+    const [disconnectingGitHub, handleDisconnectGitHub] = useZenfloAction(async () => {
         const confirmed = await Modal.confirm(
             t('modals.disconnectGithub'),
             t('modals.disconnectGithubConfirm'),
@@ -166,12 +166,12 @@ export const SettingsView = React.memo(function SettingsView() {
     });
 
     // Anthropic connection
-    const [connectingAnthropic, connectAnthropic] = useHappyAction(async () => {
+    const [connectingAnthropic, connectAnthropic] = useZenfloAction(async () => {
         router.push('/settings/connect/claude');
     });
 
     // Anthropic disconnection
-    const [disconnectingAnthropic, handleDisconnectAnthropic] = useHappyAction(async () => {
+    const [disconnectingAnthropic, handleDisconnectAnthropic] = useZenfloAction(async () => {
         const confirmed = await Modal.confirm(
             t('modals.disconnectService', { service: 'Claude' }),
             t('modals.disconnectServiceConfirm', { service: 'Claude' }),

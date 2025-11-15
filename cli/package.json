@@ -1,16 +1,21 @@
 {
   "name": "zenflo",
-  "version": "0.11.15",
+  "version": "0.11.16",
   "description": "Mobile and Web client for Claude Code and Codex - ZenFlo edition",
   "author": "Combined Memory",
   "license": "MIT",
   "type": "module",
   "homepage": "https://github.com/combinedmemory/zenflo",
-  "bugs": "https://github.com/combinedmemory/zenflo/issues",
-  "repository": "combinedmemory/zenflo",
+  "bugs": {
+    "url": "https://github.com/combinedmemory/zenflo/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/combinedmemory/zenflo.git"
+  },
   "bin": {
-    "zenflo": "./bin/zenflo.mjs",
-    "zenflo-mcp": "./bin/zenflo-mcp.mjs"
+    "zenflo": "bin/zenflo.mjs",
+    "zenflo-mcp": "bin/zenflo-mcp.mjs"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -122,5 +127,6 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "keywords": []
 }

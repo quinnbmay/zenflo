@@ -2,7 +2,7 @@
   "name": "zenflo-vscode",
   "displayName": "ZenFlo AI Assistant",
   "description": "Multi-provider AI coding assistant with Claude Code integration",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "zenflo",
   "icon": "icon.png",
   "repository": {
@@ -26,6 +26,30 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "zenflo-sidebar",
+          "title": "ZenFlo",
+          "icon": "icon-chat.png"
+        }
+      ]
+    },
+    "views": {
+      "zenflo-sidebar": [
+        {
+          "type": "webview",
+          "id": "zenflo.chatView",
+          "name": "Chat",
+          "icon": "icon-chat.png",
+          "contextualTitle": "ZenFlo Chat"
+        },
+        {
+          "id": "zenflo.sessionsView",
+          "name": "Sessions"
+        }
+      ]
+    },
     "chatParticipants": [
       {
         "id": "zenflo.assistant",
