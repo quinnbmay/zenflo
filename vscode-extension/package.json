@@ -30,6 +30,7 @@
         "name": "zenflo",
         "description": "ZenFlo AI coding assistant with multi-provider support",
         "isSticky": true,
+        "iconPath": "icon-chat.png",
         "commands": [
           {
             "name": "explain",
