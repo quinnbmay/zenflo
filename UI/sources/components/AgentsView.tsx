@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, useWindowDimensions } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useSocketStatus } from '@/sync/storage';
 import { StatusDot } from './StatusDot';
@@ -202,6 +202,9 @@ function HeaderTitle() {
 
 function HeaderLeft() {
     const { theme } = useUnistyles();
+    const { width } = useWindowDimensions();
+    const isNarrow = width < 768;
+
     return (
         <View style={{
             width: 32,
@@ -210,12 +213,16 @@ function HeaderLeft() {
             justifyContent: 'center',
         }}>
             <Image
-                source={theme.dark
-                    ? require('@/assets/images/logo-horizontal-white.svg')
-                    : require('@/assets/images/logo-horizontal-black.svg')
+                source={isNarrow
+                    ? (theme.dark
+                        ? require('@/assets/images/logo-stack-white.svg')
+                        : require('@/assets/images/logo-stack-black.svg'))
+                    : (theme.dark
+                        ? require('@/assets/images/logo-horizontal-white.svg')
+                        : require('@/assets/images/logo-horizontal-black.svg'))
                 }
                 contentFit="contain"
-                style={[{ width: 60, height: 16 }]}
+                style={isNarrow ? { width: 18, height: 32 } : { width: 60, height: 16 }}
             />
         </View>
     );
@@ -358,11 +365,13 @@ export const AgentsView = React.memo(({}: AgentsViewProps) => {
                 </View>
                 <UpdateBanner />
                 <View style={styles.emptyContainer}>
-                    <Ionicons
-                        name="grid-outline"
-                        size={64}
-                        color={theme.colors.textSecondary}
-                        style={styles.emptyIcon}
+                    <Image
+                        source={theme.dark
+                            ? require('@/assets/images/logo-stack-white.svg')
+                            : require('@/assets/images/logo-stack-black.svg')
+                        }
+                        contentFit="contain"
+                        style={{ width: 64, height: 100, marginBottom: 16 }}
                     />
                     <Text style={styles.emptyTitle}>No Agents Yet</Text>
                     <Text style={styles.emptyDescription}>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, ActivityIndicator, Pressable, Text } from 'react-native';
+import { View, ActivityIndicator, Pressable, Text, useWindowDimensions } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Header } from './navigation/Header';
 import { SessionsList } from './SessionsList';
@@ -169,15 +169,22 @@ function HeaderTitle() {
 function HeaderLeft() {
     const styles = stylesheet;
     const { theme } = useUnistyles();
+    const { width } = useWindowDimensions();
+    const isNarrow = width < 768;
+
     return (
         <View style={styles.logoContainer}>
             <Image
-                source={theme.dark
-                    ? require('@/assets/images/logo-horizontal-white.svg')
-                    : require('@/assets/images/logo-horizontal-black.svg')
+                source={isNarrow
+                    ? (theme.dark
+                        ? require('@/assets/images/logo-stack-white.svg')
+                        : require('@/assets/images/logo-stack-black.svg'))
+                    : (theme.dark
+                        ? require('@/assets/images/logo-horizontal-white.svg')
+                        : require('@/assets/images/logo-horizontal-black.svg'))
                 }
                 contentFit="contain"
-                style={[{ width: 60, height: 16 }]}
+                style={isNarrow ? { width: 18, height: 32 } : { width: 60, height: 16 }}
             />
         </View>
     );
