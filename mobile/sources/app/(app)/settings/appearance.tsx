@@ -12,13 +12,6 @@ import * as SystemUI from 'expo-system-ui';
 import { darkTheme, lightTheme } from '@/theme';
 import { t, getLanguageNativeName, SUPPORTED_LANGUAGES } from '@/text';
 
-// Define known avatar styles for this version of the app
-type KnownAvatarStyle = 'pixelated' | 'icon';
-
-const isKnownAvatarStyle = (style: string): style is KnownAvatarStyle => {
-    return style === 'pixelated' || style === 'icon';
-};
-
 export default function AppearanceSettingsScreen() {
     const { theme } = useUnistyles();
     const router = useRouter();
@@ -28,14 +21,9 @@ export default function AppearanceSettingsScreen() {
     const [showLineNumbersInToolViews, setShowLineNumbersInToolViews] = useSettingMutable('showLineNumbersInToolViews');
     const [wrapLinesInDiffs, setWrapLinesInDiffs] = useSettingMutable('wrapLinesInDiffs');
     const [alwaysShowContextSize, setAlwaysShowContextSize] = useSettingMutable('alwaysShowContextSize');
-    const [avatarStyle, setAvatarStyle] = useSettingMutable('avatarStyle');
-    const [showFlavorIcons, setShowFlavorIcons] = useSettingMutable('showFlavorIcons');
     const [compactSessionView, setCompactSessionView] = useSettingMutable('compactSessionView');
     const [themePreference, setThemePreference] = useLocalSettingMutable('themePreference');
     const [preferredLanguage] = useSettingMutable('preferredLanguage');
-    
-    // Ensure we have a valid style for display, defaulting to icon for unknown values
-    const displayStyle: KnownAvatarStyle = isKnownAvatarStyle(avatarStyle) ? avatarStyle : 'icon';
     
     // Language display
     const getLanguageDisplayText = () => {
@@ -195,27 +183,6 @@ export default function AppearanceSettingsScreen() {
                         <Switch
                             value={alwaysShowContextSize}
                             onValueChange={setAlwaysShowContextSize}
-                        />
-                    }
-                />
-                <Item
-                    title={t('settingsAppearance.avatarStyle')}
-                    subtitle={t('settingsAppearance.avatarStyleDescription')}
-                    icon={<Ionicons name="person-circle-outline" size={29} color="#5856D6" />}
-                    detail={displayStyle === 'pixelated' ? t('settingsAppearance.avatarOptions.pixelated') : t('settingsAppearance.avatarOptions.icon')}
-                    onPress={() => {
-                        const nextStyle = displayStyle === 'pixelated' ? 'icon' : 'pixelated';
-                        setAvatarStyle(nextStyle);
-                    }}
-                />
-                <Item
-                    title={t('settingsAppearance.showFlavorIcons')}
-                    subtitle={t('settingsAppearance.showFlavorIconsDescription')}
-                    icon={<Ionicons name="apps-outline" size={29} color="#5856D6" />}
-                    rightElement={
-                        <Switch
-                            value={showFlavorIcons}
-                            onValueChange={setShowFlavorIcons}
                         />
                     }
                 />
