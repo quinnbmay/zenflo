@@ -52,7 +52,7 @@ function NotAuthenticated() {
     const portraitLayout = (
         <View style={styles.portraitContainer}>
             <Image
-                source={require('@/assets/images/QUINN CODE.png')}
+                source={require('@/assets/images/logotype-dark.png')}
                 resizeMode="contain"
                 style={styles.logo}
             />
@@ -111,7 +111,7 @@ function NotAuthenticated() {
             <View style={styles.landscapeInner}>
                 <View style={styles.landscapeLogoSection}>
                     <Image
-                        source={require('@/assets/images/QUINN CODE.png')}
+                        source={require('@/assets/images/logotype-dark.png')}
                         resizeMode="contain"
                         style={styles.logo}
                     />
