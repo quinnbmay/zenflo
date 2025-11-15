@@ -22,7 +22,7 @@ const flavorIcons = {
     codex: require('@/assets/images/icon-gpt.png'),
     ccr: require('@/assets/images/icon-zai.png'),
     gemini: require('@/assets/images/icon-gemini.png'),
-    qwen: require('@/assets/images/icon-zai.png'),
+    qwen: require('@/assets/images/Q-Logo.png'),
 };
 
 const styles = StyleSheet.create((theme) => ({
