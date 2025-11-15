@@ -34,5 +34,10 @@ jobs:
       - name: Deploy to Server
         working-directory: UI
         run: |
-          echo "Web deployment configured - builds are now created from UI workspace"
-          echo "To deploy: ssh to server and pull latest changes"
+          echo "✓ Build completed successfully"
+          echo ""
+          echo "Deployment options:"
+          echo "  1. Manual: Run './deploy-web.sh' from UI/ directory on local machine"
+          echo "  2. Auto: Configure GitHub webhook (see WEBHOOK-SETUP.md)"
+          echo ""
+          echo "The build artifacts are available in dist/ directory"
