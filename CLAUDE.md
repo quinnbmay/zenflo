@@ -173,18 +173,16 @@ yarn ota:production         # Deploy OTA to production
 ```
 
 **iOS/Android - Native Builds:**
-- **Automated:** Push to `main` with changes in `UI/**` → GitHub Actions trigger EAS builds
-- **Manual:** `eas build --platform ios --profile production`
+- **IMPORTANT:** There are NO GitHub Actions. All builds are manual via EAS CLI.
+- **iOS-first script (recommended):** `cd UI && ./build-ios-first.sh --skip-android` (iOS only, fast ~5-10 min)
+- **iOS-first script (both platforms):** `cd UI && ./build-ios-first.sh` (iOS first, then Android which takes ~1 hour)
+- **Manual iOS:** `eas build --platform ios --profile production`
+- **Manual Android:** `eas build --platform android --profile production`
 - **Submission:** `eas submit --platform ios`
 
 **Web - Deployment:**
-- **Automated:** Push to `main` with changes in `UI/**` → GitHub Actions builds and deploys
-- **Manual:** See `.github/workflows/deploy-web.yml` for build process
-
-**GitHub Actions Workflows:**
-- `.github/workflows/deploy-ios.yml` - Triggers EAS iOS builds
-- `.github/workflows/deploy-android.yml` - Triggers EAS Android builds
-- `.github/workflows/deploy-web.yml` - Builds and exports web version
+- **Manual:** `cd UI && yarn build` (outputs to `dist-web/`)
+- Deployment: Copy `dist-web/` contents to web server
 
 **Documentation:** `UI/OTA-QUICKSTART.md`, `UI/DEPLOYMENT.md`
 
@@ -637,8 +635,8 @@ sudo docker logs zenflo-server --tail 100
 9. **Use 4 spaces** for indentation
 10. **Platform-specific code** uses `.web.tsx` suffix
 11. **All user-facing strings** must use `t()` translation function
-12. **GitHub Actions** auto-deploy iOS/Android/Web on push to `main` with `UI/**` changes
-13. Only launch production on xcode when local and eas when i ask if i am remote
+12. **NO GitHub Actions** - all deployments are manual via EAS CLI or build scripts
+13. **Use build-ios-first.sh** for iOS/Android builds - iOS is fast (~5-10 min), Android is slow (~1 hour)
 14. claude-code-mcp has memory, meaning use multiple in parallel it help keep context low and continue working on main tasks
 15. Always store important findings to memory with timestamp
 - expo-dev
