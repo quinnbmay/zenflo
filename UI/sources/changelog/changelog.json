@@ -1,6 +1,21 @@
 {
   "entries": [
     {
+      "version": 6,
+      "date": "2025-11-15",
+      "summary": "This update focuses on visual polish and improved integrations, featuring a refreshed ASCII logo design, streamlined settings, and enhanced connection status visibility.",
+      "changes": [
+        "Redesigned all branding with new ASCII-style logos across app, VSCode extension, and splash screens",
+        "Added responsive logo layout - stacked for mobile, horizontal for desktop screens",
+        "Improved GitHub and Claude Code connection status with clear 'Connected' indicators",
+        "Simplified settings by removing the Support Us section for cleaner navigation",
+        "Enhanced dark theme with pure black background for better OLED display efficiency",
+        "Updated web metadata and social media assets for better app sharing",
+        "Changed web title from 'ZenFlo Coder' to 'ZenFlo' for consistent branding"
+      ],
+      "rawMarkdown": "## Version 6 - 2025-11-15\n\n\nThis update focuses on visual polish and improved integrations, featuring a refreshed ASCII logo design, streamlined settings, and enhanced connection status visibility.\n\n- Redesigned all branding with new ASCII-style logos across app, VSCode extension, and splash screens\n- Added responsive logo layout - stacked for mobile, horizontal for desktop screens\n- Improved GitHub and Claude Code connection status with clear 'Connected' indicators\n- Simplified settings by removing the Support Us section for cleaner navigation\n- Enhanced dark theme with pure black background for better OLED display efficiency\n- Updated web metadata and social media assets for better app sharing\n- Changed web title from 'ZenFlo Coder' to 'ZenFlo' for consistent branding"
+    },
+    {
       "version": 5,
       "date": "2025-11-14",
       "summary": "This update streamlines the interface with a simplified avatar system and adds powerful new AI capabilities through CCR and Deepgram voice integration.",
@@ -66,5 +81,5 @@
       "rawMarkdown": "## Version 1 - 2025-05-12\n\n\nWelcome to Happy - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.\n\n- Implemented end-to-end encrypted session management ensuring complete privacy\n- Integrated intelligent voice assistant with natural conversation capabilities\n- Added experimental file manager with syntax highlighting and tree navigation\n- Built seamless real-time synchronization across all your devices\n- Established native support for iOS, Android, and responsive web interfaces\n\n---\n\n**Note**: This is a customized fork of Happy Coder for internal use by Quinn May at Combined Memory."
     }
   ],
-  "latestVersion": 5
+  "latestVersion": 6
 }
