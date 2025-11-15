@@ -181,10 +181,11 @@ yarn ota:production         # Deploy OTA to production
 - **Submission:** `eas submit --platform ios`
 
 **Web - Deployment:**
-- **Manual:** `cd UI && yarn build` (outputs to `dist-web/`)
-- Deployment: Copy `dist-web/` contents to web server
+- **Automated script:** `cd UI && ./deploy-web.sh` (builds, syncs to NAS, restarts nginx container)
+- **URL:** https://app.zenflo.dev
+- **Options:** `--skip-build` (use existing build), `--skip-cache` (skip CDN purge)
 
-**Documentation:** `UI/OTA-QUICKSTART.md`, `UI/DEPLOYMENT.md`
+**Documentation:** `UI/OTA-QUICKSTART.md`, `UI/DEPLOYMENT.md`, `UI/DEPLOY-WEB.md`
 
 ### Server
 **Location:** `server/` (reference copy - actual deployment on NAS)
