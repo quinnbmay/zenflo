@@ -52,7 +52,10 @@ export const IGNORED_COMMANDS = [
 // Default commands always available
 const DEFAULT_COMMANDS: CommandItem[] = [
     { command: 'compact', description: 'Compact the conversation history' },
-    { command: 'clear', description: 'Clear the conversation' }
+    { command: 'clear', description: 'Clear the conversation' },
+    { command: 'memory', description: 'Edit project memory files' },
+    { command: 'init', description: 'Scan project and create CLAUDE.md' },
+    { command: 'resume', description: 'Resume a previous session' }
 ];
 
 // Command descriptions for known tools/commands
