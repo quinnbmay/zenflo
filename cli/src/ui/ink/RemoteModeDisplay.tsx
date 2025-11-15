@@ -118,7 +118,14 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
         }).join('\n')
     }
 
-    const banner = [
+    // Compact banner for mobile/small terminals
+    const banner = terminalWidth < 80 || terminalHeight < 24 ? [
+        '╔════════════════════════════════════════════════════════╗',
+        '║ ▀▀█ █▀▀ █▀█ █▀▀ █   ▄▀▄     Remote Mode            ║',
+        '║   █ █▀▀ █ █ █▀▀ █   █ █                              ║',
+        '║ ▀▀▀ ▀▀▀ ▀ ▀ ▀   ▀▀▀ ▀▀▀                              ║',
+        '╚════════════════════════════════════════════════════════╝',
+    ] : [
         '╔══════════════════════════════════════════════════════════════════════════════╗',
         '║  ███████╗███████╗███╗   ██╗███████╗██╗      ██████╗                         ║',
         '║  ╚══███╔╝██╔════╝████╗  ██║██╔════╝██║     ██╔═══██╗                        ║',
@@ -129,10 +136,13 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
         '╚══════════════════════════════════════════════════════════════════════════════╝',
     ]
 
+    const bannerHeight = banner.length
+    const isMobile = terminalWidth < 80 || terminalHeight < 24
+
     return (
         <Box flexDirection="column" width={terminalWidth} height={terminalHeight}>
             {/* ASCII Art Banner */}
-            <Box flexDirection="column" marginBottom={1}>
+            <Box flexDirection="column">
                 {banner.map((line, i) => (
                     <Text key={i} color="cyan" bold>
                         {line}
@@ -144,18 +154,18 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
             <Box
                 flexDirection="column"
                 width={terminalWidth}
-                height={terminalHeight - 14}
+                height={terminalHeight - bannerHeight - 6}
                 borderStyle="round"
                 borderColor="magenta"
                 paddingX={1}
                 overflow="hidden"
             >
                 <Box flexDirection="column" marginBottom={1}>
-                    <Text color="magenta" bold>📡 Remote Mode - Live Session</Text>
+                    <Text color="magenta" bold>📡 Live Session</Text>
                     <Text color="magenta" dimColor>{'─'.repeat(Math.min(terminalWidth - 4, 60))}</Text>
                 </Box>
-                
-                <Box flexDirection="column" height={terminalHeight - 10} overflow="hidden">
+
+                <Box flexDirection="column" height={terminalHeight - bannerHeight - 12} overflow="hidden">
                     {messages.length === 0 ? (
                         <Text color="gray" dimColor>Waiting for messages...</Text>
                     ) : (
