@@ -1,0 +1,126 @@
+{
+  "name": "zenflo-vscode",
+  "displayName": "ZenFlo AI Assistant",
+  "description": "Multi-provider AI coding assistant with Claude Code integration",
+  "version": "0.1.0",
+  "publisher": "zenflo",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Chat",
+    "Programming Languages"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "zenflo.assistant",
+        "name": "zenflo",
+        "description": "ZenFlo AI coding assistant with multi-provider support",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "explain",
+            "description": "Explain selected code"
+          },
+          {
+            "name": "fix",
+            "description": "Fix issues in selected code"
+          },
+          {
+            "name": "refactor",
+            "description": "Refactor selected code"
+          },
+          {
+            "name": "test",
+            "description": "Generate tests for selected code"
+          }
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "ZenFlo",
+      "properties": {
+        "zenflo.provider": {
+          "type": "string",
+          "enum": ["anthropic", "openai", "custom"],
+          "default": "anthropic",
+          "description": "AI provider to use"
+        },
+        "zenflo.anthropic.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Anthropic API key"
+        },
+        "zenflo.anthropic.model": {
+          "type": "string",
+          "default": "claude-sonnet-4-20250514",
+          "description": "Anthropic model to use"
+        },
+        "zenflo.openai.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI API key"
+        },
+        "zenflo.openai.model": {
+          "type": "string",
+          "default": "gpt-4-turbo-preview",
+          "description": "OpenAI model to use"
+        },
+        "zenflo.custom.baseUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Custom provider base URL (Anthropic-compatible endpoint)"
+        },
+        "zenflo.custom.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Custom provider API key"
+        },
+        "zenflo.custom.model": {
+          "type": "string",
+          "default": "",
+          "description": "Custom provider model name"
+        },
+        "zenflo.fileContext.maxFiles": {
+          "type": "number",
+          "default": 10,
+          "description": "Maximum number of files to include in context"
+        },
+        "zenflo.fileContext.maxTokens": {
+          "type": "number",
+          "default": 50000,
+          "description": "Maximum tokens for file context"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.x",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.65.0",
+    "@vscode/chat-extension-utils": "^0.0.0-alpha.5",
+    "@vscode/prompt-tsx": "^0.3.0-alpha.14",
+    "openai": "^4.47.1"
+  }
+}
