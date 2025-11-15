@@ -235,7 +235,7 @@ show_summary() {
         echo -e "  ${GREEN}✓${NC} Git Branch:         ${CYAN}$BRANCH${NC}"
     fi
     echo -e "  ${GREEN}✓${NC} Container Name:     ${CYAN}$CONTAINER_NAME${NC}"
-    echo -e "  ${GREEN}✓${NC} Backend URL:        ${CYAN}https://happy.combinedmemory.com${NC}"
+    echo -e "  ${GREEN}✓${NC} Backend URL:        ${CYAN}https://api.zenflo.dev${NC}"
     echo ""
 
     print_success "Deployment completed successfully!"
@@ -243,7 +243,7 @@ show_summary() {
     print_info "Next steps:"
     echo "  • Monitor logs: ssh $NAS_HOST \"sudo docker logs -f $CONTAINER_NAME\""
     echo "  • Check status: ssh $NAS_HOST \"sudo docker ps | grep $CONTAINER_NAME\""
-    echo "  • Test API:     curl https://happy.combinedmemory.com/health"
+    echo "  • Test API:     curl https://api.zenflo.dev/health"
     echo ""
 }
 

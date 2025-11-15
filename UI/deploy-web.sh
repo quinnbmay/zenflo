@@ -22,7 +22,7 @@
 # Web App Location on NAS: developer/infrastructure/ZenFlo Web
 # Container Name: zenflo-webapp
 # SSH Target: nas@nas-1
-# URL: https://app.combinedmemory.com
+# URL: https://app.zenflo.dev
 #
 # Author: ZenFlo Team
 # Last Updated: 2025-11-15
@@ -316,7 +316,7 @@ purge_cloudflare_cache() {
     print_warning "Manual cache purge required via Cloudflare dashboard"
     print_info "Visit: https://dash.cloudflare.com"
     print_info "Navigate to: Caching → Configuration → Purge Cache"
-    print_info "URL: https://app.combinedmemory.com"
+    print_info "URL: https://app.zenflo.dev"
 }
 
 show_logs() {
@@ -332,14 +332,14 @@ show_summary() {
     print_header "Deployment Summary"
 
     echo -e "  ${GREEN}✓${NC} Container Name:     ${CYAN}$CONTAINER_NAME${NC}"
-    echo -e "  ${GREEN}✓${NC} Web App URL:        ${CYAN}https://app.combinedmemory.com${NC}"
+    echo -e "  ${GREEN}✓${NC} Web App URL:        ${CYAN}https://app.zenflo.dev${NC}"
     echo -e "  ${GREEN}✓${NC} Build Size:         ${CYAN}$(du -sh "$BUILD_OUTPUT_DIR" | cut -f1)${NC}"
     echo ""
 
     print_success "Deployment completed successfully!"
     echo ""
     print_info "Next steps:"
-    echo "  • Visit app:    https://app.combinedmemory.com"
+    echo "  • Visit app:    https://app.zenflo.dev"
     echo "  • Monitor logs: ssh $NAS_HOST \"sudo docker logs -f $CONTAINER_NAME\""
     echo "  • Check status: ssh $NAS_HOST \"sudo docker ps | grep $CONTAINER_NAME\""
     echo ""
