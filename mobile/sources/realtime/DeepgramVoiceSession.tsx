@@ -15,6 +15,42 @@ import { configure, useDeepgramVoiceAgent } from 'react-native-deepgram';
 import { storage } from '@/sync/storage';
 import { registerDeepgramVoiceSession } from './DeepgramRealtimeSession';
 import type { VoiceSession, VoiceSessionConfig } from './types';
+import { TokenStorage } from '@/auth/tokenStorage';
+import { getServerUrl } from '@/sync/serverConfig';
+
+// Cached OpenAI API key (fetched from backend)
+let cachedOpenAIApiKey: string | null = null;
+
+/**
+ * Fetch OpenAI API key from backend (cached)
+ */
+async function getOpenAIApiKey(): Promise<string> {
+    if (cachedOpenAIApiKey) {
+        return cachedOpenAIApiKey;
+    }
+
+    const credentials = await TokenStorage.getCredentials();
+    if (!credentials) {
+        throw new Error('Not authenticated - cannot fetch Deepgram config');
+    }
+
+    const serverUrl = getServerUrl();
+    const response = await fetch(`${serverUrl}/v1/voice/deepgram-config`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${credentials.token}`,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch Deepgram config: ${response.status}`);
+    }
+
+    const data = await response.json() as { openaiApiKey: string };
+    cachedOpenAIApiKey = data.openaiApiKey;
+    return cachedOpenAIApiKey;
+}
 
 /**
  * VoiceSession implementation for Deepgram Voice Agent
@@ -49,6 +85,9 @@ export class DeepgramVoiceSessionImpl implements VoiceSession {
         storage.getState().setDeepgramStatus('connecting');
 
         try {
+            // Fetch OpenAI API key from backend
+            const openaiApiKey = await getOpenAIApiKey();
+
             // Get user preferences for voice and language
             const settings = storage.getState().settings;
             const voice = settings.deepgramVoice || 'aura-asteria-en';
@@ -79,7 +118,7 @@ export class DeepgramVoiceSessionImpl implements VoiceSession {
                             type: 'open_ai',
                             model: 'gpt-4o-mini',
                             temperature: 0.7,
-                            api_key: process.env.EXPO_PUBLIC_OPENAI_API_KEY
+                            api_key: openaiApiKey
                         },
                         prompt: config.initialContext || 'You are a helpful AI coding assistant. You assist with programming tasks through natural voice conversation. Be concise and helpful.',
                         first_message: "Hey! I'm ready to help you code. What are you working on?",
@@ -183,7 +222,8 @@ export const DeepgramVoiceSession: React.FC = () => {
                         type: 'open_ai',
                         model: 'gpt-4o-mini',
                         temperature: 0.7,
-                        api_key: process.env.EXPO_PUBLIC_OPENAI_API_KEY
+                        // API key will be fetched from backend in startSession()
+                        api_key: ''
                     },
                     prompt: 'You are a helpful AI coding assistant. You assist with programming tasks through natural voice conversation. Be concise and helpful.',
                     functions: [], // Enable client-side tool calling (empty = auto-discover)
