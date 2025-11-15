@@ -264,6 +264,88 @@ sudo docker logs zenflo-server --tail 50
 3. **Test in development** before deploying to production
 4. **Check documentation** if deployment fails (`**/DEPLOY*.md` files)
 5. **Never skip validation** steps in deployment scripts
+6. **🚨 ALWAYS update changelog** before deploying - see Changelog Update Process below
+
+### Changelog Update Process
+
+**CRITICAL: Update the changelog BEFORE every release deployment**
+
+**File Location:** `mobile/sources/changelog/changelog.json`
+
+**When to Update:**
+- Before deploying OTA updates to production
+- Before native builds that will be submitted to app stores
+- After completing any user-facing feature or significant bug fix
+
+**Update Process:**
+
+1. **Read current changelog:**
+   ```bash
+   cat mobile/sources/changelog/changelog.json
+   ```
+
+2. **Add new version entry** at the top of `entries` array:
+   ```json
+   {
+     "version": <next version number>,
+     "date": "YYYY-MM-DD",
+     "summary": "Brief 1-2 sentence overview of this release",
+     "changes": [
+       "User-facing change 1",
+       "User-facing change 2",
+       "User-facing change 3"
+     ],
+     "rawMarkdown": "## Version X - YYYY-MM-DD\n\n<summary>\n\n- User-facing change 1\n- User-facing change 2\n- User-facing change 3"
+   }
+   ```
+
+3. **Update `latestVersion`** at bottom of file:
+   ```json
+   "latestVersion": <new version number>
+   ```
+
+4. **Commit before deploying:**
+   ```bash
+   git add mobile/sources/changelog/changelog.json
+   git commit -m "docs: Update changelog for version X"
+   ```
+
+**Changelog Guidelines:**
+- Focus on **user-visible changes** (features, UX improvements, bug fixes)
+- Avoid technical jargon - write for end users
+- Use past tense ("Added", "Fixed", "Improved")
+- Group related changes together
+- Keep summary concise but descriptive
+- Date format: YYYY-MM-DD
+
+**Example Entry:**
+```json
+{
+  "version": 5,
+  "date": "2025-11-14",
+  "summary": "This update streamlines the interface with a simplified avatar system and adds powerful new AI capabilities through CCR and Deepgram voice integration.",
+  "changes": [
+    "Simplified avatar system - AI provider logos now serve as direct session avatars for clearer visual identification",
+    "Added CCR (Claude Code Router) support with GLM-4.6 model integration for enhanced coding capabilities",
+    "Integrated Deepgram conversational AI for hands-free voice coding with real-time speech recognition",
+    "Removed redundant avatar styles (pixelated, icon) to reduce visual complexity",
+    "Enhanced session identification by using AI provider branding (Claude, GPT, CCR, Gemini, Qwen) as primary visual markers"
+  ],
+  "rawMarkdown": "## Version 5 - 2025-11-14\n\n\nThis update streamlines the interface with a simplified avatar system and adds powerful new AI capabilities through CCR and Deepgram voice integration.\n\n- Simplified avatar system - AI provider logos now serve as direct session avatars for clearer visual identification\n- Added CCR (Claude Code Router) support with GLM-4.6 model integration for enhanced coding capabilities\n- Integrated Deepgram conversational AI for hands-free voice coding with real-time speech recognition\n- Removed redundant avatar styles (pixelated, icon) to reduce visual complexity\n- Enhanced session identification by using AI provider branding (Claude, GPT, CCR, Gemini, Qwen) as primary visual markers"
+}
+```
+
+**What NOT to Include:**
+- Internal refactoring (unless it has visible user benefit)
+- Dependency updates (unless they fix critical issues)
+- Code style changes
+- Documentation updates
+
+**Viewing Changelog:**
+Users can view the changelog in the mobile app at:
+- Settings → What's New
+- Displays all versions in reverse chronological order
+- Marks new versions as viewed after user opens the screen
 
 ## Architecture Highlights
 

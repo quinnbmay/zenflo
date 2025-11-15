@@ -1,6 +1,19 @@
 {
   "entries": [
     {
+      "version": 5,
+      "date": "2025-11-14",
+      "summary": "This update streamlines the interface with a simplified avatar system and adds powerful new AI capabilities through CCR and Deepgram voice integration.",
+      "changes": [
+        "Simplified avatar system - AI provider logos now serve as direct session avatars for clearer visual identification",
+        "Added CCR (Claude Code Router) support with GLM-4.6 model integration for enhanced coding capabilities",
+        "Integrated Deepgram conversational AI for hands-free voice coding with real-time speech recognition",
+        "Removed redundant avatar styles (pixelated, icon) to reduce visual complexity",
+        "Enhanced session identification by using AI provider branding (Claude, GPT, CCR, Gemini, Qwen) as primary visual markers"
+      ],
+      "rawMarkdown": "## Version 5 - 2025-11-14\n\n\nThis update streamlines the interface with a simplified avatar system and adds powerful new AI capabilities through CCR and Deepgram voice integration.\n\n- Simplified avatar system - AI provider logos now serve as direct session avatars for clearer visual identification\n- Added CCR (Claude Code Router) support with GLM-4.6 model integration for enhanced coding capabilities\n- Integrated Deepgram conversational AI for hands-free voice coding with real-time speech recognition\n- Removed redundant avatar styles (pixelated, icon) to reduce visual complexity\n- Enhanced session identification by using AI provider branding (Claude, GPT, CCR, Gemini, Qwen) as primary visual markers"
+    },
+    {
       "version": 4,
       "date": "2025-09-12",
       "summary": "This release revolutionizes remote development with Codex integration and Daemon Mode, enabling instant AI assistance from anywhere. Start coding sessions with a single tap while maintaining complete control over your development environment.",
@@ -53,5 +66,5 @@
       "rawMarkdown": "## Version 1 - 2025-05-12\n\n\nWelcome to Happy - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.\n\n- Implemented end-to-end encrypted session management ensuring complete privacy\n- Integrated intelligent voice assistant with natural conversation capabilities\n- Added experimental file manager with syntax highlighting and tree navigation\n- Built seamless real-time synchronization across all your devices\n- Established native support for iOS, Android, and responsive web interfaces\n\n---\n\n**Note**: This is a customized fork of Happy Coder for internal use by Quinn May at Combined Memory."
     }
   ],
-  "latestVersion": 4
+  "latestVersion": 5
 }
