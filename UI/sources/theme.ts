@@ -221,7 +221,7 @@ export const darkTheme = {
         warningCritical: '#FF453A',
         warning: '#8E8E93',
         success: '#32D74B',
-        surface: '#000000',
+        surface: '#0d0d0d',
         surfaceRipple: 'rgba(255, 255, 255, 0.08)',
         surfacePressed: '#1a1a1a',
         surfaceSelected: '#1a1a1a',
@@ -239,7 +239,7 @@ export const darkTheme = {
         //
 
         header: {
-            background: '#000000',
+            background: '#0d0d0d',
             tint: '#ffffff'
         },
         switch: {
@@ -253,7 +253,7 @@ export const darkTheme = {
             },
         },
         groupped: {
-            background: '#000000',
+            background: '#0a0a0a',
             chevron: Platform.select({ ios: '#48484A', default: '#CAC4D0' }),
             sectionTitle: Platform.select({ ios: '#8E8E93', default: '#CAC4D0' }),
         },
@@ -341,7 +341,7 @@ export const darkTheme = {
                 text: '#8E8E93',
             },
             selected: {
-                background: '#000000',
+                background: '#0d0d0d',
                 border: '#1a1a1a',
                 text: '#FFFFFF',
             },
