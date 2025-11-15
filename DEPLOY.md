@@ -1,50 +1,38 @@
 # ZenFlo Deployment
 
-## Quick Guide
+## Manual Deployments Only
 
-### Changed JS/TS code?
+All deployments are **manual** - nothing auto-triggers on push.
+
+### OTA Update (JS/TS changes)
 ```bash
-git push  # OTA auto-deploys (free)
+cd UI && yarn ota:production
+# Or: GitHub Actions → Deploy OTA Update → Run workflow
 ```
 
-### Changed app.config.js or package.json?
+### Native Build (config/package changes)
 ```bash
-git push  # Native builds auto-trigger
+# GitHub Actions → Deploy iOS/Android → Run workflow
+# Or: cd UI && eas build --platform ios --profile production
 ```
 
-### Need manual native build?
-https://github.com/quinnmay/zenflo/actions → Run workflow
-
-### Changed web code?
+### Web
 ```bash
-git push && cd UI && ./deploy-web.sh
+cd UI && ./deploy-web.sh
 ```
 
-## Workflows
+## Auto-Triggers on Push
 
-| Trigger | iOS | Android | OTA | Web |
-|---------|-----|---------|-----|-----|
-| sources/** | - | - | ✅ | ✅ |
-| assets/** | - | - | ✅ | ✅ |
-| app.config.js | ✅ | ✅ | - | ✅ |
-| package.json | ✅ | ✅ | - | ✅ |
-
-## Costs
-
-- OTA: Free
-- Native: $$
-- Web: Free
+| File Changed | iOS | Android | OTA | Web |
+|--------------|-----|---------|-----|-----|
+| app.config.js | ✅ | ✅ | - | - |
+| eas.json | ✅ | ✅ | - | - |
+| package.json | ✅ | ✅ | - | - |
+| plugins/** | ✅ | ✅ | - | - |
+| Everything else | - | - | - | - |
 
 ## Monitor
-
 ```bash
-eas update:list --branch production
-eas build:list --limit 5
 gh run list --limit 10
-```
-
-## Rollback
-
-```bash
-eas update:republish --branch production --group <prev-id>
+eas build:list --limit 5
 ```

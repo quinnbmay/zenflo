@@ -1,15 +1,7 @@
 name: Deploy OTA Update
 
 on:
-  # Auto-trigger for JS/TS/asset changes (free, no build credits)
-  push:
-    branches:
-      - main
-    paths:
-      - 'UI/sources/**'
-      - 'UI/assets/**'
-
-  # Manual trigger
+  # Manual trigger only - full control
   workflow_dispatch:
 
 jobs:

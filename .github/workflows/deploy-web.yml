@@ -1,11 +1,7 @@
 name: Deploy Web
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'UI/**'
+  # Manual trigger only
   workflow_dispatch:
 
 jobs:
