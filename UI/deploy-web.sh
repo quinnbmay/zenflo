@@ -40,7 +40,8 @@ NC='\033[0m' # No Color
 
 # Configuration
 NAS_HOST="nas@nas-1"
-NAS_PATH="developer/infrastructure/ZenFlo Web"
+NAS_REPO_PATH="developer/infrastructure/Zenflo Server/zenflo"
+NAS_UI_PATH="$NAS_REPO_PATH/UI"
 CONTAINER_NAME="zenflo-webapp"
 LOCAL_UI_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_OUTPUT_DIR="dist"
@@ -112,11 +113,18 @@ check_prerequisites() {
 verify_nas_directory() {
     print_step "Verifying NAS directory structure..."
 
-    # Create directory if it doesn't exist
-    ssh "$NAS_HOST" "mkdir -p '$NAS_PATH'" || {
-        print_error "Failed to create directory on NAS: $NAS_PATH"
-        exit 1
+    # Pull latest code on NAS to get restructured repo
+    print_info "Pulling latest code structure on NAS..."
+    ssh "$NAS_HOST" "cd \"$NAS_REPO_PATH\" && git pull origin main" || {
+        print_warning "Could not pull latest code (continuing with existing structure)"
     }
+
+    # Verify UI directory exists
+    if ! ssh "$NAS_HOST" "[ -d \"$NAS_UI_PATH\" ]"; then
+        print_error "UI directory not found on NAS: $NAS_UI_PATH"
+        print_info "This might mean the restructure hasn't been synced yet"
+        exit 1
+    fi
 
     print_success "NAS directory ready"
 }
@@ -167,14 +175,27 @@ deploy_to_nas() {
 
     print_step "Syncing build files to NAS..."
     print_info "Source: $LOCAL_UI_PATH/$BUILD_OUTPUT_DIR"
-    print_info "Target: $NAS_HOST:$NAS_PATH/"
+    print_info "Target: $NAS_HOST:$NAS_UI_PATH/$BUILD_OUTPUT_DIR/"
 
-    # Use rsync to copy built files
-    rsync -avz --progress --delete \
-        "$LOCAL_UI_PATH/$BUILD_OUTPUT_DIR/" "$NAS_HOST:$NAS_PATH/dist/" || {
+    # Remove old dist directory on NAS
+    ssh "$NAS_HOST" "rm -rf '$NAS_UI_PATH/$BUILD_OUTPUT_DIR'" || {
+        print_warning "Could not remove old build directory"
+    }
+
+    # Create dist directory on NAS
+    ssh "$NAS_HOST" "mkdir -p '$NAS_UI_PATH/$BUILD_OUTPUT_DIR'" || {
+        print_error "Failed to create dist directory on NAS"
+        exit 1
+    }
+
+    # Use tar over SSH to copy built files (reliable for paths with spaces)
+    cd "$LOCAL_UI_PATH/$BUILD_OUTPUT_DIR" && \
+    tar czf - . 2>/dev/null | \
+    ssh "$NAS_HOST" "cd '$NAS_UI_PATH/$BUILD_OUTPUT_DIR' && tar xzf - 2>/dev/null" || {
         print_error "Failed to sync files to NAS"
         exit 1
     }
+    cd "$LOCAL_UI_PATH" # Return to UI directory
 
     print_success "Files synced to NAS"
 }
@@ -182,8 +203,8 @@ deploy_to_nas() {
 setup_nginx_config() {
     print_step "Setting up nginx configuration..."
 
-    # Create nginx.conf on NAS
-    ssh "$NAS_HOST" "cat > '$NAS_PATH/nginx.conf' << 'NGINX_EOF'
+    # Create nginx.conf in UI directory on NAS
+    ssh "$NAS_HOST" "cat > \"$NAS_UI_PATH/nginx.conf\" << 'NGINX_EOF'
 server {
     listen 80;
     server_name localhost;
@@ -228,8 +249,8 @@ NGINX_EOF
 setup_docker_compose() {
     print_step "Setting up Docker Compose configuration..."
 
-    # Create docker-compose.yml on NAS
-    ssh "$NAS_HOST" "cat > '$NAS_PATH/docker-compose.yml' << 'COMPOSE_EOF'
+    # Create docker-compose.yml in UI directory on NAS
+    ssh "$NAS_HOST" "cat > \"$NAS_UI_PATH/docker-compose.yml\" << 'COMPOSE_EOF'
 version: '3.8'
 
 services:
@@ -260,7 +281,7 @@ COMPOSE_EOF
 restart_container() {
     print_step "Restarting Docker container..."
 
-    ssh "$NAS_HOST" "cd '$NAS_PATH' && sudo docker compose up -d --force-recreate $CONTAINER_NAME" || {
+    ssh "$NAS_HOST" "cd \"$NAS_UI_PATH\" && sudo docker compose up -d --force-recreate $CONTAINER_NAME" || {
         print_error "Failed to restart Docker container"
         exit 1
     }
