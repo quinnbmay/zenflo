@@ -56,6 +56,13 @@
     "rube-app": {
       "type": "http",
       "url": "https://server.smithery.ai/@quinnbmay/rube/mcp?api_key=c0696122-7da9-4c99-84e2-1798ce74a954&profile=given-narwhal-PvFXc4"
+    },
+    "github": {
+      "type": "http",
+      "url": "https://apollo.composio.dev/v3/mcp/bfffce1c-2b9f-4a06-a8eb-b271e0659ae1/mcp?user_id=quinn",
+      "headers": {
+        "x-api-key": "ak_SL-8ArDeBZAqlZklrPzj"
+      }
     }
   }
 }
