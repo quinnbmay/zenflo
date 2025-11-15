@@ -249,7 +249,7 @@ export async function startDaemon(): Promise<void> {
             extraEnv = {
               CODEX_HOME: codexHomeDir.name
             };
-          } else { // Assuming claude
+          } else { // claude, qwen, gemini, ccr all use Claude auth
             extraEnv = {
               CLAUDE_CODE_OAUTH_TOKEN: options.token
             };
@@ -258,7 +258,7 @@ export async function startDaemon(): Promise<void> {
 
         // Construct arguments for the CLI
         const args = [
-          options.agent || 'claude',  // Use the agent directly (claude, codex, qwen, gemini)
+          options.agent || 'claude',  // Use the agent directly (claude, codex, qwen, gemini, ccr)
           '--zenflo-starting-mode', 'remote',
           '--started-by', 'daemon'
         ];
