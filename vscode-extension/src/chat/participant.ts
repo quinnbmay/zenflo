@@ -19,7 +19,7 @@ export class ZenFloChatParticipant {
         token: vscode.CancellationToken
     ): Promise<vscode.ChatResult> {
         // Validate provider configuration
-        const validation = ProviderFactory.validateConfig();
+        const validation = await ProviderFactory.validateConfig();
         if (!validation.valid) {
             stream.markdown(`❌ **Configuration Error**\n\n${validation.error}`);
             return { metadata: { error: validation.error } };
@@ -27,14 +27,14 @@ export class ZenFloChatParticipant {
 
         try {
             // Get the AI provider
-            const provider = ProviderFactory.createProvider();
+            const provider = await ProviderFactory.createProvider();
 
             // Build context from request
             const messages = await this.buildMessages(request, context);
 
             // Stream response
             let fullResponse = '';
-            await provider.sendMessage(messages, (chunk) => {
+            await provider.sendMessage(messages, (chunk: any) => {
                 if (!chunk.done) {
                     fullResponse += chunk.content;
                     stream.markdown(chunk.content);

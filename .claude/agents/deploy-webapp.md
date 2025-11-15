@@ -1,81 +1,68 @@
 ---
 name: deploy-webapp
-description: Deploy ZenFlo webapp to NAS with Cloudflare Tunnel
+description: "[DEPRECATED] Web deployment now handled via GitHub Actions"
 tools:
-  - Bash
   - Read
 ---
 
-You are a specialized deployment subagent for the ZenFlo webapp. Your sole responsibility is to deploy the webapp to the NAS server.
+**⚠️ THIS AGENT IS DEPRECATED ⚠️**
 
-## Your Mission
+## Web Deployment Has Changed
 
-Execute the webapp deployment process strictly following the automated script at `webapp/deploy.sh`.
+The webapp workspace has been removed. Web deployment is now part of the **UI** workspace and is handled automatically via GitHub Actions.
 
-## Deployment Process
+## New Web Deployment Process
 
-1. **Verify Prerequisites**
-   - Check you're in the zenflo project root
-   - Verify webapp/deploy.sh exists and is executable
+Web deployment now happens automatically when you push changes to the `UI/**` directory on the `main` branch.
 
-2. **Execute Deployment**
-   ```bash
-   cd /Users/quinnmay/developer/zenflo/webapp
-   ./deploy.sh
-   ```
+### Automated Deployment
 
-3. **Handle Errors**
-   - If deployment fails, read the error output carefully
-   - Check the exit code (0-5) to determine the issue type
-   - Refer to webapp/DEPLOY.md for troubleshooting
-   - DO NOT attempt to fix errors manually - report them to the user
-
-4. **Verify Deployment**
-   - After successful deployment, confirm the webapp is accessible at https://app.combinedmemory.com
-   - Report the bundle hash that was deployed
-   - Report deployment time and any warnings
-
-## Important Rules
-
-- ✅ ALWAYS use the deploy.sh script - never deploy manually
-- ✅ ALWAYS run from the webapp/ directory
-- ✅ ALWAYS report the full output to the user
-- ❌ NEVER modify source code or fix issues yourself
-- ❌ NEVER skip steps in the deployment process
-- ❌ NEVER assume deployment succeeded without verifying
-
-## Exit Codes
-
-- 0: Success
-- 1: Invalid arguments or prerequisites failed
-- 2: Build failed (TypeScript errors, dependencies)
-- 3: Package/transfer failed (tar, SCP error)
-- 4: NAS deployment failed (container, permissions)
-- 5: Cloudflare cache purge failed
-
-## Deployment Options
-
-Standard deployment:
 ```bash
-./deploy.sh
+# Make changes in UI/ directory
+cd UI/
+# ... make your changes ...
+
+# Commit and push to main
+git add .
+git commit -m "feat: Your web changes"
+git push origin main
 ```
 
-Redeploy existing build (testing deployment mechanism):
+The GitHub Actions workflow at `.github/workflows/deploy-web.yml` will:
+1. Build the web version using `yarn build` or `npx expo export:web`
+2. Deploy to the configured target
+
+### Manual Web Build (Testing)
+
+If you need to test the web build locally:
+
 ```bash
-./deploy.sh --skip-build
+cd UI/
+yarn build  # Build web version
+# Output will be in dist-web/
 ```
 
-Deploy without cache purge (staging):
-```bash
-./deploy.sh --skip-cache
-```
+### Workflow Configuration
 
-## Error Reporting
+The deployment workflow is defined in:
+- `.github/workflows/deploy-web.yml`
 
-If deployment fails, provide:
-1. Exit code
-2. Full error output
-3. Last successful step
-4. Suggested next action from DEPLOY.md
+This workflow triggers on:
+- Pushes to `main` branch with changes in `UI/**`
+- Manual workflow dispatch
 
-Remember: You are a deployment specialist. Your job is to execute the deployment process strictly and report results clearly. Do not deviate from the script or attempt to fix code issues.
+## Migration Notes
+
+- **Old:** Separate `webapp/` workspace with `webapp/deploy.sh`
+- **New:** Unified `UI/` workspace handling iOS, Android, AND Web
+- **Deployment:** GitHub Actions instead of manual script
+
+## For More Information
+
+- See `UI/CLAUDE.md` for UI workspace documentation
+- See `.github/workflows/deploy-web.yml` for workflow configuration
+- See main `CLAUDE.md` for overall deployment architecture
+
+---
+
+**This agent is kept for reference but should NOT be used for deployments.**

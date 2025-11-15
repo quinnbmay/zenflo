@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { ProviderFactory } from '../providers/factory';
-import { AIMessage } from '../providers/types';
-import { SyncClient } from '../sync/syncClient';
+import { ProviderFactory } from '../providers/factory.js';
+import { AIMessage } from '../providers/types.js';
+import { SyncClient } from '../sync/syncClient.js';
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'zenflo.chatView';
@@ -64,7 +64,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             // Check if we can decrypt messages
             if (!this._syncClient) {
                 // No sync client - show info card with link to web
-                const { ProviderFactory } = await import('../providers/factory');
+                const { ProviderFactory } = await import('../providers/factory.js');
                 const credentials = ProviderFactory.getCredentials();
 
                 let baseUrl: string;
@@ -95,7 +95,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                     throw new Error(`Failed to fetch sessions: ${response.status}`);
                 }
 
-                const data = await response.json();
+                const data: any = await response.json();
                 const session = data.sessions?.find((s: any) => s.id === sessionId);
 
                 if (!session) {

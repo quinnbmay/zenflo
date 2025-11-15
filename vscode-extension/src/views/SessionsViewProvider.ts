@@ -43,7 +43,7 @@ export class SessionsViewProvider implements vscode.TreeDataProvider<SessionItem
 
     private async fetchSessions(): Promise<Session[]> {
         // Try to get credentials from ProviderFactory first
-        const { ProviderFactory } = await import('../providers/factory');
+        const { ProviderFactory } = await import('../providers/factory.js');
         const credentials = ProviderFactory.getCredentials();
 
         let baseUrl: string;
@@ -75,7 +75,7 @@ export class SessionsViewProvider implements vscode.TreeDataProvider<SessionItem
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        const data = await response.json();
+        const data: any = await response.json();
         return data.sessions || [];
     }
 }

@@ -44,13 +44,16 @@ export class SyncClient {
             console.log('Using token (first 20 chars):', this.token.substring(0, 20) + '...');
 
             this.socket = io(wsUrl, {
+                path: '/v1/updates',  // CRITICAL: Socket.io namespace path
                 auth: {
-                    token: this.token
+                    token: this.token,
+                    clientType: 'user-scoped' as const  // Match mobile/webapp clients
                 },
                 transports: ['websocket'],
                 reconnection: true,
                 reconnectionDelay: 1000,
                 reconnectionDelayMax: 5000,
+                reconnectionAttempts: Infinity,
                 timeout: 10000,
             });
 
@@ -61,7 +64,7 @@ export class SyncClient {
 
             this.socket.on('connect_error', (error) => {
                 console.error('❌ WebSocket connection error:', error);
-                console.error('Error details:', error.message, error.type);
+                console.error('Error details:', error.message);
                 reject(error);
             });
 
@@ -120,12 +123,13 @@ export class SyncClient {
                 return;
             }
 
-            sessionKey = await this.encryption.decryptEncryptionKey(session.dataEncryptionKey);
-            if (!sessionKey) {
+            const decryptedKey = await this.encryption.decryptEncryptionKey(session.dataEncryptionKey);
+            if (!decryptedKey) {
                 console.error('Failed to decrypt session key');
                 return;
             }
 
+            sessionKey = decryptedKey;
             this.sessionKeys.set(sessionId, sessionKey);
         }
 
@@ -150,8 +154,9 @@ export class SyncClient {
                 // Add to session
                 let session = this.sessions.get(sessionId);
                 if (!session) {
-                    session = await this.fetchSession(sessionId);
-                    if (session) {
+                    const fetchedSession = await this.fetchSession(sessionId);
+                    if (fetchedSession) {
+                        session = fetchedSession;
                         this.sessions.set(sessionId, session);
                     }
                 }
@@ -196,13 +201,66 @@ export class SyncClient {
         });
     }
 
+    /**
+     * Fetch all sessions from the server and initialize session encryption keys.
+     * This MUST be called before loading messages for any session.
+     */
+    async fetchSessions(): Promise<void> {
+        if (!this.encryption) {
+            console.warn('Cannot fetch sessions - no encryption keys');
+            return;
+        }
+
+        console.log('📥 Fetching all sessions from /v1/sessions...');
+        const response = await fetch(`${this.baseUrl}/v1/sessions`, {
+            headers: {
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch sessions: ${response.status}`);
+        }
+
+        const data: any = await response.json();
+        const sessions = data.sessions || [];
+        console.log(`📥 Fetched ${sessions.length} sessions`);
+
+        // Decrypt and store session keys
+        for (const session of sessions) {
+            if (session.dataEncryptionKey) {
+                const decryptedKey = await this.encryption.decryptEncryptionKey(session.dataEncryptionKey);
+                if (decryptedKey) {
+                    this.sessionKeys.set(session.id, decryptedKey);
+                    console.log(`🔑 Stored encryption key for session ${session.id}`);
+                } else {
+                    console.error(`❌ Failed to decrypt key for session ${session.id}`);
+                }
+            }
+        }
+    }
+
     async loadSessionMessages(sessionId: string): Promise<Message[]> {
         if (!this.encryption) {
             console.warn('Cannot decrypt messages - no encryption keys');
             return [];
         }
 
-        // Fetch session data
+        // Ensure we have the session key - fetch all sessions if not
+        let sessionKey = this.sessionKeys.get(sessionId);
+        if (!sessionKey) {
+            console.log(`🔑 No session key for ${sessionId}, fetching all sessions...`);
+            await this.fetchSessions();
+            sessionKey = this.sessionKeys.get(sessionId);
+
+            if (!sessionKey) {
+                throw new Error(`No encryption key available for session ${sessionId}`);
+            }
+        }
+
+        // Fetch messages (this endpoint does NOT return dataEncryptionKey)
+        console.log(`💬 Fetching messages for session ${sessionId}...`);
         const response = await fetch(`${this.baseUrl}/v1/sessions/${sessionId}/messages`, {
             headers: {
                 'Authorization': `Bearer ${this.token}`,
@@ -214,24 +272,10 @@ export class SyncClient {
             throw new Error(`Failed to fetch messages: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log('API response for session', sessionId, ':', JSON.stringify(data, null, 2));
+        const data: any = await response.json();
+        console.log(`💬 Received ${data.messages?.length || 0} messages for session ${sessionId}`);
 
-        // Decrypt session key
-        if (!data.dataEncryptionKey) {
-            console.error('Session data:', data);
-            throw new Error(`No encryption key for session. Response keys: ${Object.keys(data).join(', ')}`);
-        }
-
-        const sessionKey = await this.encryption.decryptEncryptionKey(data.dataEncryptionKey);
-        if (!sessionKey) {
-            throw new Error('Failed to decrypt session key');
-        }
-
-        // Store session key for future use
-        this.sessionKeys.set(sessionId, sessionKey);
-
-        // Decrypt all messages
+        // Decrypt all messages using the pre-fetched session key
         const messages: Message[] = [];
         for (const msg of data.messages || []) {
             if (msg.content?.t === 'encrypted' && msg.content?.c) {
@@ -256,13 +300,15 @@ export class SyncClient {
             }
         }
 
+        console.log(`✅ Successfully decrypted ${messages.length} messages`);
+
         // Cache session
         const session: Session = {
             id: sessionId,
-            title: data.title || null,
+            title: null, // We don't get title from messages endpoint
             messageCount: messages.length,
-            updatedAt: data.updatedAt || Date.now(),
-            dataEncryptionKey: data.dataEncryptionKey,
+            updatedAt: Date.now(),
+            dataEncryptionKey: null, // We already have the decrypted key in memory
             messages
         };
 

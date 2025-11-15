@@ -4,7 +4,7 @@
 
 **Scope:** Project-level (zenflo repository)
 
-**When to Use:** ANY time you need to add a new feature to ZenFlo mobile or webapp.
+**When to Use:** ANY time you need to add a new feature to ZenFlo UI (iOS/Android/Web).
 
 ---
 
@@ -45,11 +45,11 @@ You are an expert at safely adding experimental features to ZenFlo using the bui
 
 ## Feature Flag System Overview
 
-**Global Settings (Synced):** `mobile/sources/sync/settings.ts`
+**Global Settings (Synced):** `UI/sources/sync/settings.ts`
 - Use for features that should be consistent across devices
 - Examples: UI preferences, behavior changes
 
-**Local Settings (Per Device):** `mobile/sources/sync/localSettings.ts`
+**Local Settings (Per Device):** `UI/sources/sync/localSettings.ts`
 - Use for device-specific features
 - Examples: Web-only features, platform-specific UI
 
@@ -74,7 +74,7 @@ Ask clarifying questions:
 
 **For Global Setting:**
 
-Edit `mobile/sources/sync/settings.ts`:
+Edit `UI/sources/sync/settings.ts`:
 
 ```typescript
 export const SettingsSchema = z.object({
@@ -91,7 +91,7 @@ export const settingsDefaults: Settings = {
 
 **For Local Setting:**
 
-Edit `mobile/sources/sync/localSettings.ts`:
+Edit `UI/sources/sync/localSettings.ts`:
 
 ```typescript
 export const LocalSettingsSchema = z.object({
@@ -111,10 +111,10 @@ export const localSettingsDefaults: LocalSettings = {
 **CRITICAL:** Must add to ALL language files, not just English!
 
 Edit these files:
-- `mobile/sources/text/translations/en.ts`
-- `mobile/sources/text/translations/es.ts`
-- `mobile/sources/text/translations/pl.ts`
-- `mobile/sources/text/translations/ru.ts`
+- `UI/sources/text/translations/en.ts`
+- `UI/sources/text/translations/es.ts`
+- `UI/sources/text/translations/pl.ts`
+- `UI/sources/text/translations/ru.ts`
 
 ```typescript
 settingsFeatures: {
@@ -131,7 +131,7 @@ For non-English, provide translated strings or ask user for translations.
 
 ### Step 4: Add UI Toggle
 
-Edit `mobile/sources/app/(app)/settings/features.tsx`:
+Edit `UI/sources/app/(app)/settings/features.tsx`:
 
 ```typescript
 export default function FeaturesSettingsScreen() {
@@ -326,7 +326,7 @@ if (Platform.OS === 'web' && webFeature) {
 
 After editing settings schema, run:
 ```bash
-cd mobile
+cd UI
 yarn typecheck
 ```
 
@@ -336,14 +336,14 @@ Fix any TypeScript errors before proceeding.
 
 Check all translation files have the new keys:
 ```bash
-grep -r "featureName" mobile/sources/text/translations/
+grep -r "featureName" UI/sources/text/translations/
 ```
 
 Should show results in: en.ts, es.ts, pl.ts, ru.ts
 
 ### UI Testing
 
-1. Start app: `cd mobile && yarn start`
+1. Start app: `cd UI && yarn start`
 2. Navigate to Settings → Features
 3. Find your new toggle
 4. Toggle ON → verify feature works
@@ -357,17 +357,16 @@ Should show results in: en.ts, es.ts, pl.ts, ru.ts
 Every feature addition requires editing these files:
 
 **Required:**
-1. `mobile/sources/sync/settings.ts` OR `mobile/sources/sync/localSettings.ts`
-2. `mobile/sources/text/translations/en.ts`
-3. `mobile/sources/text/translations/es.ts`
-4. `mobile/sources/text/translations/pl.ts`
-5. `mobile/sources/text/translations/ru.ts`
-6. `mobile/sources/app/(app)/settings/features.tsx`
+1. `UI/sources/sync/settings.ts` OR `UI/sources/sync/localSettings.ts`
+2. `UI/sources/text/translations/en.ts`
+3. `UI/sources/text/translations/es.ts`
+4. `UI/sources/text/translations/pl.ts`
+5. `UI/sources/text/translations/ru.ts`
+6. `UI/sources/app/(app)/settings/features.tsx`
 7. The actual feature implementation files
 
 **Optional:**
 - `FEATURE-FLAGS-GUIDE.md` (documentation)
-- `webapp/` files if web-specific
 
 ---
 
@@ -500,9 +499,9 @@ voiceConnection.setPlaybackRate(voiceSpeed);
 ## Additional Resources
 
 - **Feature Flags Guide:** `/Users/quinnmay/developer/zenflo/FEATURE-FLAGS-GUIDE.md`
-- **Settings Schema:** `mobile/sources/sync/settings.ts`
-- **Features UI:** `mobile/sources/app/(app)/settings/features.tsx`
-- **Translation Files:** `mobile/sources/text/translations/`
+- **Settings Schema:** `UI/sources/sync/settings.ts`
+- **Features UI:** `UI/sources/app/(app)/settings/features.tsx`
+- **Translation Files:** `UI/sources/text/translations/`
 
 ---
 

@@ -23,14 +23,22 @@ export async function activate(context: vscode.ExtensionContext) {
             console.log('ZenFlo credentials loaded successfully');
             await ProviderFactory.loadCredentials();
 
-            // Initialize sync client (REST API only for now - WebSocket has auth issues)
+            // Initialize sync client with WebSocket real-time updates
             if (credentials.encryption) {
                 syncClient = new SyncClient(
                     credentials.baseUrl,
                     credentials.apiKey,
                     credentials.encryption
                 );
-                console.log('SyncClient initialized (REST mode - WebSocket disabled)');
+
+                // Connect to WebSocket for real-time message updates
+                try {
+                    await syncClient.connect();
+                    console.log('SyncClient connected with WebSocket + REST API support');
+                } catch (error) {
+                    console.error('WebSocket connection failed, falling back to REST-only mode:', error);
+                    // Continue anyway - REST API will still work for message loading
+                }
             } else {
                 console.warn('No encryption keys found - message decryption unavailable');
             }

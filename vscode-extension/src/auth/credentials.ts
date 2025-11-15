@@ -32,7 +32,7 @@ export class CredentialManager {
         }
 
         // Fall back to stored credentials
-        const stored = await this.context.secrets.get(this.STORAGE_KEY);
+        const stored = await this.context.secrets.get(CredentialManager.STORAGE_KEY);
         if (stored) {
             try {
                 const parsed = JSON.parse(stored);
@@ -117,7 +117,7 @@ export class CredentialManager {
             console.log('Storing credentials, apiKey length:', credentials.apiKey.length);
 
             await this.context.secrets.store(
-                this.STORAGE_KEY,
+                CredentialManager.STORAGE_KEY,
                 serialized
             );
         } catch (error) {
@@ -127,14 +127,14 @@ export class CredentialManager {
 
     async clearCredentials(): Promise<void> {
         try {
-            await this.context.secrets.delete(this.STORAGE_KEY);
+            await this.context.secrets.delete(CredentialManager.STORAGE_KEY);
         } catch (error) {
             console.error('Failed to clear credentials:', error);
         }
     }
 
     async getCredentials(): Promise<ZenFloCredentials | null> {
-        const stored = await this.context.secrets.get(this.STORAGE_KEY);
+        const stored = await this.context.secrets.get(CredentialManager.STORAGE_KEY);
         if (stored) {
             try {
                 return JSON.parse(stored);
