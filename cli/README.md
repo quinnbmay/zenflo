@@ -11,7 +11,7 @@
 [![Node](https://img.shields.io/badge/Node-%3E%3D20-brightgreen)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 
-[Website](https://zenflo.app) • [Documentation](./CLAUDE.md) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
+[Website](https://zenflo.dev) • [Documentation](./CLAUDE.md) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
 
 </div>
 
@@ -120,8 +120,8 @@ zenflo connect gemini          # Store Gemini API key
 
 ```bash
 # Server Configuration
-ZENFLO_SERVER_URL=https://zenflo.combinedmemory.com
-ZENFLO_WEBAPP_URL=https://app.combinedmemory.com
+ZENFLO_SERVER_URL=https://api.zenflo.dev
+ZENFLO_WEBAPP_URL=https://app.zenflo.dev
 
 # Local Development
 ZENFLO_HOME_DIR=~/.zenflo
@@ -139,7 +139,7 @@ Create `~/.zenflo/config.json` for persistent settings:
 {
   "defaultModel": "sonnet",
   "permissionMode": "default",
-  "serverUrl": "https://zenflo.combinedmemory.com",
+  "serverUrl": "https://api.zenflo.dev",
   "experimental": false
 }
 ```
@@ -300,7 +300,7 @@ zenflo auth login
 **"Connection timeout"**
 ```bash
 # Check server status
-curl https://zenflo.combinedmemory.com/health
+curl https://api.zenflo.dev/health
 
 # Use local server for development
 ZENFLO_SERVER_URL=http://localhost:3005 zenflo
@@ -435,7 +435,7 @@ MIT License - See [LICENSE](../LICENSE) for details.
 
 **Part of the ZenFlo Platform**
 
-[Website](https://zenflo.app) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.app)
+[Website](https://zenflo.dev) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.dev)
 
 ⭐ Star us on GitHub if you find ZenFlo helpful!
 

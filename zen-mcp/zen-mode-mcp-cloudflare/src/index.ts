@@ -3,7 +3,7 @@
  *
  * Created: 2025-11-07
  * Author: Quinn May
- * Backend: ZenFlo NAS (zenflo.combinedmemory.com)
+ * Backend: ZenFlo NAS (api.zenflo.dev)
  *
  * HTTP-based MCP server for Happy's Zen Mode task management.
  * Replaces iOS Task Manager with unified task system.
@@ -90,7 +90,7 @@ async function generateToken(secretStr: string): Promise<string> {
   const signature = await ed25519.signAsync(challenge, privateKey);
 
   // Send auth request to ZenFlo backend
-  const response = await fetch('https://zenflo.combinedmemory.com/v1/auth', {
+  const response = await fetch('https://api.zenflo.dev/v1/auth', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -118,7 +118,7 @@ class HappyApiClient {
       limit: '1000',
     });
 
-    const response = await fetch(`https://zenflo.combinedmemory.com/v1/kv?${queryParams.toString()}`, {
+    const response = await fetch(`https://api.zenflo.dev/v1/kv?${queryParams.toString()}`, {
       headers: {
         'Authorization': `Bearer ${this.token}`,
         'Content-Type': 'application/json',

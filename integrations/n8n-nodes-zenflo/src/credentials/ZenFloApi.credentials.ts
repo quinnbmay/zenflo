@@ -8,14 +8,14 @@ import {
 export class ZenFloApi implements ICredentialType {
 	name = 'zenFloApi';
 	displayName = 'ZenFlo API';
-	documentationUrl = 'https://docs.zenflo.app';
+	documentationUrl = 'https://docs.zenflo.dev';
 	properties: INodeProperties[] = [
 		{
 			displayName: 'API URL',
 			name: 'apiUrl',
 			type: 'string',
-			default: 'https://zenflo.combinedmemory.com',
-			placeholder: 'https://zenflo.combinedmemory.com',
+			default: 'https://api.zenflo.dev',
+			placeholder: 'https://api.zenflo.dev',
 			description: 'The base URL of your ZenFlo server',
 			required: true,
 		},

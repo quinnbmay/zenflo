@@ -5,13 +5,13 @@
   "author": "Combined Memory",
   "license": "MIT",
   "type": "module",
-  "homepage": "https://github.com/combinedmemory/zenflo",
+  "homepage": "https://zenflo.dev",
   "bugs": {
-    "url": "https://github.com/combinedmemory/zenflo/issues"
+    "url": "https://github.com/zenflo/zenflo/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/combinedmemory/zenflo.git"
+    "url": "git+https://github.com/zenflo/zenflo.git"
   },
   "bin": {
     "zenflo": "bin/zenflo.mjs",

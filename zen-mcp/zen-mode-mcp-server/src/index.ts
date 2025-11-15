@@ -8,7 +8,7 @@
  *
  * Created: 2025-11-07
  * Author: Quinn May with Claude Code
- * API: https://zenflo.combinedmemory.com (NAS hosted)
+ * API: https://api.zenflo.dev (NAS hosted)
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -155,7 +155,7 @@ class ZenFloApiClient {
   private token?: string;
   private masterSecret?: Uint8Array;
 
-  constructor(private baseURL: string = 'https://zenflo.combinedmemory.com') {
+  constructor(private baseURL: string = 'https://api.zenflo.dev') {
     this.client = axios.create({
       baseURL: this.baseURL,
       timeout: 30000,

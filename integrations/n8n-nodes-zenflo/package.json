@@ -11,14 +11,17 @@
     "mobile"
   ],
   "license": "MIT",
-  "homepage": "https://zenflo.app",
+  "homepage": "https://zenflo.dev",
   "author": {
     "name": "Quinn May",
-    "email": "quinn@combinedmemory.com"
+    "email": "quinn@zenflo.dev"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/combinedmemory/zenflo.git"
+    "url": "https://github.com/zenflo/zenflo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zenflo/zenflo/issues"
   },
   "main": "dist/index.js",
   "scripts": {

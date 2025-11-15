@@ -29,8 +29,8 @@ class Configuration {
 
   constructor() {
     // Server configuration - priority: parameter > environment > default
-    this.serverUrl = process.env.ZENFLO_SERVER_URL || 'https://zenflo.combinedmemory.com'
-    this.webappUrl = process.env.ZENFLO_WEBAPP_URL || 'https://app.combinedmemory.com'
+    this.serverUrl = process.env.ZENFLO_SERVER_URL || 'https://api.zenflo.dev'
+    this.webappUrl = process.env.ZENFLO_WEBAPP_URL || 'https://app.zenflo.dev'
 
     // Check if we're running as daemon based on process args
     const args = process.argv.slice(2)

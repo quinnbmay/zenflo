@@ -54,15 +54,15 @@ zenflo-7b8b9ff97a77e0e1a66016b40c1ade51
 You need to add a DNS route in Cloudflare's dashboard:
 
 1. **Go to:** https://dash.cloudflare.com
-2. **Select:** combinedmemory.com domain
+2. **Select:** zenflo.dev domain
 3. **Navigate to:** Zero Trust → Tunnels → happy-server tunnel
 4. **Add Public Hostname:**
    - **Subdomain:** `webhook`
-   - **Domain:** `combinedmemory.com`
+   - **Domain:** `zenflo.dev`
    - **Service:** `http://localhost:8877`
    - **Path:** `/github-webhook`
 
-This will make the webhook accessible at: `https://webhook.combinedmemory.com/github-webhook`
+This will make the webhook accessible at: `https://webhook.zenflo.dev/github-webhook`
 
 ### GitHub Repository Webhook Setup
 
@@ -71,7 +71,7 @@ This will make the webhook accessible at: `https://webhook.combinedmemory.com/gi
 **Webhook Details:**
 - **ID:** 580316577
 - **URL:** https://github.com/quinnbmay/zenflo/settings/hooks/580316577
-- **Payload URL:** `https://webhook.combinedmemory.com/github-webhook`
+- **Payload URL:** `https://webhook.zenflo.dev/github-webhook`
 - **Content type:** `application/json`
 - **Secret:** `zenflo-7b8b9ff97a77e0e1a66016b40c1ade51`
 - **Events:** push to any branch (filtered to main in webhook server)
@@ -113,7 +113,7 @@ ssh nas@nas-1 "sudo docker ps | grep zenflo-server"
    ```
 
 2. **GitHub sends webhook:**
-   - POST to `https://webhook.combinedmemory.com/github-webhook`
+   - POST to `https://webhook.zenflo.dev/github-webhook`
    - Includes HMAC signature for verification
 
 3. **Webhook server receives and verifies:**
@@ -224,7 +224,7 @@ sudo docker compose up -d --build zenflo-server
 2. ✅ Deployment script created and tested
 3. ✅ Nginx reverse proxy configured (port 8877)
 4. ✅ GitHub webhook created automatically (ID: 580316577)
-5. ✅ Cloudflare DNS route configured (webhook.combinedmemory.com → http://localhost:8877)
+5. ✅ Cloudflare DNS route configured (webhook.zenflo.dev → http://localhost:8877)
 6. ✅ End-to-end auto-deployment tested and working!
 
 **Setup Complete!** Backend automatically deploys on every push to main branch.

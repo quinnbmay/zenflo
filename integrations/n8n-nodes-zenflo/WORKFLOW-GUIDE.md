@@ -2,7 +2,7 @@
 
 **Created:** 2025-11-13
 **Package:** `n8n-nodes-zenflo@1.0.0`
-**n8n Instance:** https://n8n.combinedmemory.com
+**n8n Instance:** https://n8n.zenflo.dev
 
 ---
 
@@ -12,12 +12,12 @@
 
 Before creating workflows, you need to set up the API credentials in n8n:
 
-1. Log into n8n: https://n8n.combinedmemory.com
+1. Log into n8n: https://n8n.zenflo.dev
 2. Go to **Settings** → **Credentials**
 3. Click **Add Credential**
 4. Search for **"ZenFlo API"**
 5. Fill in the credentials:
-   - **API URL:** `https://zenflo.combinedmemory.com`
+   - **API URL:** `https://api.zenflo.dev`
    - **API Key:** (Get this from ZenFlo mobile app → Settings → Agents → Create Agent → Copy API Key)
 6. Click **Test** to verify the connection
 7. Click **Save**
@@ -413,7 +413,7 @@ Use user replies to determine workflow path:
 ### Issue: "Unauthorized" Error
 
 **Solution:** Check API credentials:
-1. Verify API URL is `https://zenflo.combinedmemory.com`
+1. Verify API URL is `https://api.zenflo.dev`
 2. Verify API Key matches the one from your agent config
 3. Test credentials in Settings → Credentials
 

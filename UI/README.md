@@ -386,6 +386,6 @@ MIT License - See [LICENSE](../LICENSE) for details.
 
 **Part of the ZenFlo Platform**
 
-[Website](https://zenflo.app) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.app)
+[Website](https://zenflo.dev) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.dev)
 
 </div>

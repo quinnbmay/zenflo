@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **System Components:**
 1. **CLI** (this project) - Wraps Claude Code, manages sessions, daemon
 2. **Mobile/Web** - React Native + Next.js clients (`../mobile`, `../webapp`)
-3. **Backend** - Fastify API server on NAS (`https://zenflo.combinedmemory.com`)
+3. **Backend** - Fastify API server on NAS (`https://api.zenflo.dev`)
 
 ## Common Commands
 
@@ -59,8 +59,8 @@ ZENFLO_SERVER_URL=http://localhost:3005 ./bin/zenflo.mjs daemon start
 
 ```bash
 # Core configuration
-ZENFLO_SERVER_URL=https://zenflo.combinedmemory.com    # Backend API
-ZENFLO_WEBAPP_URL=https://app.combinedmemory.com       # Web interface
+ZENFLO_SERVER_URL=https://api.zenflo.dev    # Backend API
+ZENFLO_WEBAPP_URL=https://app.zenflo.dev       # Web interface
 ZENFLO_HOME_DIR=~/.happy                               # Data directory
 ZENFLO_EXPERIMENTAL=false                              # Experimental features
 ZENFLO_DISABLE_CAFFEINATE=false                        # Disable macOS sleep prevention

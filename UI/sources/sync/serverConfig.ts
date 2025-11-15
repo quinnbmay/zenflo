@@ -4,7 +4,7 @@ import { MMKV } from 'react-native-mmkv';
 const serverConfigStorage = new MMKV({ id: 'server-config' });
 
 const SERVER_KEY = 'custom-server-url';
-const DEFAULT_SERVER_URL = 'https://zenflo.combinedmemory.com';
+const DEFAULT_SERVER_URL = 'https://api.zenflo.dev';
 
 export function getServerUrl(): string {
     return serverConfigStorage.getString(SERVER_KEY) ||

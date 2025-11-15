@@ -11,7 +11,7 @@
 [![React Native](https://img.shields.io/badge/React%20Native-0.81-61DAFB)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-54-000020)](https://expo.dev/)
 
-[Website](https://zenflo.app) • [Documentation](./docs) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
+[Website](https://zenflo.dev) • [Documentation](./docs) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
 
 </div>
 
@@ -267,8 +267,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Contact & Support
 
-- **Website**: [zenflo.app](https://zenflo.app)
-- **Email**: yesreply@zenflo.app
+- **Website**: [zenflo.dev](https://zenflo.dev)
+- **Email**: yesreply@zenflo.dev
 - **GitHub Issues**: [Report a bug](https://github.com/quinnbmay/zenflo/issues)
 
 ---

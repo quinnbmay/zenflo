@@ -34,9 +34,9 @@ You agree to use Combined Memory Coder responsibly:
 
 Combined Memory Coder connects to:
 
-- **Combined Memory Backend**: chat.combinedmemory.com
+- **ZenFlo Backend**: api.zenflo.dev
 - **MongoDB**: Railway hosted database
-- **LiveKit**: Voice AI services
+- **ElevenLabs**: Voice AI services
 - **Third-party AI services**: Claude, OpenAI, etc.
 
 You acknowledge that:
@@ -78,7 +78,7 @@ These terms shall be governed by and construed in accordance with applicable law
 ## Contact
 
 For questions about these Terms:
-- Email: quinn@combinedmemory.com
+- Email: yesreply@zenflo.dev
 
 ## Severability
 

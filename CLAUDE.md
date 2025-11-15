@@ -191,7 +191,7 @@ yarn ota:production         # Deploy OTA to production
 ### Server
 **Location:** `server/` (reference copy - actual deployment on NAS)
 **Deployed On:** NAS at nas-1
-**URL:** https://happy.combinedmemory.com
+**URL:** https://api.zenflo.dev
 **Subagent:** `deploy-backend`
 
 **GitHub Webhook Auto-Deployment (Recommended):**
@@ -238,7 +238,7 @@ sudo docker logs zenflo-server --tail 50
 - Container: `zenflo-server`
 - Port: 3000:3005
 - Services: PostgreSQL, Redis, MinIO
-- Webhook: `https://webhook.combinedmemory.com/github-webhook`
+- Webhook: `https://webhook.zenflo.dev/github-webhook`
 
 **Documentation:** `server/DEPLOYMENT.md`, `WEBHOOK-SETUP.md`
 
@@ -515,10 +515,10 @@ Always include ZenFlo branding in commit footer:
 <main commit message>
 
 Generated with [Claude Code](https://claude.ai/code)
-via [ZenFlo](https://zenflo.app)
+via [ZenFlo](https://zenflo.dev)
 
 Co-Authored-By: Claude <noreply@anthropic.com>
-Co-Authored-By: ZenFlo <yesreply@zenflo.app>
+Co-Authored-By: ZenFlo <yesreply@zenflo.dev>
 ```
 
 ### Branch Strategy

@@ -315,7 +315,7 @@ eas build:view [BUILD_ID]
 ## Contact
 
 For deployment issues:
-- **Email**: quinn@combinedmemory.com
+- **Email**: yesreply@zenflo.dev
 - **Repository**: https://github.com/quinnbmay/happy
 - **Railway Dashboard**: https://railway.app
 - **EAS Dashboard**: https://expo.dev

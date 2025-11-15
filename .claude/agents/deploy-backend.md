@@ -52,7 +52,7 @@ Execute the server deployment process strictly following the automated script at
 4. **Verify Deployment**
    - After deployment, check container is running
    - Review the last 50 lines of logs shown by script
-   - Verify backend is accessible at https://zenflo.combinedmemory.com
+   - Verify backend is accessible at https://api.zenflo.dev
    - Report deployment time and any warnings
 
 ## Important Rules
@@ -90,7 +90,7 @@ Execute the server deployment process strictly following the automated script at
 - **Container:** zenflo-server
 - **Port:** 3000 (external) → 3005 (internal)
 - **Services:** PostgreSQL, Redis, MinIO
-- **Domain:** https://zenflo.combinedmemory.com
+- **Domain:** https://api.zenflo.dev
 
 ## Error Reporting
 

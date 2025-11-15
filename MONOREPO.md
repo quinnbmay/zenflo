@@ -85,7 +85,7 @@ eas submit --platform ios                        # Submit to App Store
 ### Webapp
 **Location:** `webapp/`
 **Platform:** Railway
-**URL:** https://app.combinedmemory.com
+**URL:** https://app.zenflo.dev
 
 ```bash
 cd webapp/
@@ -97,7 +97,8 @@ git push origin main   # Triggers Railway deployment
 ### Backend
 **Location:** `backend/` (source code reference)
 **Deployed on:** NAS at nas-1
-**URL:** https://happy.combinedmemory.com
+**URL:** https://api.zenflo.dev
+**WebSocket:** ws://api.zenflo.dev
 
 ```bash
 # SSH to NAS

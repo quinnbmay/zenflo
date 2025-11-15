@@ -42,7 +42,7 @@ async function sendTestMessages() {
     for (const msg of messages) {
         try {
             await axios.post(
-                'https://zenflo.combinedmemory.com/v1/inbox/claude-message',
+                'https://api.zenflo.dev/v1/inbox/claude-message',
                 msg,
                 {
                     headers: {

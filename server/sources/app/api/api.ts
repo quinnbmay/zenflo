@@ -32,10 +32,33 @@ export async function startApi() {
         loggerInstance: logger,
         bodyLimit: 1024 * 1024 * 100, // 100MB
     });
+    // Configure CORS with support for both old and new domains
+    const allowedOrigins = [
+        'https://app.zenflo.dev',
+        'https://happy.zenflo.dev',
+        'https://app.combinedmemory.com',  // Legacy domain
+        'https://happy.combinedmemory.com', // Legacy domain
+        'http://localhost:8081', // Development
+        'http://localhost:3000', // Development
+    ];
+
     app.register(import('@fastify/cors'), {
-        origin: '*',
+        origin: (origin, callback) => {
+            // Allow requests with no origin (mobile apps, curl, etc)
+            if (!origin) {
+                callback(null, true);
+                return;
+            }
+
+            if (allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'), false);
+            }
+        },
+        credentials: true,
         allowedHeaders: '*',
-        methods: ['GET', 'POST', 'DELETE']
+        methods: ['GET', 'POST', 'DELETE', 'PATCH', 'PUT', 'OPTIONS']
     });
     app.get('/', function (request, reply) {
         reply.send('Welcome to ZenFlo Server!');

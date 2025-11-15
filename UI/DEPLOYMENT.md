@@ -2,7 +2,7 @@
 
 **Repository:** https://github.com/quinnbmay/happy (separate repo from mobile)
 **Deployment:** Railway (Combined Memory project)
-**URL:** https://app.combinedmemory.com
+**URL:** https://app.zenflo.dev
 
 ---
 
@@ -13,7 +13,7 @@ Pushing to `main` triggers an **automatic Railway deployment** (2-3 minutes).
 
 ```bash
 # Pushing to main deploys immediately
-git push origin main  # ⚠️ Goes live at app.combinedmemory.com
+git push origin main  # ⚠️ Goes live at app.zenflo.dev
 ```
 
 ### ✅ No Upstream Risk
@@ -57,7 +57,7 @@ open https://railway.app/project/e186e870-3aa3-4414-9cca-17ac72e48856
 1. GitHub receives push to `main`
 2. Railway detects the commit
 3. Deploys from pre-built `dist-web` folder
-4. Updates https://app.combinedmemory.com
+4. Updates https://app.zenflo.dev
 5. Takes ~2-3 minutes
 
 ---
@@ -130,7 +130,7 @@ git push origin main  # ⚠️ Goes live
 ### Project Details
 - **Project:** Combined Memory
 - **Project ID:** e186e870-3aa3-4414-9cca-17ac72e48856
-- **URL:** https://app.combinedmemory.com
+- **URL:** https://app.zenflo.dev
 - **Deployment:** Auto from `main` branch
 
 ### Services
@@ -181,7 +181,7 @@ https://railway.app/project/e186e870-3aa3-4414-9cca-17ac72e48856
 
 ## 🔗 Useful Links
 
-- **Production URL:** https://app.combinedmemory.com
+- **Production URL:** https://app.zenflo.dev
 - **Railway Project:** https://railway.app/project/e186e870-3aa3-4414-9cca-17ac72e48856
 - **GitHub Repo:** https://github.com/quinnbmay/happy
 - **Safety Guide:** `/Users/quinnmay/developer/HAPPY_SAFETY_GUIDE.md`

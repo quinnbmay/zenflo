@@ -4,7 +4,7 @@ This document explains the Railway deployment setup for the ZenFlo monorepo.
 
 ## Overview
 
-The ZenFlo webapp is deployed on Railway at https://app.combinedmemory.com. The configuration ensures that Railway **only deploys when webapp-specific files change**, avoiding unnecessary deployments when other parts of the monorepo (backend, mobile, cli) are updated.
+The ZenFlo webapp is deployed on Railway at https://app.zenflo.dev. The configuration ensures that Railway **only deploys when webapp-specific files change**, avoiding unnecessary deployments when other parts of the monorepo (backend, mobile, cli) are updated.
 
 ## Configuration Files
 
@@ -71,7 +71,7 @@ Production Dockerfile that:
    - Sees changes in `webapp/dist-web/`
    - Triggers automatic deployment
    - Builds using `webapp/Dockerfile.railway`
-   - Deploys to https://app.combinedmemory.com
+   - Deploys to https://app.zenflo.dev
    - Takes ~2-3 minutes
 
 ### When Other Code Changes (No Deploy ❌)
@@ -214,7 +214,7 @@ No secrets needed for webapp (static site).
 
 ### Deployment Status
 - Railway Dashboard: Real-time build logs
-- https://app.combinedmemory.com: Test live deployment
+- https://app.zenflo.dev: Test live deployment
 - Railway metrics: Traffic, errors, performance
 
 ### Health Checks

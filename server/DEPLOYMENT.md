@@ -14,7 +14,7 @@ git push origin main
 ```
 
 **How it works:**
-1. GitHub sends webhook to `https://webhook.combinedmemory.com/github-webhook`
+1. GitHub sends webhook to `https://webhook.zenflo.dev/github-webhook`
 2. Webhook server validates HMAC signature
 3. Deployment script pulls latest changes
 4. Docker container rebuilds automatically
@@ -204,10 +204,10 @@ sudo docker logs -f zenflo-server
 
 ```bash
 # Check if server is responding
-curl https://happy.combinedmemory.com/health
+curl https://happy.zenflo.dev/health
 
 # Test authentication endpoint
-curl https://happy.combinedmemory.com/v1/auth/health
+curl https://happy.zenflo.dev/v1/auth/health
 ```
 
 ### Monitoring
@@ -396,7 +396,7 @@ jobs:
 │  └───────────────────────────────────┘ │
 └─────────────────────────────────────────┘
          │
-         │ HTTPS (happy.combinedmemory.com)
+         │ HTTPS (happy.zenflo.dev)
          │
          ▼
 ┌─────────────────────────────────────────┐

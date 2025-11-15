@@ -7,7 +7,7 @@
   "icon": "icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zenflo/zenflo"
+    "url": "https://github.com/zenflo/zenflo.git"
   },
   "homepage": "https://zenflo.dev",
   "bugs": {

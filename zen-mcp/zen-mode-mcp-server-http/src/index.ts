@@ -74,7 +74,7 @@ async function generateToken(secretStr: string): Promise<string> {
   const challenge = nacl.randomBytes(32);
   const signature = nacl.sign.detached(challenge, keypair.secretKey);
 
-  const response = await axios.post('https://zenflo.combinedmemory.com/v1/auth', {
+  const response = await axios.post('https://api.zenflo.dev/v1/auth', {
     challenge: naclUtil.encodeBase64(challenge),
     signature: naclUtil.encodeBase64(signature),
     publicKey: naclUtil.encodeBase64(keypair.publicKey),
@@ -92,7 +92,7 @@ class HappyApiClient {
   }
 
   async getTodos() {
-    const response = await axios.get('https://zenflo.combinedmemory.com/v1/kv', {
+    const response = await axios.get('https://api.zenflo.dev/v1/kv', {
       params: { prefix: 'todo.', limit: 1000 },
       headers: { Authorization: `Bearer ${this.token}` }
     });
@@ -141,7 +141,7 @@ class HappyApiClient {
 
     const encrypted = Buffer.from(JSON.stringify(todo)).toString('base64');
 
-    await axios.post('https://zenflo.combinedmemory.com/v1/kv', {
+    await axios.post('https://api.zenflo.dev/v1/kv', {
       mutations: [{
         key: `todo.${id}`,
         value: encrypted,
@@ -180,7 +180,7 @@ class HappyApiClient {
     const encrypted = Buffer.from(JSON.stringify(updated)).toString('base64');
     const version = versions[`todo.${id}`] || 0;
 
-    await axios.post('https://zenflo.combinedmemory.com/v1/kv', {
+    await axios.post('https://api.zenflo.dev/v1/kv', {
       mutations: [{
         key: `todo.${id}`,
         value: encrypted,
@@ -199,7 +199,7 @@ class HappyApiClient {
     const { versions } = await this.getTodos();
     const version = versions[`todo.${id}`] || 0;
 
-    await axios.post('https://zenflo.combinedmemory.com/v1/kv', {
+    await axios.post('https://api.zenflo.dev/v1/kv', {
       mutations: [{
         key: `todo.${id}`,
         value: null,
@@ -213,7 +213,7 @@ class HappyApiClient {
   }
 
   private async updateIndex(todoId: string, operation: 'add' | 'remove' | 'move', isDone: boolean) {
-    const response = await axios.get(`https://zenflo.combinedmemory.com/v1/kv/todo.index`, {
+    const response = await axios.get(`https://api.zenflo.dev/v1/kv/todo.index`, {
       headers: { Authorization: `Bearer ${this.token}` }
     }).catch(() => ({ data: null, status: 404 }));
 
@@ -241,7 +241,7 @@ class HappyApiClient {
     const updated = { undoneOrder: newUndone, completedOrder: newCompleted };
     const encrypted = Buffer.from(JSON.stringify(updated)).toString('base64');
 
-    await axios.post('https://zenflo.combinedmemory.com/v1/kv', {
+    await axios.post('https://api.zenflo.dev/v1/kv', {
       mutations: [{
         key: 'todo.index',
         value: encrypted,

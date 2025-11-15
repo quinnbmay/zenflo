@@ -62,7 +62,7 @@ export class CredentialManager {
                     console.log('Extracted token from access.key, length:', accessKeyData.token.length);
 
                     const credentials: ZenFloCredentials = {
-                        baseUrl: 'https://zenflo.combinedmemory.com',
+                        baseUrl: 'https://api.zenflo.dev',
                         apiKey: accessKeyData.token,
                         model: 'claude-sonnet-4-20250514'
                     };
@@ -91,7 +91,7 @@ export class CredentialManager {
                 // Extract credentials from settings
                 if (settings.auth && settings.auth.token) {
                     return {
-                        baseUrl: settings.backend?.url || 'https://zenflo.combinedmemory.com',
+                        baseUrl: settings.backend?.url || 'https://api.zenflo.dev',
                         apiKey: settings.auth.token,
                         model: settings.model || 'claude-sonnet-4-20250514'
                     };

@@ -43,7 +43,7 @@ This will:
 - **Image:** `nginx:alpine`
 - **Port:** 8080:80 (external:internal)
 - **Location:** `developer/infrastructure/ZenFlo Web/`
-- **URL:** https://app.combinedmemory.com
+- **URL:** https://app.zenflo.dev
 - **CDN:** Cloudflare Tunnel
 
 ### Directory Structure on NAS
@@ -189,7 +189,7 @@ sudo docker compose up -d --force-recreate
 # 1. Purge Cloudflare cache
 # Visit: https://dash.cloudflare.com
 # Navigate to: Caching → Configuration → Purge Cache
-# Purge: https://app.combinedmemory.com
+# Purge: https://app.zenflo.dev
 
 # 2. Hard refresh browser
 # Chrome/Firefox: Ctrl+Shift+R (Cmd+Shift+R on Mac)
@@ -244,7 +244,7 @@ sudo docker ps | grep zenflo-webapp
 sudo docker logs zenflo-webapp --tail 50
 
 # 7. Test
-curl -I https://app.combinedmemory.com
+curl -I https://app.zenflo.dev
 ```
 
 ## Future Enhancements
@@ -290,13 +290,13 @@ ssh nas@nas-1 "sudo docker stats zenflo-webapp --no-stream"
 
 ```bash
 # Check HTTP status
-curl -I https://app.combinedmemory.com
+curl -I https://app.zenflo.dev
 
 # Check response time
-time curl -so /dev/null https://app.combinedmemory.com
+time curl -so /dev/null https://app.zenflo.dev
 
 # Full request/response
-curl -v https://app.combinedmemory.com
+curl -v https://app.zenflo.dev
 ```
 
 ## nginx Configuration
@@ -338,7 +338,7 @@ To modify nginx configuration:
 
 ### URLs
 
-- **Production:** https://app.combinedmemory.com
+- **Production:** https://app.zenflo.dev
 - **Cloudflare Dashboard:** https://dash.cloudflare.com
 - **Expo Dashboard:** https://expo.dev
 

@@ -181,7 +181,7 @@ The backend is deployed to a NAS server at `nas-1`. Use the automated deployment
 - **Server:** NAS at `nas-1` (nas@nas-1)
 - **Location:** `developer/infrastructure/ZenFlo Server/zenflo-server`
 - **Container:** `zenflo-server`
-- **URL:** https://happy.combinedmemory.com
+- **URL:** https://happy.zenflo.dev
 
 For detailed deployment documentation, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
@@ -506,6 +506,6 @@ MIT License - See [LICENSE](../LICENSE) for details.
 
 **Part of the ZenFlo Platform**
 
-[Website](https://zenflo.app) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.app)
+[Website](https://zenflo.dev) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.dev)
 
 </div>

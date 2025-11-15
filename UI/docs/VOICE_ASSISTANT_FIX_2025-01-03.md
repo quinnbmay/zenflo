@@ -324,5 +324,5 @@ The fix is simple (changing a single array slice operation), but its impact is s
 ---
 
 **Last Updated:** January 3, 2025
-**Author:** Claude Code (via quinn@combinedmemory.com)
+**Author:** Claude Code (via yesreply@zenflo.app)
 **Status:** ✅ Fixed and Deployed

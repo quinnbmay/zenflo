@@ -28,7 +28,7 @@ export default {
                 NSLocalNetworkUsageDescription: "Allow $(PRODUCT_NAME) to find and connect to local devices on your network.",
                 NSBonjourServices: ["_http._tcp", "_https._tcp"]
             },
-            associatedDomains: ["applinks:app.combinedmemory.com"]
+            associatedDomains: ["applinks:app.zenflo.dev"]
         },
         android: {
             package: bundleId,
@@ -51,7 +51,7 @@ export default {
                     data: [
                         {
                             scheme: "https",
-                            host: "app.combinedmemory.com"
+                            host: "app.zenflo.dev"
                         }
                     ],
                     category: ["BROWSABLE", "DEFAULT"]

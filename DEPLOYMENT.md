@@ -6,7 +6,7 @@ This document describes the deployment workflows for ZenFlo's web, mobile, and b
 
 ---
 
-## Backend (happy.combinedmemory.com)
+## Backend (api.zenflo.dev)
 
 ### Infrastructure
 
@@ -14,7 +14,8 @@ This document describes the deployment workflows for ZenFlo's web, mobile, and b
 - **Runtime:** Node.js/TypeScript with Fastify
 - **Database:** PostgreSQL (Prisma ORM)
 - **Cache:** Redis
-- **Domain:** https://happy.combinedmemory.com
+- **Domain:** https://api.zenflo.dev
+- **WebSocket:** ws://api.zenflo.dev
 
 ### Automated Deployment (GitHub Webhook) ⭐ NEW
 
@@ -68,14 +69,14 @@ sudo docker compose up -d --build zenflo-server
 
 ---
 
-## Web Application (app.combinedmemory.com)
+## Web Application (app.zenflo.dev)
 
 ### Infrastructure
 
 - **Hosting:** NAS via Docker container (`zenflo-webapp`)
 - **Web Server:** nginx:alpine
 - **CDN/Proxy:** Cloudflare Tunnel on port 8080
-- **Domain:** https://app.combinedmemory.com
+- **Domain:** https://app.zenflo.dev
 
 ### Automated Deployment (Recommended)
 
@@ -163,7 +164,7 @@ curl -X POST "https://api.cloudflare.com/client/v4/zones/d19ff1e79dd2b5d7f513777
 
 #### 5. Verify Deployment
 
-Visit https://app.combinedmemory.com and check console for errors.
+Visit https://app.zenflo.dev and check console for errors.
 
 ### Critical Rules
 

@@ -46,7 +46,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                     break;
                 case 'openInWeb':
                     if (data.sessionId) {
-                        vscode.env.openExternal(vscode.Uri.parse(`https://app.combinedmemory.com/session/${data.sessionId}`));
+                        vscode.env.openExternal(vscode.Uri.parse(`https://app.zenflo.dev/session/${data.sessionId}`));
                     }
                     break;
             }
@@ -219,10 +219,23 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     private _getHtmlForWebview(webview: vscode.Webview) {
-        // Get logo URI for webview
-        const logoUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this._extensionUri, 'icon.png')
-        );
+        // ASCII art logos for different contexts
+        const smallLogo = 'ZENFLO';
+        const mediumLogo = `╔═══════╗
+║ZENFLO ║
+╚═══════╝`;
+        const largeLogo = `███████╗███████╗███╗   ██╗
+╚══███╔╝██╔════╝████╗  ██║
+  ███╔╝ █████╗  ██╔██╗ ██║
+ ███╔╝  ██╔══╝  ██║╚██╗██║
+███████╗███████╗██║ ╚████║
+╚══════╝╚══════╝╚═╝  ╚═══╝
+███████╗██╗      ██████╗
+██╔════╝██║     ██╔═══██╗
+█████╗  ██║     ██║   ██║
+██╔══╝  ██║     ██║   ██║
+██║     ███████╗╚██████╔╝
+╚═╝     ╚══════╝ ╚═════╝`;
 
         return `<!DOCTYPE html>
 <html lang="en">
@@ -262,9 +275,14 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             font-weight: 500;
         }
         .header-logo {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            line-height: 1;
+            color: var(--vscode-foreground);
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            white-space: pre;
         }
         .messages {
             flex: 1;
@@ -287,18 +305,20 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             font-weight: 500;
         }
         .message-avatar {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 12px;
         }
-        .message-avatar img {
-            width: 100%;
-            height: 100%;
-            border-radius: 4px;
+        .message-avatar pre {
+            font-family: monospace;
+            font-size: 9px;
+            line-height: 1;
+            color: var(--vscode-foreground);
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            white-space: pre;
         }
         .user-avatar {
             background: var(--vscode-button-background);
@@ -382,10 +402,18 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             color: var(--vscode-descriptionForeground);
         }
         .empty-state-icon {
-            width: 64px;
-            height: 64px;
             margin-bottom: 16px;
-            border-radius: 12px;
+        }
+        .empty-state-icon pre {
+            font-family: monospace;
+            font-size: 8px;
+            line-height: 1.2;
+            color: var(--vscode-foreground);
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            white-space: pre;
+            opacity: 0.7;
         }
         .empty-state-title {
             font-size: 16px;
@@ -430,10 +458,15 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             padding-bottom: 16px;
             border-bottom: 1px solid var(--vscode-panel-border);
         }
-        .session-info-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+        .session-info-icon pre {
+            font-family: monospace;
+            font-size: 6px;
+            line-height: 1.2;
+            color: var(--vscode-foreground);
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            white-space: pre;
         }
         .session-info-details {
             flex: 1;
@@ -479,14 +512,16 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     <div class="chat-container">
         <div class="chat-header">
             <div class="header-title">
-                <img src="${logoUri}" class="header-logo" alt="ZenFlo">
-                <span>ZenFlo Chat</span>
+                <pre class="header-logo">${smallLogo}</pre>
+                <span>Chat</span>
             </div>
         </div>
 
         <div id="messages" class="messages">
             <div class="empty-state">
-                <img src="${logoUri}" class="empty-state-icon" alt="ZenFlo">
+                <div class="empty-state-icon">
+                    <pre>${largeLogo}</pre>
+                </div>
                 <div class="empty-state-title">Start a conversation</div>
                 <div class="empty-state-text">
                     Ask questions, explain code, or get help with debugging.<br>
@@ -562,7 +597,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
             const avatarHtml = role === 'user'
                 ? '<div class="message-avatar user-avatar">U</div>'
-                : '<div class="message-avatar assistant-avatar"><img src="${logoUri}" alt="ZenFlo"></div>';
+                : '<div class="message-avatar assistant-avatar"><pre>${mediumLogo}</pre></div>';
             const name = role === 'user' ? 'You' : 'ZenFlo';
 
             messageDiv.innerHTML = \`
@@ -600,7 +635,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                         const messageDiv = document.createElement('div');
                         messageDiv.className = 'message assistant-message';
 
-                        const avatarHtml = '<div class="message-avatar assistant-avatar"><img src="${logoUri}" alt="ZenFlo"></div>';
+                        const avatarHtml = '<div class="message-avatar assistant-avatar"><pre>${mediumLogo}</pre></div>';
                         const name = 'ZenFlo';
 
                         messageDiv.innerHTML = \`
@@ -663,7 +698,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                     const updatedDate = new Date(message.session.updatedAt).toLocaleString();
                     sessionInfo.innerHTML = \`
                         <div class="session-info-header">
-                            <img src="${logoUri}" class="session-info-icon" alt="ZenFlo">
+                            <div class="session-info-icon">
+                                <pre>${largeLogo}</pre>
+                            </div>
                             <div class="session-info-details">
                                 <div class="session-info-title">\${message.session.title}</div>
                                 <div class="session-info-meta">\${message.session.messageCount} messages • Last updated \${updatedDate}</div>
@@ -693,7 +730,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                         const emptyState = document.createElement('div');
                         emptyState.className = 'empty-state';
                         emptyState.innerHTML = \`
-                            <img src="${logoUri}" class="empty-state-icon" alt="ZenFlo">
+                            <div class="empty-state-icon">
+                                <pre>${largeLogo}</pre>
+                            </div>
                             <div class="empty-state-title">No messages yet</div>
                             <div class="empty-state-text">
                                 Start a conversation by typing a message below.

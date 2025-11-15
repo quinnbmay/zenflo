@@ -14,9 +14,31 @@ import { artifactUpdateHandler } from "./socket/artifactUpdateHandler";
 import { accessKeyHandler } from "./socket/accessKeyHandler";
 
 export function startSocket(app: Fastify) {
+    // Configure CORS with support for both old and new domains
+    const allowedOrigins = [
+        'https://app.zenflo.dev',
+        'https://happy.zenflo.dev',
+        'https://app.combinedmemory.com',  // Legacy domain
+        'https://happy.combinedmemory.com', // Legacy domain
+        'http://localhost:8081', // Development
+        'http://localhost:3000', // Development
+    ];
+
     const io = new Server(app.server, {
         cors: {
-            origin: "*",
+            origin: (origin, callback) => {
+                // Allow requests with no origin (mobile apps, curl, etc)
+                if (!origin) {
+                    callback(null, true);
+                    return;
+                }
+
+                if (allowedOrigins.includes(origin) || origin?.startsWith('http://localhost:')) {
+                    callback(null, true);
+                } else {
+                    callback(null, false);
+                }
+            },
             methods: ["GET", "POST", "OPTIONS"],
             credentials: true,
             allowedHeaders: ["*"]

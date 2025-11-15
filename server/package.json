@@ -1,9 +1,13 @@
 {
   "name": "@zenflo/server",
   "version": "0.0.0",
-  "repository": "https://github.com/slopus/zenflo-server.git",
+  "repository": "https://github.com/zenflo/zenflo.git",
   "author": "Steve Korshakov <steve@korshakov.com>",
   "license": "MIT",
+  "homepage": "https://zenflo.dev",
+  "bugs": {
+    "url": "https://github.com/zenflo/zenflo/issues"
+  },
   "private": true,
   "type": "module",
   "scripts": {

@@ -6,12 +6,12 @@
 
 **Edge-Deployed Task Management for Claude Code & ZenFlo**
 
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://zenflo.app)
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://zenflo.dev)
 [![MCP](https://img.shields.io/badge/MCP-HTTP%20Transport-blue)](https://modelcontextprotocol.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 [![Cloudflare](https://img.shields.io/badge/Deployed%20on-Cloudflare%20Workers-orange)](https://workers.cloudflare.com)
 
-[Documentation](#) • [ZenFlo App](https://zenflo.app) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
+[Documentation](#) • [ZenFlo App](https://zenflo.dev) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
 
 </div>
 
@@ -246,7 +246,7 @@ MIT License - See [LICENSE](../../LICENSE) for details.
 
 - **Created by:** Quinn May with Claude Code
 - **Date:** 2025-11-07
-- **ZenFlo Platform:** [https://zenflo.app](https://zenflo.app)
+- **ZenFlo Platform:** [https://zenflo.dev](https://zenflo.dev)
 - **MCP Protocol:** [https://modelcontextprotocol.io](https://modelcontextprotocol.io)
 - **Cloudflare Workers:** [https://workers.cloudflare.com](https://workers.cloudflare.com)
 
@@ -256,6 +256,6 @@ MIT License - See [LICENSE](../../LICENSE) for details.
 
 **Part of the ZenFlo Platform**
 
-[Website](https://zenflo.app) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.app)
+[Website](https://zenflo.dev) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.dev)
 
 </div>

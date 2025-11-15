@@ -75,10 +75,10 @@ sudo docker logs zenflo-server --tail 200 | grep -i error
 
 ```bash
 # Check API health
-curl https://happy.combinedmemory.com/health
+curl https://happy.zenflo.dev/health
 
 # Check auth endpoint
-curl https://happy.combinedmemory.com/v1/auth/health
+curl https://happy.zenflo.dev/v1/auth/health
 
 # Test from mobile app
 # Open ZenFlo app → Should connect automatically
@@ -147,7 +147,7 @@ sudo docker compose up -d --build zenflo-server
 - **Server:** nas@nas-1
 - **Location:** `developer/infrastructure/ZenFlo Server/zenflo-server`
 - **Container:** zenflo-server
-- **URL:** https://happy.combinedmemory.com
+- **URL:** https://happy.zenflo.dev
 - **Port:** 3005
 
 ## Full Documentation

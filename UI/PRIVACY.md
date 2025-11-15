@@ -77,9 +77,9 @@ We do not share your data with anyone. This is a private internal application.
 ## Connected Services
 
 This app connects to:
-- **LibreChat Backend**: chat.combinedmemory.com
+- **ZenFlo Backend**: api.zenflo.dev
 - **MongoDB**: Railway hosted database
-- **LiveKit**: Voice AI services
+- **ElevenLabs**: Voice AI services
 - **Expo Push Notifications**: Apple Push Notification Service (APNS)
 
 ## Changes to This Policy
@@ -89,7 +89,7 @@ Material changes to this privacy policy will be documented in the app changelog.
 ## Contact
 
 For privacy concerns or questions:
-- Email: quinn@combinedmemory.com
+- Email: yesreply@zenflo.dev
 
 ## Compliance
 

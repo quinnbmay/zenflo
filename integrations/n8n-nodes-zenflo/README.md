@@ -61,7 +61,7 @@ End an active ZenFlo session.
 
 This node requires ZenFlo API credentials:
 
-- **API URL** - Your ZenFlo server URL (default: https://zenflo.combinedmemory.com)
+- **API URL** - Your ZenFlo server URL (default: https://api.zenflo.dev)
 - **API Key** - Your ZenFlo agent API key (from agent configuration)
 
 ## Compatibility
@@ -71,7 +71,7 @@ Tested with n8n version 1.0.0+
 ## Resources
 
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
-- [ZenFlo Documentation](https://docs.zenflo.app)
+- [ZenFlo Documentation](https://docs.zenflo.dev)
 
 ## License
 

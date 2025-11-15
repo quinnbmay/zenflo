@@ -6,11 +6,11 @@
 
 **Task Management for Claude Code & ZenFlo**
 
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://zenflo.app)
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://zenflo.dev)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-blue)](https://modelcontextprotocol.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 
-[Documentation](#) • [ZenFlo App](https://zenflo.app) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
+[Documentation](#) • [ZenFlo App](https://zenflo.dev) • [Report Bug](https://github.com/quinnbmay/zenflo/issues)
 
 </div>
 
@@ -52,7 +52,7 @@ A Model Context Protocol (MCP) server for managing tasks in the ZenFlo Zen Mode 
                │
                ▼
 ┌──────────────────────────────────────────────────────┐
-│  ZenFlo Backend (zenflo.combinedmemory.com)          │
+│  ZenFlo Backend (api.zenflo.dev)                     │
 │  - HTTP API: POST /v1/kv, GET /v1/kv                 │
 │  - WebSocket: Real-time kv-batch-update messages     │
 │  - Storage: Encrypted PostgreSQL                     │
@@ -139,7 +139,7 @@ Create `.mcp.json` in your project directory:
 
 ```bash
 # Login and get token
-curl -X POST https://zenflo.combinedmemory.com/api/auth/login \
+curl -X POST https://api.zenflo.dev/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email": "your-email", "password": "your-password"}'
 
@@ -392,7 +392,7 @@ Claude Code
   ↓ (MCP call)
 Zen Mode MCP Server
   ↓ (HTTPS API)
-ZenFlo Backend (zenflo.combinedmemory.com on NAS)
+ZenFlo Backend (api.zenflo.dev on NAS)
   ↓ (KV Storage)
 Encrypted Task Data
   ↓ (Real-time sync)
@@ -592,7 +592,7 @@ MIT License - See [LICENSE](../../LICENSE) for details.
 
 - **Created by:** Quinn May with Claude Code
 - **Date:** 2025-11-07
-- **ZenFlo Platform:** [https://zenflo.app](https://zenflo.app)
+- **ZenFlo Platform:** [https://zenflo.dev](https://zenflo.dev)
 - **MCP Protocol:** [https://modelcontextprotocol.io](https://modelcontextprotocol.io)
 
 ---
@@ -601,6 +601,6 @@ MIT License - See [LICENSE](../../LICENSE) for details.
 
 **Part of the ZenFlo Platform**
 
-[Website](https://zenflo.app) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.app)
+[Website](https://zenflo.dev) • [GitHub](https://github.com/quinnbmay/zenflo) • [Support](mailto:yesreply@zenflo.dev)
 
 </div>
