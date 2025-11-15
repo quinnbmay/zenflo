@@ -95,11 +95,11 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
 
     const getMessageColor = (type: BufferedMessage['type']): string => {
         switch (type) {
-            case 'user': return 'magenta'
-            case 'assistant': return 'cyan'
-            case 'system': return 'blue'
-            case 'tool': return 'yellow'
-            case 'result': return 'green'
+            case 'user': return 'magentaBright'
+            case 'assistant': return 'cyanBright'
+            case 'system': return 'blueBright'
+            case 'tool': return 'yellowBright'
+            case 'result': return 'greenBright'
             case 'status': return 'gray'
             default: return 'white'
         }
@@ -118,21 +118,41 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
         }).join('\n')
     }
 
+    const banner = [
+        '╔══════════════════════════════════════════════════════════════════════════════╗',
+        '║  ███████╗███████╗███╗   ██╗███████╗██╗      ██████╗                         ║',
+        '║  ╚══███╔╝██╔════╝████╗  ██║██╔════╝██║     ██╔═══██╗                        ║',
+        '║    ███╔╝ █████╗  ██╔██╗ ██║█████╗  ██║     ██║   ██║                        ║',
+        '║   ███╔╝  ██╔══╝  ██║╚██╗██║██╔══╝  ██║     ██║   ██║                        ║',
+        '║  ███████╗███████╗██║ ╚████║██║     ███████╗╚██████╔╝                        ║',
+        '║  ╚══════╝╚══════╝╚═╝  ╚═══╝╚═╝     ╚══════╝ ╚═════╝                         ║',
+        '╚══════════════════════════════════════════════════════════════════════════════╝',
+    ]
+
     return (
         <Box flexDirection="column" width={terminalWidth} height={terminalHeight}>
+            {/* ASCII Art Banner */}
+            <Box flexDirection="column" marginBottom={1}>
+                {banner.map((line, i) => (
+                    <Text key={i} color="cyan" bold>
+                        {line}
+                    </Text>
+                ))}
+            </Box>
+
             {/* Main content area with logs */}
-            <Box 
-                flexDirection="column" 
+            <Box
+                flexDirection="column"
                 width={terminalWidth}
-                height={terminalHeight - 4}
+                height={terminalHeight - 14}
                 borderStyle="round"
-                borderColor="gray"
+                borderColor="magenta"
                 paddingX={1}
                 overflow="hidden"
             >
                 <Box flexDirection="column" marginBottom={1}>
-                    <Text color="gray" bold>📡 Remote Mode - Claude Messages</Text>
-                    <Text color="gray" dimColor>{'─'.repeat(Math.min(terminalWidth - 4, 60))}</Text>
+                    <Text color="magenta" bold>📡 Remote Mode - Live Session</Text>
+                    <Text color="magenta" dimColor>{'─'.repeat(Math.min(terminalWidth - 4, 60))}</Text>
                 </Box>
                 
                 <Box flexDirection="column" height={terminalHeight - 10} overflow="hidden">
@@ -152,14 +172,14 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
             </Box>
 
             {/* Modal overlay at the bottom */}
-            <Box 
+            <Box
                 width={terminalWidth}
-                borderStyle="round"
+                borderStyle="double"
                 borderColor={
                     actionInProgress ? "gray" :
-                    confirmationMode === 'exit' ? "red" : 
-                    confirmationMode === 'switch' ? "yellow" : 
-                    "green"
+                    confirmationMode === 'exit' ? "red" :
+                    confirmationMode === 'switch' ? "yellow" :
+                    "cyan"
                 }
                 paddingX={2}
                 justifyContent="center"
@@ -169,11 +189,11 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
                 <Box flexDirection="column" alignItems="center">
                     {actionInProgress === 'exiting' ? (
                         <Text color="gray" bold>
-                            Exiting...
+                            ⚡ Exiting remote session...
                         </Text>
                     ) : actionInProgress === 'switching' ? (
-                        <Text color="gray" bold>
-                            Switching to local mode...
+                        <Text color="cyan" bold>
+                            🔄 Switching to local mode...
                         </Text>
                     ) : confirmationMode === 'exit' ? (
                         <Text color="red" bold>
@@ -181,12 +201,12 @@ export const RemoteModeDisplay: React.FC<RemoteModeDisplayProps> = ({ messageBuf
                         </Text>
                     ) : confirmationMode === 'switch' ? (
                         <Text color="yellow" bold>
-                            ⏸️  Press space again to switch to local mode
+                            ⏸️  Press SPACE again to switch to local mode
                         </Text>
                     ) : (
                         <>
-                            <Text color="green" bold>
-                                📱 Press space to switch to local mode • Ctrl-C to exit
+                            <Text color="cyan" bold>
+                                🚀 Press SPACE to switch to local • Ctrl-C to exit
                             </Text>
                         </>
                     )}
