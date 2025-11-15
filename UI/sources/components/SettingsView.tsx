@@ -287,7 +287,7 @@ export const SettingsView = React.memo(function SettingsView() {
                 <Item
                     title="Claude Code"
                     subtitle={isAnthropicConnected
-                        ? t('settingsAccount.statusActive')
+                        ? t('status.connected')
                         : t('settings.connectAccount')
                     }
                     icon={
@@ -304,7 +304,7 @@ export const SettingsView = React.memo(function SettingsView() {
                 <Item
                     title={t('settings.github')}
                     subtitle={isGitHubConnected
-                        ? t('settings.githubConnected', { login: profile.github?.login! })
+                        ? t('status.connected')
                         : t('settings.connectGithubAccount')
                     }
                     icon={
