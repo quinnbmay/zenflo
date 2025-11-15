@@ -2,7 +2,7 @@
   "name": "zenflo-vscode",
   "displayName": "ZenFlo AI Assistant",
   "description": "Multi-provider AI coding assistant with Claude Code integration",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "zenflo",
   "icon": "icon.png",
   "repository": {
@@ -21,7 +21,9 @@
     "Chat",
     "Programming Languages"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "chatParticipants": [
