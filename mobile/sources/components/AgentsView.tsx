@@ -210,7 +210,7 @@ function HeaderLeft() {
             justifyContent: 'center',
         }}>
             <Image
-                source={require('@/assets/images/Q ICON BLACK.png')}
+                source={require('@/assets/images/logotype-dark.png')}
                 contentFit="contain"
                 style={[{ width: 24, height: 24 }]}
             />

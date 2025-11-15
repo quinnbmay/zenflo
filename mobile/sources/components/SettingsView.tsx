@@ -211,13 +211,23 @@ export const SettingsView = React.memo(function SettingsView() {
                             )}
                         </>
                     ) : (
-                        // Logo view: Quinn Code branding
+                        // Logo view: ZenFlo ASCII art branding
                         <>
-                            <Image
-                                source={require('@/assets/images/QUINN CODE.png')}
-                                contentFit="contain"
-                                style={{ width: 300, height: 90, marginBottom: 12 }}
-                            />
+                            <Text style={{
+                                fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+                                fontSize: 10,
+                                lineHeight: 12,
+                                color: theme.colors.text,
+                                textAlign: 'center',
+                                marginBottom: 12
+                            }}>
+{`███████╗███████╗███╗   ██╗███████╗██╗      ██████╗
+╚══███╔╝██╔════╝████╗  ██║██╔════╝██║     ██╔═══██╗
+  ███╔╝ █████╗  ██╔██╗ ██║█████╗  ██║     ██║   ██║
+ ███╔╝  ██╔══╝  ██║╚██╗██║██╔══╝  ██║     ██║   ██║
+███████╗███████╗██║ ╚████║██║     ███████╗╚██████╔╝
+╚══════╝╚══════╝╚═╝  ╚═══╝╚═╝     ╚══════╝ ╚═════╝`}
+                            </Text>
                         </>
                     )}
                 </View>
