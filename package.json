@@ -4,17 +4,15 @@
   "private": true,
   "description": "ZenFlo monorepo - AI-powered coding assistant",
   "workspaces": [
-    "mobile",
-    "webapp",
-    "backend",
+    "UI",
+    "server",
     "cli",
     "zen-mcp/*",
     "experimental/*"
   ],
   "scripts": {
-    "mobile": "yarn workspace @zenflo/mobile",
-    "webapp": "yarn workspace @zenflo/webapp",
-    "backend": "yarn workspace @zenflo/backend",
+    "ui": "yarn workspace @zenflo/ui",
+    "server": "yarn workspace @zenflo/server",
     "cli": "yarn workspace @zenflo/cli",
     "build:all": "yarn workspaces run build",
     "test:all": "yarn workspaces run test",

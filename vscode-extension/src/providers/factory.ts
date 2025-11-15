@@ -2,9 +2,35 @@ import * as vscode from 'vscode';
 import { AIProvider, ProviderConfig } from './types';
 import { AnthropicProvider } from './anthropic';
 import { OpenAIProvider } from './openai';
+import { CredentialManager, ZenFloCredentials } from '../auth/credentials';
 
 export class ProviderFactory {
-    static createProvider(): AIProvider {
+    private static credentialManager: CredentialManager | null = null;
+    private static cachedCredentials: ZenFloCredentials | null = null;
+
+    static setCredentialManager(manager: CredentialManager) {
+        this.credentialManager = manager;
+    }
+
+    static async loadCredentials(): Promise<void> {
+        if (this.credentialManager) {
+            this.cachedCredentials = await this.credentialManager.getCredentials();
+        }
+    }
+
+    static async createProvider(): Promise<AIProvider> {
+        // Try to use stored ZenFlo credentials first
+        if (this.cachedCredentials) {
+            const providerConfig: ProviderConfig = {
+                type: 'custom',
+                apiKey: this.cachedCredentials.apiKey,
+                model: this.cachedCredentials.model,
+                baseUrl: this.cachedCredentials.baseUrl
+            };
+            return new AnthropicProvider(providerConfig);
+        }
+
+        // Fall back to workspace configuration
         const config = vscode.workspace.getConfiguration('zenflo');
         const providerType = config.get<string>('provider', 'anthropic');
 
@@ -37,7 +63,13 @@ export class ProviderFactory {
         }
     }
 
-    static validateConfig(): { valid: boolean; error?: string } {
+    static async validateConfig(): Promise<{ valid: boolean; error?: string }> {
+        // Check stored credentials first
+        if (this.cachedCredentials) {
+            return { valid: true };
+        }
+
+        // Fall back to workspace configuration
         const config = vscode.workspace.getConfiguration('zenflo');
         const providerType = config.get<string>('provider', 'anthropic');
 
@@ -66,5 +98,9 @@ export class ProviderFactory {
         }
 
         return { valid: true };
+    }
+
+    static getCredentials(): ZenFloCredentials | null {
+        return this.cachedCredentials;
     }
 }

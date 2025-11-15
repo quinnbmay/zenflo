@@ -2,7 +2,7 @@
   "name": "zenflo-vscode",
   "displayName": "ZenFlo AI Assistant",
   "description": "Multi-provider AI coding assistant with Claude Code integration",
-  "version": "0.2.0",
+  "version": "0.5.0",
   "publisher": "zenflo",
   "icon": "icon.png",
   "repository": {
@@ -31,7 +31,7 @@
         {
           "id": "zenflo-sidebar",
           "title": "ZenFlo",
-          "icon": "icon-chat.png"
+          "icon": "icon-sidebar.svg"
         }
       ]
     },
@@ -47,6 +47,26 @@
         {
           "id": "zenflo.sessionsView",
           "name": "Sessions"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "zenflo.refreshSessions",
+        "title": "Refresh Sessions",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "zenflo.openSession",
+        "title": "Open Session"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "zenflo.refreshSessions",
+          "when": "view == zenflo.sessionsView",
+          "group": "navigation"
         }
       ]
     },
@@ -82,7 +102,11 @@
       "properties": {
         "zenflo.provider": {
           "type": "string",
-          "enum": ["anthropic", "openai", "custom"],
+          "enum": [
+            "anthropic",
+            "openai",
+            "custom"
+          ],
           "default": "anthropic",
           "description": "AI provider to use"
         },
@@ -135,9 +159,11 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run package",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "package": "node esbuild.js --production",
+    "watch:esbuild": "node esbuild.js --watch",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "vscode-test"
@@ -150,6 +176,7 @@
     "@typescript-eslint/parser": "^6.15.0",
     "@vscode/test-cli": "^0.0.4",
     "@vscode/test-electron": "^2.3.8",
+    "esbuild": "^0.27.0",
     "eslint": "^8.56.0",
     "typescript": "^5.3.3"
   },
@@ -157,6 +184,9 @@
     "@anthropic-ai/sdk": "^0.65.0",
     "@vscode/chat-extension-utils": "^0.0.0-alpha.5",
     "@vscode/prompt-tsx": "^0.3.0-alpha.14",
-    "openai": "^4.47.1"
+    "openai": "^4.47.1",
+    "socket.io-client": "^4.8.1",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1"
   }
 }

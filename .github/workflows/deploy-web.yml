@@ -1,0 +1,38 @@
+name: Deploy Web
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'UI/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Deploy Web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: yarn
+          cache-dependency-path: UI/yarn.lock
+
+      - name: Install dependencies
+        working-directory: UI
+        run: yarn install --frozen-lockfile
+
+      - name: Build web
+        working-directory: UI
+        run: yarn web:build || npx expo export:web
+
+      - name: Deploy to Server
+        working-directory: UI
+        run: |
+          echo "Web deployment configured - builds are now created from UI workspace"
+          echo "To deploy: ssh to server and pull latest changes"
